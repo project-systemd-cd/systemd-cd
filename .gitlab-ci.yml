@@ -1,0 +1,13 @@
+stages:
+  - delivery
+
+sync-github:
+  stage: delivery
+  before_script:
+    - git config --local user.name "$GITHUB_USER"
+    - git config --local user.email "$GITHUB_EMAIL"
+  script:
+    - git checkout $CI_COMMIT_REF_NAME
+    - git fetch -pP
+    - git pull origin $CI_COMMIT_REF_NAME -r
+    - git push https://$GITHUB_USER:$GITHUB_ACCESS_TOKEN@github.com/tingtt/systemd-cd.git $CI_COMMIT_REF_NAME -f --tags
