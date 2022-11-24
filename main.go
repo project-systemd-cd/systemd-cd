@@ -39,4 +39,10 @@ func main() {
 		return
 	}
 	l.Debugf("diff exists: %v\n", exists)
+	refCommitId, err := repo.Pull(false)
+	if err != nil {
+		l.Error(err)
+		return
+	}
+	fmt.Printf("refCommitId: %v\n", refCommitId)
 }

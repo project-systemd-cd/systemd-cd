@@ -70,7 +70,14 @@ func (g *GitCommand) Pull(workingDir git.Path, force bool) (refCommitId string, 
 		return
 	}
 	err = w.Pull(&gitcommand.PullOptions{Force: force})
-	return
+	if err != nil && err != gitcommand.NoErrAlreadyUpToDate {
+		return
+	}
+	r2, err := r.Head()
+	if err != nil {
+		return
+	}
+	return r2.Hash().String(), nil
 }
 
 func (g *GitCommand) Status(workingDir git.Path) (string, error) {
