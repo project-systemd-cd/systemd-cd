@@ -6,6 +6,14 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-func Encode(w io.Writer, i interface{}) error {
-	return toml.NewEncoder(w).Encode(i)
+type EncodeOption struct {
+	Indent *string
+}
+
+func Encode(w io.Writer, i interface{}, o EncodeOption) error {
+	e := toml.NewEncoder(w)
+	if o.Indent != nil {
+		e.Indent = *o.Indent
+	}
+	return e.Encode(i)
 }
