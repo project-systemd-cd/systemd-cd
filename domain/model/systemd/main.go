@@ -29,7 +29,7 @@ type ISystemd interface {
 func New(s Systemctl, unitFileDir string) (ISystemd, error) {
 	// check `unitFileDir`
 	// TODO: if invalid dir path, print warning
-	err := MkdirIfNotExist(unitFileDir)
+	err := mkdirIfNotExist(unitFileDir)
 	if err != nil {
 		return Systemd{}, err
 	}
@@ -128,7 +128,7 @@ func (s Systemd) DeleteService(u UnitService) error {
 func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error) {
 	// Read file
 	b := &bytes.Buffer{}
-	err = ReadFile(path, b)
+	err = readFile(path, b)
 	if err != nil {
 		return
 	}
@@ -156,7 +156,7 @@ func (s Systemd) writeUnitFileService(u UnitFileService, path string) error {
 	}
 
 	// Write to file
-	err := WriteFile(path, b.Bytes())
+	err := writeFile(path, b.Bytes())
 
 	return err
 }
@@ -164,7 +164,7 @@ func (s Systemd) writeUnitFileService(u UnitFileService, path string) error {
 func (s Systemd) loadEnvFile(path string) (e map[string]string, isGeneratedBySystemdCd bool, err error) {
 	// Read file
 	b := &bytes.Buffer{}
-	err = ReadFile(path, b)
+	err = readFile(path, b)
 	if err != nil {
 		return
 	}
@@ -195,7 +195,7 @@ func (s Systemd) writeEnvFile(e map[string]string, path string) error {
 	}
 
 	// Write to file
-	err = WriteFile(path, b.Bytes())
+	err = writeFile(path, b.Bytes())
 
 	return err
 }

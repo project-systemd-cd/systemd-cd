@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func MkdirIfNotExist(path string) error {
+func mkdirIfNotExist(path string) error {
 	_, err := os.ReadDir(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -22,7 +22,7 @@ func MkdirIfNotExist(path string) error {
 	return nil
 }
 
-func ReadFile(path string, b *bytes.Buffer) error {
+func readFile(path string, b *bytes.Buffer) error {
 	// Open file
 	f, err := os.Open(path)
 	if err != nil {
@@ -46,7 +46,7 @@ func ReadFile(path string, b *bytes.Buffer) error {
 	return nil
 }
 
-func WriteFile(path string, b []byte) error {
+func writeFile(path string, b []byte) error {
 	// Open file
 	f, err := os.Create(path)
 	if err != nil {
