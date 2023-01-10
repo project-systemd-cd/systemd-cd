@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"systemd-cd/application/flag_with_env"
 	"systemd-cd/application/systemd"
 	"systemd-cd/domain/model/logger"
 	"systemd-cd/domain/model/logrus"
@@ -14,17 +13,17 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// CLI args / ENV variables
+// flags
 var (
-	logLevel                  = flag_with_env.String("log.level", "LOG_LEVEL", "info", "Only log messages with the given severity or above. One of: [panic, fatal, error, warn, info, debug, trace]")
-	varDir                    = flag_with_env.String("var-dir", "VAR_DIR", "/var/lib/systemd-cd/", "")
-	srcDestDir                = flag_with_env.String("src-dest-dir", "SRC_DEST_DIR", "/usr/local/systemd-cd/src/", "")
-	binaryDestDir             = flag_with_env.String("binary-dest-dir", "BINARY_DEST_DIR", "/usr/local/systemd-cd/bin/", "")
-	etcDestDir                = flag_with_env.String("etc-dest-dir", "ETC_DEST_DIR", "/usr/local/systemd-cd/etc/", "")
-	optDestDir                = flag_with_env.String("opt-dest-dir", "OPT_DEST_DIR", "/usr/local/systemd-cd/opt/", "")
-	systemdUnitFileDestDir    = flag_with_env.String("systemd-unit-file-dest-dir", "SYSTEMD_UNIT_FILE_DEST_DIR", "/usr/local/lib/systemd/system/", "")
-	systemdUnitEnvFileDestDir = flag_with_env.String("systemd-unit-env-file-dest-dir", "SYSTEMD_UNIT_ENV_FILE_DEST_DIR", "/usr/local/systemd-cd/etc/default/", "")
-	backupDestDir             = flag_with_env.String("backup-dest-dir", "BACKUP_DEST_DIR", "/var/backups/systemd-cd/", "")
+	logLevel = pflag.String("log.level", "info", "Only log messages with the given severity or above. One of: [panic, fatal, error, warn, info, debug, trace]")
+	// varDir                    = pflag.String("storage.var-dir", "/var/lib/systemd-cd/", "Path to variable files")
+	// srcDestDir                = pflag.String("storage.src-dir", "/usr/local/systemd-cd/src/", "Path to service source files")
+	// binaryDestDir             = pflag.String("storage.binary-dir", "/usr/local/systemd-cd/bin/", "Path to service binary files")
+	// etcDestDir                = pflag.String("storage.etc-dir", "/usr/local/systemd-cd/etc/", "Path to service etc files")
+	// optDestDir                = pflag.String("storage.opt-dir", "/usr/local/systemd-cd/opt/", "Path to service opt files")
+	systemdUnitFileDestDir    = pflag.String("systemd.unit-file-dir", "/usr/local/lib/systemd/system/", "Path to systemd unit files.")
+	systemdUnitEnvFileDestDir = pflag.String("systemd.unit-env-file-dir", "/usr/local/systemd-cd/etc/default/", "Path to systemd env files")
+	// backupDestDir             = pflag.String("storage.backup-dir", "/var/backups/systemd-cd/", "Path to service backup files")
 )
 
 func convertLogLevel(str string) (ok bool, lv logger.Level) {
