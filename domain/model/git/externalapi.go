@@ -14,5 +14,7 @@ type GitCommand interface {
 	DiffExists(workingDir Path, to string) (exists bool, err error)
 	Pull(workingDir Path, force bool) (refCommitId string, err error)
 	Status(workingDir Path) (string, error)
-	Ref(workingDir Path) (string, error)
+	RefCommitId(workingDir Path) (string, error)
+	RefBranchName(workingDir Path) (string, error)
+	GetRemoteUrl(workingDir Path, remoteName string) (string, error)
 }

@@ -1,6 +1,7 @@
 package git_command
 
 import (
+	"errors"
 	"systemd-cd/domain/model/git"
 
 	gitcommand "gopkg.in/src-d/go-git.v4"
@@ -96,7 +97,7 @@ func (g *GitCommand) Status(workingDir git.Path) (string, error) {
 	return s.String(), nil
 }
 
-func (g *GitCommand) Ref(workingDir git.Path) (string, error) {
+func (g *GitCommand) RefCommitId(workingDir git.Path) (string, error) {
 	r, err := open(workingDir)
 	if err != nil {
 		return "", err
@@ -106,6 +107,37 @@ func (g *GitCommand) Ref(workingDir git.Path) (string, error) {
 		return "", err
 	}
 	return r2.Hash().String(), nil
+}
+
+func (g *GitCommand) RefBranchName(workingDir git.Path) (string, error) {
+	r, err := open(workingDir)
+	if err != nil {
+		return "", err
+	}
+	r2, err := r.Head()
+	if err != nil {
+		return "", err
+	}
+	if !r2.Name().IsBranch() {
+		return "", errors.New("ref `" + r2.String() + "` is not git branch")
+	}
+	return r2.String(), nil
+}
+
+func (g *GitCommand) GetRemoteUrl(workingDir git.Path, remoteName string) (string, error) {
+	r, err := open(workingDir)
+	if err != nil {
+		return "", err
+	}
+	r2, err := r.Remote(remoteName)
+	if err != nil {
+		return "", err
+	}
+	s := r2.Config().URLs
+	if len(s) == 0 {
+		return "", errors.New("invalid remote url list length")
+	}
+	return s[0], nil
 }
 
 func open(dir git.Path) (r *gitcommand.Repository, err error) {
