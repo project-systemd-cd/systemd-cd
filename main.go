@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"systemd-cd/application/systemd"
 	"systemd-cd/domain/model/logger"
 	"systemd-cd/domain/model/logrus"
+	"systemd-cd/domain/model/systemd"
 	"systemd-cd/infrastructure/externalapi/systemctl"
 	"time"
 
@@ -85,7 +85,7 @@ func main() {
 				Conflicts:     []string{"sendmail.servic", "exim.service"},
 			},
 			Service: systemd.ServiceDirective{
-				Type:            &systemd.UnitTypeSimple,
+				Type:            func() *systemd.UnitType { ut := systemd.UnitTypeSimple; return &ut }(),
 				EnvironmentFile: &envFile,
 				ExecStart:       "watch tail /var/log/syslog",
 				ExecStop:        nil,
