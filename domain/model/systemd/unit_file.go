@@ -145,7 +145,7 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 		sp := strings.Split(l, "=")
 		if len(sp) < 2 {
 			b2.WriteString(strings.Join([]string{sp[0], "\n"}, ""))
-			break
+			continue
 		}
 		s := []string{sp[0], " = \""}
 		s = append(s, sp[1:]...)
