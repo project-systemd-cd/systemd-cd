@@ -3,14 +3,18 @@ package systemd
 import (
 	"bytes"
 	"strings"
+	"systemd-cd/domain/model/logger"
 )
 
 // loadUnitFileSerivce implements iSystemdService
 func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error) {
+	logger.Logger().Tracef("Called:\n\targ.path: %v", path)
+
 	// Read file
 	b := &bytes.Buffer{}
 	err = readFile(path, b)
 	if err != nil {
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return
 	}
 
@@ -21,6 +25,11 @@ func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGenerate
 
 	// Unmarshal
 	u, err = UnmarshalUnitFile(b)
+	if err != nil {
+		logger.Logger().Errorf("Error:\n\tu: %v\n\tisGeneratedBySystemdCd: %v\n\terr: %v", u, isGeneratedBySystemdCd, err)
+		return
+	}
 
+	logger.Logger().Tracef("Finished:\n\tu: %v\n\tisGeneratedBySystemdCd: %v", u, isGeneratedBySystemdCd)
 	return
 }

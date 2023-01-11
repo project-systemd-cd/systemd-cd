@@ -4,15 +4,19 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"systemd-cd/domain/model/logger"
 )
 
 // NewService implements iSystemdService
 func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (UnitService, error) {
+	logger.Logger().Tracef("Called:\n\targ.name: %v\n\targ.uf: %v\n\targ.env: %v", name, uf, env)
+
 	// load unit file
 	path := strings.Join([]string{s.unitFileDir, name, ".service"}, "")
 	loaded, isGeneratedBySystemdCd, err := s.loadUnitFileSerivce(path)
 	if err != nil && !os.IsNotExist(err) {
 		// fail
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return UnitService{}, err
 	}
 
@@ -33,6 +37,7 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 	}
 	if err != nil {
 		// fail
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return UnitService{}, err
 	}
 
@@ -42,6 +47,7 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 		loaded, isGeneratedBySystemdCd, err := s.loadEnvFile(envPath)
 		if err != nil && !os.IsNotExist(err) {
 			// fail
+			logger.Logger().Errorf("Error:\n\terr: %v", err)
 			return UnitService{}, err
 		}
 
@@ -62,12 +68,18 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 		}
 		if err != nil {
 			// fail
+			logger.Logger().Errorf("Error:\n\terr: %v", err)
 			return UnitService{}, err
 		}
 	}
 
 	// daemon-reload
 	err = s.systemctl.DaemonReload()
+	if err != nil {
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		return UnitService{}, err
+	}
 
+	logger.Logger().Tracef("Finished:\n\tUnitService: %v", UnitService{s.systemctl, name, uf, path, env})
 	return UnitService{s.systemctl, name, uf, path, env}, err
 }

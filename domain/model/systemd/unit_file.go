@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"reflect"
 	"strings"
+	"systemd-cd/domain/model/logger"
 	"systemd-cd/domain/model/toml"
 )
 
@@ -53,8 +54,11 @@ const (
 	UnitTypeIdle    UnitType = "idle"
 )
 
-func (c UnitFileService) Equals(d UnitFileService) bool {
-	return reflect.DeepEqual(c, d)
+func (c UnitFileService) Equals(target UnitFileService) (equal bool) {
+	logger.Logger().Tracef("Called:\n\treceiver: %v\n\targ.target: %v", c, target)
+	equal = reflect.DeepEqual(c, target)
+	logger.Logger().Tracef("Finished:\n\teqlal: %v", equal)
+	return
 }
 
 type (
@@ -93,6 +97,8 @@ type (
 )
 
 func MarshalUnitFile(u UnitFileService) ([]byte, error) {
+	logger.Logger().Tracef("Called:\n\targ.u: %v", u)
+
 	ut := unitFileServiceToml{
 		Unit: unitDirectiveToml{
 			Description:   u.Unit.Description,
@@ -127,6 +133,7 @@ func MarshalUnitFile(u UnitFileService) ([]byte, error) {
 		Indent: &indent,
 	})
 	if err != nil {
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return nil, err
 	}
 	b.WriteString("\n")
@@ -135,10 +142,13 @@ func MarshalUnitFile(u UnitFileService) ([]byte, error) {
 	s := strings.ReplaceAll(b.String(), " = \"", "=")
 	s = strings.ReplaceAll(s, "\"\n", "\n")
 
+	logger.Logger().Tracef("Finished:\n\t[]byte: %v", s)
 	return []byte(s), nil
 }
 
 func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
+	logger.Logger().Tracef("Called")
+
 	// Convert to toml format
 	b2 := &bytes.Buffer{}
 	for _, l := range strings.Split(b.String(), "\n") {
@@ -157,6 +167,7 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 	ut := &unitFileServiceToml{}
 	err = toml.Decode(b2, ut)
 	if err != nil {
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return
 	}
 
@@ -187,6 +198,7 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 		},
 	}
 
+	logger.Logger().Tracef("Finished:\n\tUnitFileService: %v", u)
 	return
 }
 

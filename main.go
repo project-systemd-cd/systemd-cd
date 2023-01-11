@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"systemd-cd/domain/model/logger"
 	"systemd-cd/domain/model/logrus"
@@ -64,13 +63,12 @@ func main() {
 	ok, lv := convertLogLevel(*logLevel)
 	if !ok {
 		logger.Logger().Fatalf("`--log.level` must be specified as \"panic\", \"fatal\", \"error\", \"warn\", \"info\", \"debug\" or \"trace\"")
-		os.Exit(1)
 	}
 	logger.Logger().SetLevel(lv)
 
 	i, err := systemd.New(systemctl.New(), *systemdUnitFileDestDir)
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
 		os.Exit(1)
 	}
 	envFile := *systemdUnitEnvFileDestDir + "system-cd-go"
@@ -105,13 +103,13 @@ func main() {
 		map[string]string{},
 	)
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
 		os.Exit(1)
 	}
 	s, err := us.GetStatus()
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
 		os.Exit(1)
 	}
-	fmt.Printf("status: %v\n", s)
+	logger.Logger().Debug("\n\tstatus: %v", s)
 }

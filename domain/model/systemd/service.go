@@ -3,6 +3,7 @@ package systemd
 import (
 	"errors"
 	"strings"
+	"systemd-cd/domain/model/logger"
 )
 
 var (
@@ -25,10 +26,13 @@ type iSystemdService interface {
 }
 
 func New(s Systemctl, unitFileDir string) (iSystemdService, error) {
+	logger.Logger().Tracef("Called:\n\targ.s: %v\n\targ.unitFileDir: %v", s, unitFileDir)
+
 	// check `unitFileDir`
 	// TODO: if invalid dir path, print warning
 	err := mkdirIfNotExist(unitFileDir)
 	if err != nil {
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return Systemd{}, err
 	}
 
@@ -36,6 +40,8 @@ func New(s Systemctl, unitFileDir string) (iSystemdService, error) {
 		// add trailing slash
 		unitFileDir += "/"
 	}
+
+	logger.Logger().Tracef("Finished:\n\tiSystemdService: %v", Systemd{s, unitFileDir})
 	return Systemd{s, unitFileDir}, nil
 }
 
