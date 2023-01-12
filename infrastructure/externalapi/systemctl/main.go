@@ -101,8 +101,8 @@ func (s systemctl) Restart(service string) error {
 func (s systemctl) Status(service string) (systemd.Status, error) {
 	logger.Logger().Tracef("Called:\n\targ.service: %v", service)
 
-	_, stdout, _, err := executeCommand("systemctl", "is-active", service)
-	if err != nil {
+	exitCode, stdout, _, err := executeCommand("systemctl", "is-active", service)
+	if exitCode != 0 && exitCode != 3 && err != nil {
 		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return "", err
 	}
