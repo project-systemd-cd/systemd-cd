@@ -13,7 +13,7 @@ type GitCommand interface {
 	Fetch(workingDir Path) error
 	DiffExists(workingDir Path, to string) (exists bool, err error)
 	Pull(workingDir Path, force bool) (refCommitId string, err error)
-	Status(workingDir Path) (string, error)
+	IsGitDirectory(workingDir Path) (bool, error)
 	RefCommitId(workingDir Path) (string, error)
 	RefBranchName(workingDir Path) (string, error)
 	GetRemoteUrl(workingDir Path, remoteName string) (string, error)
