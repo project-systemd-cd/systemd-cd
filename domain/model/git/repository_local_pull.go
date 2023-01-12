@@ -3,7 +3,7 @@ package git
 import "systemd-cd/domain/model/logger"
 
 func (r *RepositoryLocal) Pull(force bool) (refCommitId string, err error) {
-	logger.Logger().Trace("Called:\n\tforce: %v", force)
+	logger.Logger().Tracef("Called:\n\tforce: %v", force)
 
 	refCommitId, err = r.git.command.Pull(r.Path, force)
 	if err != nil {

@@ -49,6 +49,6 @@ func (s Systemd) writeEnvFile(e map[string]string, path string) error {
 		return err
 	}
 
-	logger.Logger().Tracef("Finished")
+	logger.Logger().Trace("Finished")
 	return err
 }

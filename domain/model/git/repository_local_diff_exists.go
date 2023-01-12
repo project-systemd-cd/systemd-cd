@@ -3,7 +3,7 @@ package git
 import "systemd-cd/domain/model/logger"
 
 func (r *RepositoryLocal) DiffExists(executeFetch bool) (exists bool, err error) {
-	logger.Logger().Trace("Called:\n\texecuteFetch: %v", executeFetch)
+	logger.Logger().Tracef("Called:\n\texecuteFetch: %v", executeFetch)
 	if executeFetch {
 		err = r.fetch()
 		if err != nil {
