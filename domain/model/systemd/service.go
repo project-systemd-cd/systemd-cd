@@ -1,67 +1,52 @@
 package systemd
 
-type Unit interface {
-	Enable(startNow bool) error
-	Disable(stopNow bool) error
-	Start() error
-	Stop() error
-	Restart() error
-	GetStatus() (Status, error)
-}
-
-type (
-	Status string
-)
-
-const (
-	// Systemd service status
-	StatusStopped Status = "stopped"
-	StatusRunning Status = "running"
-	StatusFailed  Status = "failed"
+import (
+	"errors"
+	"strings"
+	"systemd-cd/domain/model/logger"
 )
 
 var (
-	// check implements
-	_ Unit = UnitService{}
+	ErrNoSuchFileOrDir       = errors.New("no such file or directory")
+	ErrUnitFileNotManaged    = errors.New("unit file not managed by systemd-cd")
+	ErrUnitEnvFileNotManaged = errors.New("unit env file not managed by systemd-cd")
 )
 
-type (
-	// +Unit
-	UnitService struct {
-		systemctl             Systemctl
-		Name                  string
-		unitFile              UnitFileService
-		Path                  string
-		EnvironmentFileValues map[string]string
+type iSystemdService interface {
+	// Generate unit-file.
+	// If unit-file already exists, replace it.
+	NewService(name string, uf UnitFileService, env map[string]string) (UnitService, error)
+	DeleteService(u UnitService) error
+
+	loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error)
+	writeUnitFileService(u UnitFileService, path string) error
+
+	loadEnvFile(path string) (e map[string]string, isGeneratedBySystemdCd bool, err error)
+	writeEnvFile(e map[string]string, path string) error
+}
+
+func New(s Systemctl, unitFileDir string) (iSystemdService, error) {
+	logger.Logger().Tracef("Called:\n\targ.s: %v\n\targ.unitFileDir: %v", s, unitFileDir)
+
+	// check `unitFileDir`
+	// TODO: if invalid dir path, print warning
+	err := mkdirIfNotExist(unitFileDir)
+	if err != nil {
+		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		return Systemd{}, err
 	}
-)
 
-// +Unit
-func (u UnitService) Enable(startNow bool) error {
-	return u.systemctl.Enable(u.Name, startNow)
+	if !strings.HasSuffix(unitFileDir, "/") {
+		// add trailing slash
+		unitFileDir += "/"
+	}
+
+	logger.Logger().Tracef("Finished:\n\tiSystemdService: %v", Systemd{s, unitFileDir})
+	return Systemd{s, unitFileDir}, nil
 }
 
-// +Unit
-func (u UnitService) Disable(stopNow bool) error {
-	return u.systemctl.Disable(u.Name, stopNow)
-}
-
-// +Unit
-func (u UnitService) Start() error {
-	return u.systemctl.Start(u.Name)
-}
-
-// +Unit
-func (u UnitService) Stop() error {
-	return u.systemctl.Stop(u.Name)
-}
-
-// +Unit
-func (u UnitService) Restart() error {
-	return u.systemctl.Restart(u.Name)
-}
-
-// +Unit
-func (u UnitService) GetStatus() (Status, error) {
-	return u.systemctl.Status(u.Name)
+// Implements iSystemdService
+type Systemd struct {
+	systemctl   Systemctl
+	unitFileDir string
 }
