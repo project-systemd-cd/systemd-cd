@@ -6,7 +6,7 @@ import (
 )
 
 func (p pipeline) build() error {
-	logger.Logger().Tracef("Called:\n\tpipeline: %+v", p)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
 
 	if p.ManifestMerged.BuildCommand != nil {
 		_, _, _, err := unix.Execute(
@@ -16,7 +16,7 @@ func (p pipeline) build() error {
 			"/usr/bin/bash", "-c", "\""+*p.ManifestMerged.BuildCommand+"\"",
 		)
 		if err != nil {
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}

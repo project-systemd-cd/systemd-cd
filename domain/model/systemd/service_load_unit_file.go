@@ -8,13 +8,13 @@ import (
 
 // loadUnitFileSerivce implements iSystemdService
 func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error) {
-	logger.Logger().Tracef("Called:\n\targ.path: %v", path)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}}))
 
 	// Read file
 	b := &bytes.Buffer{}
 	err = readFile(path, b)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 
@@ -26,10 +26,10 @@ func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGenerate
 	// Unmarshal
 	u, err = UnmarshalUnitFile(b)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\tu: %v\n\tisGeneratedBySystemdCd: %v\n\terr: %v", u, isGeneratedBySystemdCd, err)
+		logger.Logger().Error("Error:\n\tu: %v\n\tisGeneratedBySystemdCd: %v\n\terr: %v", u, isGeneratedBySystemdCd, err)
 		return
 	}
 
-	logger.Logger().Tracef("Finished:\n\tu: %v\n\tisGeneratedBySystemdCd: %v", u, isGeneratedBySystemdCd)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "isGeneratedBySystemdCd", Value: isGeneratedBySystemdCd}}))
 	return
 }

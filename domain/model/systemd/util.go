@@ -7,7 +7,7 @@ import (
 )
 
 func mkdirIfNotExist(path string) error {
-	logger.Logger().Tracef("Called:\n\targ.path: %v", path)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}}))
 
 	_, err := os.ReadDir(path)
 	if err != nil {
@@ -15,12 +15,12 @@ func mkdirIfNotExist(path string) error {
 			// if dir not exists, mkdir
 			err = os.MkdirAll(path, 0644)
 			if err != nil {
-				logger.Logger().Errorf("Error:\n\terr: %v", err)
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return err
 			}
 		} else {
 			// unhandled errors
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}
@@ -30,12 +30,12 @@ func mkdirIfNotExist(path string) error {
 }
 
 func readFile(path string, b *bytes.Buffer) error {
-	logger.Logger().Tracef("Called:\n\targ.path: %v", path)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}}))
 
 	// Open file
 	f, err := os.Open(path)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 	defer f.Close()
@@ -49,23 +49,23 @@ func readFile(path string, b *bytes.Buffer) error {
 			break
 		}
 		if err != nil {
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 		b.Write(bytes.Trim(data, "\x00"))
 	}
 
-	logger.Logger().Tracef("Finished:\n\tstring: %v", b.String())
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: b.String()}}))
 	return nil
 }
 
 func writeFile(path string, b []byte) error {
-	logger.Logger().Tracef("Called:\n\targ.path: %v\n\targ.b: %v", path, string(b))
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}, {Name: "b", Value: string(b)}}))
 
 	// Open file
 	f, err := os.Create(path)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 	defer f.Close()
@@ -73,7 +73,7 @@ func writeFile(path string, b []byte) error {
 	// Write
 	_, err = f.Write(b)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 

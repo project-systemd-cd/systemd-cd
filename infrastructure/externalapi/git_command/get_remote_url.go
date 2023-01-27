@@ -7,25 +7,25 @@ import (
 )
 
 func (g *GitCommand) GetRemoteUrl(workingDir git.Path, remoteName string) (string, error) {
-	logger.Logger().Tracef("Called:\n\tworkingDir: %v\n\tremoteName: %v", workingDir, remoteName)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "workingDir", Value: workingDir}, {Name: "remoteName", Value: remoteName}}))
 
 	r, err := open(workingDir)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 	r2, err := r.Remote(remoteName)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 	s := r2.Config().URLs
 	if len(s) == 0 {
 		err := errors.New("invalid remote url list length")
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 
-	logger.Logger().Tracef("Finished:\n\tGitRemoteUrl: %v", s[0])
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "GitRemoteUrl", Value: s[0]}}))
 	return s[0], nil
 }

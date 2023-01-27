@@ -8,7 +8,7 @@ import (
 )
 
 func (p pipeline) install() (systemd.UnitService, error) {
-	logger.Logger().Tracef("Called:\n\tpipeline: %+v", p)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
 
 	pathEnvFile := p.service.PathSystemdUnitEnvFileDir + p.ManifestMerged.Name
 
@@ -31,7 +31,7 @@ func (p pipeline) install() (systemd.UnitService, error) {
 				pathOptDir+src,
 			)
 			if err != nil {
-				logger.Logger().Errorf("Error:\n\terr: %v", err)
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return systemd.UnitService{}, err
 			}
 		}
@@ -55,7 +55,7 @@ func (p pipeline) install() (systemd.UnitService, error) {
 				// Create etc file
 				err := unix.WriteFile(etcFilePath, []byte(*etc.Content))
 				if err != nil {
-					logger.Logger().Errorf("Error:\n\terr: %v", err)
+					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return systemd.UnitService{}, err
 				}
 			} else {
@@ -67,7 +67,7 @@ func (p pipeline) install() (systemd.UnitService, error) {
 					etcFilePath,
 				)
 				if err != nil {
-					logger.Logger().Errorf("Error:\n\terr: %v", err)
+					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return systemd.UnitService{}, err
 				}
 			}
@@ -101,7 +101,7 @@ func (p pipeline) install() (systemd.UnitService, error) {
 			pathBinFile,
 		)
 		if err != nil {
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return systemd.UnitService{}, err
 		}
 
@@ -152,10 +152,10 @@ func (p pipeline) install() (systemd.UnitService, error) {
 		env,
 	)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return service, err
 	}
 
-	logger.Logger().Tracef("Finished:\n\tsystemd.UnitService: %+v", service)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: service}}))
 	return service, err
 }

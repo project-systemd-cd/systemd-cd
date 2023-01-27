@@ -8,7 +8,7 @@ import (
 )
 
 func (p pipeline) backupInstalled() error {
-	logger.Logger().Tracef("Called:\n\tpipeline: %+v", p)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
 
 	// Create directory for backup
 	// e.g.
@@ -16,7 +16,7 @@ func (p pipeline) backupInstalled() error {
 	backupPath := p.service.PathBackupDir + p.ManifestMerged.Name + "/" + strconv.FormatInt(time.Now().Unix(), 10) + "_" + p.GetCommitRef() + "/"
 	err := unix.MkdirIfNotExist(backupPath)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
@@ -30,7 +30,7 @@ func (p pipeline) backupInstalled() error {
 		backupPath+"unit.service",
 	)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
@@ -44,7 +44,7 @@ func (p pipeline) backupInstalled() error {
 		backupPath+"env",
 	)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
@@ -59,7 +59,7 @@ func (p pipeline) backupInstalled() error {
 			backupPath+"binary",
 		)
 		if err != nil {
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}
@@ -77,7 +77,7 @@ func (p pipeline) backupInstalled() error {
 			backupPath+"opt/",
 		)
 		if err != nil {
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}

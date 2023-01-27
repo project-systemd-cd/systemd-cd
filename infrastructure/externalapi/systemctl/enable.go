@@ -6,7 +6,7 @@ import (
 )
 
 func (s systemctl) Enable(service string, startNow bool) error {
-	logger.Logger().Tracef("Called:\n\targ.service: %v\n\targ.startNow: %v", service, startNow)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "service", Value: service}, {Name: "startNow", Value: startNow}}))
 
 	command := []string{"enable"}
 	if startNow {
@@ -14,7 +14,7 @@ func (s systemctl) Enable(service string, startNow bool) error {
 	}
 	_, _, _, err := unix.Execute(unix.ExecuteOption{}, "systemctl", command...)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v")
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 

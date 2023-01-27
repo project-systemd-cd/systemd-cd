@@ -7,7 +7,7 @@ import (
 
 // NewPipeline implements iPipelineService
 func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) {
-	logger.Logger().Tracef("Called:\n\tmanifest: %+v", m)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: m}}))
 
 	// Define pipeline
 	p := &pipeline{
@@ -23,7 +23,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) 
 	// if local repository not exists, clone remote repository
 	cloned, p.RepositoryLocal, err = s.Git.NewLocalRepository(git.Path(s.PathSrcDir+m.Name), m.GitRemoteUrl, m.GitTargetBranch)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return &pipeline{}, err
 	}
 
@@ -33,10 +33,10 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) 
 		err = p.Sync()
 	}
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return p, err
 	}
 
-	logger.Logger().Tracef("Finished:\n\tpipeline: %+v", *p)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *p}}))
 	return p, nil
 }

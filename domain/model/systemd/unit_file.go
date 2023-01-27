@@ -55,10 +55,10 @@ const (
 	UnitTypeIdle    UnitType = "idle"
 )
 
-func (c UnitFileService) Equals(target UnitFileService) (equal bool) {
-	logger.Logger().Tracef("Called:\n\treceiver: %v\n\targ.target: %v", c, target)
-	equal = reflect.DeepEqual(c, target)
-	logger.Logger().Tracef("Finished:\n\teqlal: %v", equal)
+func (u UnitFileService) Equals(target UnitFileService) (equal bool) {
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "a", Value: u}, {Name: "b", Value: target}}))
+	equal = reflect.DeepEqual(u, target)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "equal", Value: equal}}))
 	return
 }
 
@@ -99,7 +99,7 @@ type (
 )
 
 func MarshalUnitFile(u UnitFileService) ([]byte, error) {
-	logger.Logger().Tracef("Called:\n\targ.u: %v", u)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: u}}))
 
 	ut := unitFileServiceToml{
 		Unit: unitDirectiveToml{
@@ -136,7 +136,7 @@ func MarshalUnitFile(u UnitFileService) ([]byte, error) {
 		Indent: &indent,
 	})
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return nil, err
 	}
 	b.WriteString("\n")
@@ -145,12 +145,12 @@ func MarshalUnitFile(u UnitFileService) ([]byte, error) {
 	s := strings.ReplaceAll(b.String(), " = \"", "=")
 	s = strings.ReplaceAll(s, "\"\n", "\n")
 
-	logger.Logger().Tracef("Finished:\n\t[]byte: %v", s)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "[]byte", Value: s}}))
 	return []byte(s), nil
 }
 
 func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
-	logger.Logger().Tracef("Called")
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: b}}))
 
 	// Convert to toml format
 	b2 := &bytes.Buffer{}
@@ -170,7 +170,7 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 	ut := &unitFileServiceToml{}
 	err = toml.Decode(b2, ut)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 
@@ -202,7 +202,7 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 		},
 	}
 
-	logger.Logger().Tracef("Finished:\n\tUnitFileService: %v", u)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: u}}))
 	return
 }
 

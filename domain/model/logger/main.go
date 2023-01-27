@@ -1,5 +1,10 @@
 package logger
 
+import (
+	"fmt"
+	"reflect"
+)
+
 // singleton variable
 var logger *LoggerI
 
@@ -53,4 +58,25 @@ type LoggerI interface {
 	Panicln(args ...interface{})
 
 	SetLevel(level Level) error
+}
+
+type Var struct {
+	Name  string
+	Value any
+}
+
+func Var2Text(text string, variables []Var) string {
+	if len(variables) != 0 && text != "" {
+		text += ":"
+	}
+	for _, v := range variables {
+		var name string
+		if v.Name != "" {
+			name = v.Name
+		} else {
+			name = reflect.TypeOf(v.Value).String()
+		}
+		text += fmt.Sprintf("\n\t%s: %+v", name, v.Value)
+	}
+	return text
 }

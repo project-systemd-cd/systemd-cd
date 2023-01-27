@@ -6,7 +6,7 @@ import (
 )
 
 func WriteFile(path string, b []byte) error {
-	logger.Logger().Tracef("Called:\n\tpath: %v", path)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}}))
 
 	// Open file
 	f, err := os.Create(path)
@@ -18,7 +18,7 @@ func WriteFile(path string, b []byte) error {
 	// Write
 	_, err = f.Write(b)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 

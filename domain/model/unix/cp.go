@@ -9,7 +9,7 @@ type CpOption struct {
 }
 
 func Cp(o ExecuteOption, o1 CpOption, src string, target string) error {
-	logger.Logger().Tracef("Called:\n\toption: %+v\n\toption:%+v\n\tsrc: %v\n\ttarget: %v", o, o1, src, target)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: o}, {Value: o1}, {Name: "src", Value: src}, {Name: "target", Value: target}}))
 
 	options := []string{}
 	if o1.Recursive {
@@ -23,7 +23,7 @@ func Cp(o ExecuteOption, o1 CpOption, src string, target string) error {
 	}
 	_, _, _, err := Execute(o, "cp", append(options, src, target)...)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 

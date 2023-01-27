@@ -26,13 +26,13 @@ type IService interface {
 }
 
 func New(s Systemctl, unitFileDir string) (IService, error) {
-	logger.Logger().Tracef("Called:\n\targ.s: %v\n\targ.unitFileDir: %v", s, unitFileDir)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: s}, {Name: "unitFileDir", Value: unitFileDir}}))
 
 	// check `unitFileDir`
 	// TODO: if invalid dir path, print warning
 	err := mkdirIfNotExist(unitFileDir)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return Systemd{}, err
 	}
 
@@ -41,7 +41,7 @@ func New(s Systemctl, unitFileDir string) (IService, error) {
 		unitFileDir += "/"
 	}
 
-	logger.Logger().Tracef("Finished:\n\tiSystemdService: %v", Systemd{s, unitFileDir})
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: Systemd{s, unitFileDir}}}))
 	return Systemd{s, unitFileDir}, nil
 }
 

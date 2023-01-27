@@ -10,7 +10,7 @@ func (s systemctl) DaemonReload() error {
 
 	_, _, _, err := unix.Execute(unix.ExecuteOption{}, "systemctl", "daemon-reload")
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v")
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 

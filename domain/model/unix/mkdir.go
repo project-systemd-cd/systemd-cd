@@ -6,7 +6,7 @@ import (
 )
 
 func MkdirIfNotExist(path string) error {
-	logger.Logger().Tracef("Called:\n\tpath: %s", path)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}}))
 
 	_, err := os.ReadDir(path)
 	if err != nil {
@@ -14,13 +14,13 @@ func MkdirIfNotExist(path string) error {
 			// if dir not exists, mkdir
 			err = os.MkdirAll(path, 0644)
 			if err != nil {
-				logger.Logger().Errorf("Error:\n\terr: %v", err)
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return err
 			}
 			logger.Logger().Debugf("Dir %s created.")
 		} else {
 			// unhandled errors
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}

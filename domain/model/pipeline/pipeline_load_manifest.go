@@ -12,7 +12,7 @@ import (
 const defaultManifestFileName = ".systemd-cd.yaml"
 
 func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
-	logger.Logger().Tracef("Called:\n\tpipeline: %+v", p)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
 
 	// Get paths
 	repositoryPath := string(p.RepositoryLocal.Path)
@@ -29,14 +29,14 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	b := &bytes.Buffer{}
 	err := unix.ReadFile(manifestFilePath, b)
 	if err != nil && !os.IsNotExist(err) {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return ServiceManifestMerged{}, err
 	}
 	if !os.IsNotExist(err) {
 		// If manifest file exists, unmarshal to struct
 		err = toml.Decode(b, manifestInRepository)
 		if err != nil {
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return ServiceManifestMerged{}, err
 		}
 	}
@@ -87,7 +87,7 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	// Validate manifest
 	err = manifestMerged.Validate()
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return ServiceManifestMerged{}, err
 	}
 

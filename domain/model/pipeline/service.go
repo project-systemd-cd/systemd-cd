@@ -24,7 +24,7 @@ type Directories struct {
 }
 
 func NewService(git git.IService, systemd systemd.IService, d Directories) (iPipelineService, error) {
-	logger.Logger().Tracef("Called:\n\rdirectories: %+v", d)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "directories", Value: d}}))
 
 	for _, d := range []*string{
 		&d.Var, &d.Src, &d.Binary, &d.Etc, &d.Opt,
@@ -37,7 +37,7 @@ func NewService(git git.IService, systemd systemd.IService, d Directories) (iPip
 		// Create directory
 		err := unix.MkdirIfNotExist(*d)
 		if err != nil {
-			logger.Logger().Errorf("Error:\n\terr: %v", err)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return pipelineService{}, err
 		}
 	}
@@ -48,7 +48,7 @@ func NewService(git git.IService, systemd systemd.IService, d Directories) (iPip
 		d.SystemdUnitFile, d.SystemdUnitEnvFile, d.Backup,
 	}
 
-	logger.Logger().Tracef("Finished:\n\tpipelineService: %+v", p)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *p}}))
 	return p, nil
 }
 
