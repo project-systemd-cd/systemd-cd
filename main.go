@@ -19,6 +19,7 @@ import (
 // flags
 var (
 	logLevel                  = pflag.String("log.level", "info", "Only log messages with the given severity or above. One of: [panic, fatal, error, warn, info, debug, trace]")
+	logReportCaller           = pflag.Bool("log.report-caller", false, "Enable log report caller")
 	logTimestamp              = pflag.Bool("log.timestamp", false, "Enable log timestamp.")
 	varDir                    = pflag.String("storage.var-dir", "/var/lib/systemd-cd/", "Path to variable files")
 	srcDestDir                = pflag.String("storage.src-dir", "/usr/local/systemd-cd/src/", "Path to service source files")
@@ -56,7 +57,7 @@ func main() {
 	pflag.Parse()
 
 	logger.Init(logrus.New(logrus.Param{
-		ReportCaller: func() *bool { var b = true; return &b }(),
+		ReportCaller: logReportCaller,
 		Formatter: &logruss.TextFormatter{
 			FullTimestamp:   *logTimestamp,
 			TimestampFormat: time.RFC3339Nano,
