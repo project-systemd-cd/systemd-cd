@@ -1,8 +1,8 @@
 package systemctl
 
 import (
-	"systemd-cd/domain/model/logger"
-	"systemd-cd/domain/model/unix"
+	"systemd-cd/domain/logger"
+	"systemd-cd/domain/unix"
 )
 
 func (s systemctl) Start(service string) error {

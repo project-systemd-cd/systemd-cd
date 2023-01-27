@@ -2,9 +2,9 @@ package systemctl
 
 import (
 	"strings"
-	"systemd-cd/domain/model/logger"
-	"systemd-cd/domain/model/systemd"
-	"systemd-cd/domain/model/unix"
+	"systemd-cd/domain/logger"
+	"systemd-cd/domain/systemd"
+	"systemd-cd/domain/unix"
 )
 
 func (s systemctl) Status(service string) (systemd.Status, error) {

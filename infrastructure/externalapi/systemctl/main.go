@@ -1,7 +1,7 @@
 package systemctl
 
 import (
-	"systemd-cd/domain/model/systemd"
+	"systemd-cd/domain/systemd"
 )
 
 func New() systemd.Systemctl {

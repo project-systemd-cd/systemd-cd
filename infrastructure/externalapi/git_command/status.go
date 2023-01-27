@@ -1,8 +1,8 @@
 package git_command
 
 import (
-	"systemd-cd/domain/model/git"
-	"systemd-cd/domain/model/logger"
+	"systemd-cd/domain/git"
+	"systemd-cd/domain/logger"
 )
 
 func (g *GitCommand) IsGitDirectory(workingDir git.Path) (bool, error) {

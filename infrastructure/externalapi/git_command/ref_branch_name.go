@@ -2,8 +2,8 @@ package git_command
 
 import (
 	"errors"
-	"systemd-cd/domain/model/git"
-	"systemd-cd/domain/model/logger"
+	"systemd-cd/domain/git"
+	"systemd-cd/domain/logger"
 )
 
 func (g *GitCommand) RefBranchName(workingDir git.Path) (string, error) {
