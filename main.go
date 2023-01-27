@@ -56,7 +56,7 @@ func main() {
 	pflag.Parse()
 
 	logger.Init(logrus.New(logrus.Param{
-		RepeatCaller: func() *bool { var b = true; return &b }(),
+		ReportCaller: func() *bool { var b = true; return &b }(),
 		Formatter: &logruss.TextFormatter{
 			FullTimestamp:   *logTimestamp,
 			TimestampFormat: time.RFC3339Nano,

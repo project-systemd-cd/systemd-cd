@@ -9,7 +9,7 @@ import (
 
 type Param struct {
 	Level        *logrus.Level
-	RepeatCaller *bool
+	ReportCaller *bool
 	Output       io.Writer
 	Formatter    logrus.Formatter
 	BufferPool   logrus.BufferPool
@@ -33,8 +33,8 @@ func New(p Param) logger.LoggerI {
 	if p.Level != nil {
 		logrus.SetLevel(*p.Level)
 	}
-	if p.RepeatCaller != nil {
-		logrus.SetReportCaller(*p.RepeatCaller)
+	if p.ReportCaller != nil {
+		logrus.SetReportCaller(*p.ReportCaller)
 	}
 	if p.Output != nil {
 		logrus.SetOutput(p.Output)
