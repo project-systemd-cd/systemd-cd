@@ -77,45 +77,47 @@ func (p pipeline) install() (systemd.UnitService, error) {
 	}
 
 	env := map[string]string{}
-	if p.ManifestMerged.Env != nil {
+	if p.ManifestMerged.EnvVars != nil {
 		// Set environment variables
-		for _, e := range p.ManifestMerged.Env {
+		for _, e := range p.ManifestMerged.EnvVars {
 			env[e.Name] = e.Value
 		}
 	}
 
 	execStart := strings.TrimPrefix(p.ManifestMerged.ExecuteCommand, "./")
-	if p.ManifestMerged.Binary != nil {
+	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
 		pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
 		err := unix.MkdirIfNotExist(pathBinDir)
 		if err != nil {
 			return systemd.UnitService{}, err
 		}
-		pathBinFile := pathBinDir + strings.TrimPrefix(*p.ManifestMerged.Binary, "./")
+		for _, binary := range *p.ManifestMerged.Binaries {
+			pathBinFile := pathBinDir + strings.TrimPrefix(binary, "./")
 
-		// Copy binary files
-		err = unix.Cp(
-			unix.ExecuteOption{},
-			unix.CpOption{Force: true},
-			string(p.RepositoryLocal.Path)+"/"+*p.ManifestMerged.Binary,
-			pathBinFile,
-		)
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return systemd.UnitService{}, err
-		}
-
-		// If binary file name equals execute command, change to absolute path
-		if strings.Split(strings.TrimPrefix(p.ManifestMerged.ExecuteCommand, "./"), " ")[0] ==
-			strings.TrimPrefix(*p.ManifestMerged.Binary, "./") {
-			// Cut out cli args
-			args := strings.TrimPrefix(
-				execStart,
-				strings.TrimPrefix(*p.ManifestMerged.Binary, "./"),
+			// Copy binary files
+			err = unix.Cp(
+				unix.ExecuteOption{},
+				unix.CpOption{Force: true},
+				string(p.RepositoryLocal.Path)+"/"+binary,
+				pathBinFile,
 			)
-			// Create command for `ExecStart` in systemd unit
-			logger.Logger().Debugf("Debug:\n\tpathBinFile: %v\n\targs: %v", pathBinFile, args)
-			execStart = pathBinFile + args
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return systemd.UnitService{}, err
+			}
+
+			// If binary file name equals execute command, change to absolute path
+			if strings.Split(strings.TrimPrefix(p.ManifestMerged.ExecuteCommand, "./"), " ")[0] ==
+				strings.TrimPrefix(binary, "./") {
+				// Cut out cli args
+				args := strings.TrimPrefix(
+					execStart,
+					strings.TrimPrefix(binary, "./"),
+				)
+				// Create command for `ExecStart` in systemd unit
+				logger.Logger().Debugf("Debug:\n\tpathBinFile: %v\n\targs: %v", pathBinFile, args)
+				execStart = pathBinFile + args
+			}
 		}
 	}
 

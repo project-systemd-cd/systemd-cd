@@ -8,12 +8,12 @@ type ServiceManifestLocal struct {
 	Name           string        `toml:"name"`
 	Description    *string       `toml:"description,omitempty"`
 	Port           *uint16       `toml:"port,omitempty"`
-	TestCommand    *string       `toml:"test_command,omitempty"`
-	BuildCommand   *string       `toml:"build_command,omitempty"`
+	TestCommands   *[]string     `toml:"test_commands,omitempty"`
+	BuildCommands  *[]string     `toml:"build_commands,omitempty"`
 	Opt            *[]string     `toml:"src,omitempty"`
 	Etc            *[]PathOption `toml:"etc,omitempty"`
-	Env            []Env         `toml:"env,omitempty"`
-	Binary         *string       `toml:"binary,omitempty"`
+	EnvVars        []EnvVar      `toml:"env_variables,omitempty"`
+	Binaries       *[]string     `toml:"binaries,omitempty"`
 	ExecuteCommand *string       `toml:"execute_command,omitempty"`
 	Args           *string       `toml:"args,omitempty"`
 }
@@ -22,11 +22,11 @@ type ServiceManifestRemote struct {
 	Name           string       `toml:"name"`
 	Description    string       `toml:"description"`
 	Port           *uint16      `toml:"port,omitempty"`
-	TestCommand    *string      `toml:"test_command,omitempty"`
-	BuildCommand   *string      `toml:"build_command,omitempty"`
+	TestCommands   *[]string    `toml:"test_commands,omitempty"`
+	BuildCommands  *[]string    `toml:"build_commands,omitempty"`
 	Opt            []string     `toml:"src,omitempty"`
 	Etc            []PathOption `toml:"etc,omitempty"`
-	Binary         *string      `toml:"binary,omitempty"`
+	Binaries       *[]string    `toml:"binaries,omitempty"`
 	ExecuteCommand string       `toml:"execute_command"`
 	Args           string       `toml:"args"`
 }
@@ -35,12 +35,12 @@ type ServiceManifestMerged struct {
 	Name           string       `toml:"name"`
 	Description    string       `toml:"description"`
 	Port           *uint16      `toml:"port,omitempty"`
-	TestCommand    *string      `toml:"test_command,omitempty"`
-	BuildCommand   *string      `toml:"build_command,omitempty"`
+	TestCommands   *[]string    `toml:"test_commands,omitempty"`
+	BuildCommands  *[]string    `toml:"build_commands,omitempty"`
 	Opt            []string     `toml:"src,omitempty"`
 	Etc            []PathOption `toml:"etc,omitempty"`
-	Env            []Env        `toml:"env,omitempty"`
-	Binary         *string      `toml:"binary,omitempty"`
+	EnvVars        []EnvVar     `toml:"env_variables,omitempty"`
+	Binaries       *[]string    `toml:"binaries,omitempty"`
 	ExecuteCommand string       `toml:"execute_command"`
 	Args           string       `toml:"args"`
 }
@@ -51,7 +51,7 @@ type PathOption struct {
 	Option  string  `toml:"option"`
 }
 
-type Env struct {
+type EnvVar struct {
 	Name  string `toml:"name"`
 	Value string `toml:"value"`
 }

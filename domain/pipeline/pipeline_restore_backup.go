@@ -38,13 +38,13 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		return err
 	}
 
-	if p.ManifestMerged.Binary != nil {
+	if p.ManifestMerged.Binaries != nil {
 		// Restore binary file
 		err = unix.Cp(
 			unix.ExecuteOption{},
 			unix.CpOption{Force: true},
-			backupPath+"binary",
-			p.service.PathBinDir+p.ManifestMerged.Name+"/"+*p.ManifestMerged.Binary,
+			backupPath+"bin/*",
+			p.service.PathBinDir+p.ManifestMerged.Name+"/*",
 		)
 		if err != nil {
 			return err

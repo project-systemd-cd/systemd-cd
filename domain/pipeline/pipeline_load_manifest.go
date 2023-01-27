@@ -46,12 +46,12 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 		Name:           manifestInRepository.Name,
 		Description:    manifestInRepository.Description,
 		Port:           manifestInRepository.Port,
-		TestCommand:    manifestInRepository.TestCommand,
-		BuildCommand:   manifestInRepository.BuildCommand,
+		TestCommands:   manifestInRepository.TestCommands,
+		BuildCommands:  manifestInRepository.BuildCommands,
 		Opt:            manifestInRepository.Opt,
 		Etc:            manifestInRepository.Etc,
-		Env:            p.ManifestLocal.Env,
-		Binary:         manifestInRepository.Binary,
+		EnvVars:        p.ManifestLocal.EnvVars,
+		Binaries:       manifestInRepository.Binaries,
 		ExecuteCommand: manifestInRepository.ExecuteCommand,
 		Args:           manifestInRepository.Args,
 	}
@@ -62,11 +62,11 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	if p.ManifestLocal.Port != nil {
 		manifestMerged.Port = p.ManifestLocal.Port
 	}
-	if p.ManifestLocal.TestCommand != nil {
-		manifestMerged.TestCommand = p.ManifestLocal.TestCommand
+	if p.ManifestLocal.TestCommands != nil {
+		manifestMerged.TestCommands = p.ManifestLocal.TestCommands
 	}
-	if p.ManifestLocal.BuildCommand != nil {
-		manifestMerged.BuildCommand = p.ManifestLocal.BuildCommand
+	if p.ManifestLocal.BuildCommands != nil {
+		manifestMerged.BuildCommands = p.ManifestLocal.BuildCommands
 	}
 	if p.ManifestLocal.Opt != nil {
 		manifestMerged.Opt = *p.ManifestLocal.Opt
@@ -74,8 +74,8 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	if p.ManifestLocal.Etc != nil {
 		manifestMerged.Etc = *p.ManifestLocal.Etc
 	}
-	if p.ManifestLocal.Binary != nil {
-		manifestMerged.Binary = p.ManifestLocal.Binary
+	if p.ManifestLocal.Binaries != nil {
+		manifestMerged.Binaries = p.ManifestLocal.Binaries
 	}
 	if p.ManifestLocal.ExecuteCommand != nil {
 		manifestMerged.ExecuteCommand = *p.ManifestLocal.ExecuteCommand

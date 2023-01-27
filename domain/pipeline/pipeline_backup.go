@@ -48,15 +48,20 @@ func (p pipeline) backupInstalled() error {
 		return err
 	}
 
-	if p.ManifestMerged.Binary != nil {
+	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
 		// Backup binary
 		// e.g.
-		// `cp /usr/local/systemd-cd/bin/<name>/<binary> /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/binary`
+		// `cp /usr/local/systemd-cd/bin/<name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/bin/`
+		err = unix.MkdirIfNotExist(backupPath + "bin/")
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
 		err = unix.Cp(
 			unix.ExecuteOption{},
 			unix.CpOption{},
-			p.service.PathBinDir+p.ManifestMerged.Name+"/"+*p.ManifestMerged.Binary,
-			backupPath+"binary",
+			p.service.PathBinDir+p.ManifestMerged.Name+"/*",
+			backupPath+"bin/",
 		)
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
@@ -64,16 +69,21 @@ func (p pipeline) backupInstalled() error {
 		}
 	}
 
-	if p.ManifestMerged.Opt != nil {
+	if len(p.ManifestMerged.Opt) != 0 {
 		// Backup opt
 		// e.g.
-		// `cp /usr/local/systemd-cd/opt/<name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/opt/*`
+		// `cp /usr/local/systemd-cd/opt/<name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/opt/`
+		err = unix.MkdirIfNotExist(backupPath + "opt/")
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
 		err = unix.Cp(
 			unix.ExecuteOption{},
 			unix.CpOption{
 				Recursive: true,
 			},
-			p.service.PathOptDir+"*",
+			p.service.PathOptDir+p.ManifestMerged.Name+"/*",
 			backupPath+"opt/",
 		)
 		if err != nil {
