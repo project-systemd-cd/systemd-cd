@@ -9,6 +9,9 @@ import (
 func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) {
 	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: m}}))
 
+	// TODO: find pipeline from repository.
+	// TODO: if manifest updated, update pipeline in repository.
+
 	// Define pipeline
 	p := &pipeline{
 		ManifestLocal:   m,

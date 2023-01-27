@@ -71,6 +71,7 @@ func (p *pipeline) Sync() (err error) {
 
 	// Backup
 	if oldStatus != StatusError {
+		// TODO: stop systemd service before backup
 		err = p.backupInstalled()
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))

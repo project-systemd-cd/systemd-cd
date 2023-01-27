@@ -51,6 +51,7 @@ func (m *ServiceManifestMerged) Validate() error {
 			}
 		}
 	}
+	// TODO: omitempty
 	if m.ExecuteCommand == "" {
 		err := errors.New("failed to validate manifest: 'execute_command' is require")
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
