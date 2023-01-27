@@ -10,9 +10,9 @@ type ServiceManifestLocal struct {
 	Port           *uint16       `toml:"port,omitempty"`
 	TestCommands   *[]string     `toml:"test_commands,omitempty"`
 	BuildCommands  *[]string     `toml:"build_commands,omitempty"`
-	Opt            *[]string     `toml:"src,omitempty"`
+	Opt            *[]string     `toml:"opt_files,omitempty"`
 	Etc            *[]PathOption `toml:"etc,omitempty"`
-	EnvVars        []EnvVar      `toml:"env_variables,omitempty"`
+	EnvVars        []EnvVar      `toml:"env,omitempty"`
 	Binaries       *[]string     `toml:"binaries,omitempty"`
 	ExecuteCommand *string       `toml:"execute_command,omitempty"`
 	Args           *string       `toml:"args,omitempty"`
@@ -24,7 +24,7 @@ type ServiceManifestRemote struct {
 	Port          *uint16      `toml:"port,omitempty"`
 	TestCommands  *[]string    `toml:"test_commands,omitempty"`
 	BuildCommands *[]string    `toml:"build_commands,omitempty"`
-	Opt           []string     `toml:"src,omitempty"`
+	Opt           []string     `toml:"opt_files,omitempty"`
 	Etc           []PathOption `toml:"etc,omitempty"`
 	Binaries      *[]string    `toml:"binaries,omitempty"`
 	// TODO: omitempty
@@ -38,9 +38,9 @@ type ServiceManifestMerged struct {
 	Port          *uint16      `toml:"port,omitempty"`
 	TestCommands  *[]string    `toml:"test_commands,omitempty"`
 	BuildCommands *[]string    `toml:"build_commands,omitempty"`
-	Opt           []string     `toml:"src,omitempty"`
+	Opt           []string     `toml:"opt_files,omitempty"`
 	Etc           []PathOption `toml:"etc,omitempty"`
-	EnvVars       []EnvVar     `toml:"env_variables,omitempty"`
+	EnvVars       []EnvVar     `toml:"env,omitempty"`
 	Binaries      *[]string    `toml:"binaries,omitempty"`
 	// TODO: omitempty
 	ExecuteCommand string `toml:"execute_command"`
