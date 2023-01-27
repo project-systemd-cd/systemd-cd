@@ -4,7 +4,7 @@ import "systemd-cd/domain/model/logger"
 
 // Open local git repository.
 // If local git repository does not exist, execute clone.
-func (git *Git) NewLocalRepository(path Path, remoteUrl string, branch string) (repo *RepositoryLocal, err error) {
+func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch string) (cloned bool, repo *RepositoryLocal, err error) {
 	logger.Logger().Tracef("Called:\n\tpath: %v\n\tremoteUrl: %v\n\tbranch: %v", path, remoteUrl, branch)
 
 	// Open git dir if exists
@@ -22,14 +22,14 @@ func (git *Git) NewLocalRepository(path Path, remoteUrl string, branch string) (
 			return
 		}
 		repo = &RepositoryLocal{
-			git:          git,
+			git:          &git,
 			RemoteUrl:    remoteUrl,
 			TargetBranch: branch,
 			RefCommitId:  ref,
 			Path:         path,
 		}
 		logger.Logger().Tracef("Finished:\n\tRepositoryLocal: %v", *repo)
-		return repo, nil
+		return false, repo, nil
 	}
 
 	// Clone
@@ -46,12 +46,12 @@ func (git *Git) NewLocalRepository(path Path, remoteUrl string, branch string) (
 		return
 	}
 	repo = &RepositoryLocal{
-		git:          git,
+		git:          &git,
 		RemoteUrl:    remoteUrl,
 		TargetBranch: branch,
 		RefCommitId:  ref,
 		Path:         path,
 	}
 	logger.Logger().Tracef("Finished:\n\tRepositoryLocal: %v", *repo)
-	return repo, nil
+	return true, repo, nil
 }

@@ -4,12 +4,13 @@ import (
 	"strings"
 	"systemd-cd/domain/model/logger"
 	"systemd-cd/domain/model/systemd"
+	"systemd-cd/domain/model/unix"
 )
 
 func (s systemctl) Status(service string) (systemd.Status, error) {
 	logger.Logger().Tracef("Called:\n\targ.service: %v", service)
 
-	exitCode, stdout, _, err := executeCommand("systemctl", "is-active", service)
+	exitCode, stdout, _, err := unix.Execute(unix.ExecuteOption{}, "systemctl", "is-active", service)
 	if exitCode != 0 && exitCode != 3 && err != nil {
 		logger.Logger().Errorf("Error:\n\terr: %v", err)
 		return "", err

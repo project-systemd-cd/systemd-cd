@@ -27,13 +27,14 @@ type (
 	UnitType string
 
 	ServiceDirective struct {
-		Type            *UnitType
-		EnvironmentFile *string
-		ExecStart       string
-		ExecStop        *string
-		ExecReload      *string
-		Restart         *string
-		RemainAfterExit *string
+		Type             *UnitType
+		WorkingDirectory *string
+		EnvironmentFile  *string
+		ExecStart        string
+		ExecStop         *string
+		ExecReload       *string
+		Restart          *string
+		RemainAfterExit  *string
 	}
 
 	InstallDirective struct {
@@ -78,13 +79,14 @@ type (
 	}
 
 	serviceDirectiveToml struct {
-		Type            *UnitType `toml:"Type,omitempty"`
-		EnvironmentFile *string   `toml:"EnvironmentFile,omitempty"`
-		ExecStart       string    `toml:"ExecStart"`
-		ExecStop        *string   `toml:"ExecStop,omitempty"`
-		ExecReload      *string   `toml:"ExecReload,omitempty"`
-		Restart         *string   `toml:"Restart,omitempty"`
-		RemainAfterExit *string   `toml:"RemainAfterExit,omitempty"`
+		Type             *UnitType `toml:"Type,omitempty"`
+		WorkingDirectory *string   `toml:"WorkingDirectory,omitempty"`
+		EnvironmentFile  *string   `toml:"EnvironmentFile,omitempty"`
+		ExecStart        string    `toml:"ExecStart"`
+		ExecStop         *string   `toml:"ExecStop,omitempty"`
+		ExecReload       *string   `toml:"ExecReload,omitempty"`
+		Restart          *string   `toml:"Restart,omitempty"`
+		RemainAfterExit  *string   `toml:"RemainAfterExit,omitempty"`
 	}
 
 	installDirectiveToml struct {
@@ -109,13 +111,14 @@ func MarshalUnitFile(u UnitFileService) ([]byte, error) {
 			Conflicts:     spacedString(u.Unit.Conflicts),
 		},
 		Service: serviceDirectiveToml{
-			Type:            u.Service.Type,
-			EnvironmentFile: u.Service.EnvironmentFile,
-			ExecStart:       u.Service.ExecStart,
-			ExecStop:        u.Service.ExecStop,
-			ExecReload:      u.Service.ExecReload,
-			Restart:         u.Service.Restart,
-			RemainAfterExit: u.Service.RemainAfterExit,
+			Type:             u.Service.Type,
+			WorkingDirectory: u.Service.WorkingDirectory,
+			EnvironmentFile:  u.Service.EnvironmentFile,
+			ExecStart:        u.Service.ExecStart,
+			ExecStop:         u.Service.ExecStop,
+			ExecReload:       u.Service.ExecReload,
+			Restart:          u.Service.Restart,
+			RemainAfterExit:  u.Service.RemainAfterExit,
 		},
 		Install: installDirectiveToml{
 			Alias:           spacedString(u.Install.Alias),
@@ -181,13 +184,14 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 			Conflicts:     slice(ut.Unit.Conflicts),
 		},
 		Service: ServiceDirective{
-			Type:            ut.Service.Type,
-			EnvironmentFile: ut.Service.EnvironmentFile,
-			ExecStart:       ut.Service.ExecStart,
-			ExecStop:        ut.Service.ExecStop,
-			ExecReload:      ut.Service.ExecReload,
-			Restart:         ut.Service.Restart,
-			RemainAfterExit: ut.Service.RemainAfterExit,
+			Type:             ut.Service.Type,
+			WorkingDirectory: ut.Service.WorkingDirectory,
+			EnvironmentFile:  ut.Service.EnvironmentFile,
+			ExecStart:        ut.Service.ExecStart,
+			ExecStop:         ut.Service.ExecStop,
+			ExecReload:       ut.Service.ExecReload,
+			Restart:          ut.Service.Restart,
+			RemainAfterExit:  ut.Service.RemainAfterExit,
 		},
 		Install: InstallDirective{
 			Alias:           slice(ut.Install.Alias),

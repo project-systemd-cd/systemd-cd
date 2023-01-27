@@ -23,6 +23,6 @@ func (g *GitCommand) RefBranchName(workingDir git.Path) (string, error) {
 		return "", errors.New("ref `" + r2.String() + "` is not git branch")
 	}
 
-	logger.Logger().Tracef("Finished:\n\trefBranchName: %v", r2.String())
-	return r2.String(), nil
+	logger.Logger().Tracef("Finished:\n\trefBranchName: %v", r2.Name().Short())
+	return r2.Name().Short(), nil
 }

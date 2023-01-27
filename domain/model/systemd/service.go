@@ -12,7 +12,7 @@ var (
 	ErrUnitEnvFileNotManaged = errors.New("unit env file not managed by systemd-cd")
 )
 
-type iSystemdService interface {
+type IService interface {
 	// Generate unit-file.
 	// If unit-file already exists, replace it.
 	NewService(name string, uf UnitFileService, env map[string]string) (UnitService, error)
@@ -25,7 +25,7 @@ type iSystemdService interface {
 	writeEnvFile(e map[string]string, path string) error
 }
 
-func New(s Systemctl, unitFileDir string) (iSystemdService, error) {
+func New(s Systemctl, unitFileDir string) (IService, error) {
 	logger.Logger().Tracef("Called:\n\targ.s: %v\n\targ.unitFileDir: %v", s, unitFileDir)
 
 	// check `unitFileDir`
