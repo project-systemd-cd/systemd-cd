@@ -13,7 +13,6 @@ type iPipelineService interface {
 }
 
 type Directories struct {
-	Var                string
 	Src                string
 	Binary             string
 	Etc                string
@@ -23,11 +22,11 @@ type Directories struct {
 	Backup             string
 }
 
-func NewService(git git.IService, systemd systemd.IService, d Directories) (iPipelineService, error) {
+func NewService(repo IRepository, git git.IService, systemd systemd.IService, d Directories) (iPipelineService, error) {
 	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "directories", Value: d}}))
 
 	for _, d := range []*string{
-		&d.Var, &d.Src, &d.Binary, &d.Etc, &d.Opt,
+		&d.Src, &d.Binary, &d.Etc, &d.Opt,
 		&d.SystemdUnitFile, &d.SystemdUnitEnvFile, &d.Backup,
 	} {
 		if !strings.HasSuffix(*d, "/") {
@@ -43,8 +42,8 @@ func NewService(git git.IService, systemd systemd.IService, d Directories) (iPip
 	}
 
 	p := &pipelineService{
-		git, systemd,
-		d.Var, d.Src, d.Binary, d.Etc, d.Opt,
+		repo, git, systemd,
+		d.Src, d.Binary, d.Etc, d.Opt,
 		d.SystemdUnitFile, d.SystemdUnitEnvFile, d.Backup,
 	}
 
@@ -53,10 +52,10 @@ func NewService(git git.IService, systemd systemd.IService, d Directories) (iPip
 }
 
 type pipelineService struct {
+	repo    IRepository
 	Git     git.IService
 	Systemd systemd.IService
 
-	PathVarDir                string
 	PathSrcDir                string
 	PathBinDir                string
 	PathEtcDir                string

@@ -8,6 +8,7 @@ import (
 	"systemd-cd/domain/logrus"
 	"systemd-cd/domain/pipeline"
 	"systemd-cd/domain/systemd"
+	"systemd-cd/infrastructure/datasource/toml"
 	"systemd-cd/infrastructure/externalapi/git_command"
 	"systemd-cd/infrastructure/externalapi/systemctl"
 	"time"
@@ -21,14 +22,14 @@ var (
 	logLevel                  = pflag.String("log.level", "info", "Only log messages with the given severity or above. One of: [panic, fatal, error, warn, info, debug, trace]")
 	logReportCaller           = pflag.Bool("log.report-caller", false, "Enable log report caller")
 	logTimestamp              = pflag.Bool("log.timestamp", false, "Enable log timestamp.")
-	varDir                    = pflag.String("storage.var-dir", "/var/lib/systemd-cd/", "Path to variable files")
-	srcDestDir                = pflag.String("storage.src-dir", "/usr/local/systemd-cd/src/", "Path to service source files")
-	binaryDestDir             = pflag.String("storage.binary-dir", "/usr/local/systemd-cd/bin/", "Path to service binary files")
-	etcDestDir                = pflag.String("storage.etc-dir", "/usr/local/systemd-cd/etc/", "Path to service etc files")
-	optDestDir                = pflag.String("storage.opt-dir", "/usr/local/systemd-cd/opt/", "Path to service opt files")
-	systemdUnitFileDestDir    = pflag.String("systemd.unit-file-dir", "/usr/local/lib/systemd/system/", "Path to systemd unit files.")
-	systemdUnitEnvFileDestDir = pflag.String("systemd.unit-env-file-dir", "/usr/local/systemd-cd/etc/default/", "Path to systemd env files")
-	backupDestDir             = pflag.String("storage.backup-dir", "/var/backups/systemd-cd/", "Path to service backup files")
+	varDir                    = pflag.String("dir.var", "/var/lib/systemd-cd/", "Path to variable files")
+	srcDestDir                = pflag.String("dir.src", "/usr/local/systemd-cd/src/", "Path to service source files")
+	binaryDestDir             = pflag.String("dir.binary", "/usr/local/systemd-cd/bin/", "Path to service binary files")
+	etcDestDir                = pflag.String("dir.etc", "/usr/local/systemd-cd/etc/", "Path to service etc files")
+	optDestDir                = pflag.String("dir.opt", "/usr/local/systemd-cd/opt/", "Path to service opt files")
+	systemdUnitFileDestDir    = pflag.String("dir.systemd-unit-file", "/usr/local/lib/systemd/system/", "Path to systemd unit files.")
+	systemdUnitEnvFileDestDir = pflag.String("dir.systemd-unit-env-file", "/usr/local/systemd-cd/etc/default/", "Path to systemd env files")
+	backupDestDir             = pflag.String("dir.backup", "/var/backups/systemd-cd/", "Path to service backup files")
 )
 
 func convertLogLevel(str string) (ok bool, lv logger.Level) {
@@ -79,10 +80,15 @@ func main() {
 
 	g := git.NewService(git_command.New())
 
+	repo, err := toml.NewRepositoryPipeline(*varDir)
+	if err != nil {
+		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		os.Exit(1)
+	}
+
 	p, err := pipeline.NewService(
-		g, s,
+		repo, g, s,
 		pipeline.Directories{
-			Var:                *varDir,
 			Src:                *srcDestDir,
 			Binary:             *binaryDestDir,
 			Etc:                *etcDestDir,
