@@ -1,7 +1,7 @@
 package git_command
 
 import (
-	"errors"
+	"fmt"
 	"systemd-cd/domain/git"
 	"systemd-cd/domain/logger"
 )
@@ -20,7 +20,7 @@ func (g *GitCommand) RefBranchName(workingDir git.Path) (string, error) {
 		return "", err
 	}
 	if !r2.Name().IsBranch() {
-		return "", errors.New("ref `" + r2.String() + "` is not git branch")
+		return "", fmt.Errorf("ref '%s' is not git branch", r2.Name().String())
 	}
 
 	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "refBranchName", Value: r2.Name().Short()}}))

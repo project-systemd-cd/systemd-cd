@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"errors"
+	"fmt"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 )
@@ -60,7 +60,7 @@ func (p *pipeline) Init() (err error) {
 		return err
 	}
 	if s != systemd.StatusRunning {
-		err = errors.New("failed to ")
+		err = fmt.Errorf("systemd service '%s' is not running", p.ManifestMerged.Name)
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}

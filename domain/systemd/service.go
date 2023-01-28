@@ -7,7 +7,6 @@ import (
 )
 
 var (
-	ErrNoSuchFileOrDir       = errors.New("no such file or directory")
 	ErrUnitFileNotManaged    = errors.New("unit file not managed by systemd-cd")
 	ErrUnitEnvFileNotManaged = errors.New("unit env file not managed by systemd-cd")
 )

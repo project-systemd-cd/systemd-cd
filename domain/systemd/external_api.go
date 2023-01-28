@@ -3,7 +3,7 @@ package systemd
 import "errors"
 
 var (
-	ErrUnitStatusCannotUnmarshal = errors.New("cannot unmarshal stdout `systemctl is-active`")
+	ErrUnitStatusCannotUnmarshal = errors.New("cannot unmarshal stdout of `systemctl is-active`")
 )
 
 type Systemctl interface {

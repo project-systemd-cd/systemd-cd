@@ -34,7 +34,7 @@ func (p *pipeline) findBackupByCommitId(commitId string) (string, error) {
 		}
 	}
 	if !found {
-		return "", fmt.Errorf("backup of version \"%s\" not found", commitId)
+		return "", fmt.Errorf("backup of version '%s' not found", commitId)
 	}
 
 	return backupPath, nil
