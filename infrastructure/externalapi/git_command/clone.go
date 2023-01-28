@@ -22,5 +22,5 @@ func (g *GitCommand) Clone(path git.Path, remoteUrl string, targetBranch string,
 	}
 
 	logger.Logger().Trace("Finished")
-	return err
+	return nil
 }

@@ -2,6 +2,8 @@ package git
 
 import "systemd-cd/domain/logger"
 
+const DefaultRemoteName = "origin"
+
 // Open local git repository.
 // If local git repository does not exist, execute clone.
 func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch string) (cloned bool, repo *RepositoryLocal, err error) {
@@ -20,6 +22,35 @@ func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch str
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return
+		}
+		// Check remote url
+		var s string
+		s, err = git.command.GetRemoteUrl(path, DefaultRemoteName)
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return
+		}
+		if s != remoteUrl {
+			// if remote url is different, set remote url
+			err = git.command.SetRemoteUrl(path, DefaultRemoteName, remoteUrl)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return
+			}
+		}
+		// Check branch
+		s, err = git.command.RefBranchName(path)
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return
+		}
+		if s != branch {
+			// if branch is different, switch branch
+			err = git.command.Checkout(path, branch)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return
+			}
 		}
 		repo = &RepositoryLocal{
 			git:          &git,

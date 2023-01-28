@@ -23,5 +23,5 @@ func (g *GitCommand) Fetch(workingDir git.Path) error {
 	}
 
 	logger.Logger().Trace("Finished")
-	return err
+	return nil
 }

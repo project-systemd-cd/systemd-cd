@@ -16,5 +16,7 @@ type GitCommand interface {
 	IsGitDirectory(workingDir Path) (bool, error)
 	RefCommitId(workingDir Path) (string, error)
 	RefBranchName(workingDir Path) (string, error)
+	Checkout(workingDir Path, branch string) error
 	GetRemoteUrl(workingDir Path, remoteName string) (string, error)
+	SetRemoteUrl(workingDir Path, remoteName string, url string) error
 }
