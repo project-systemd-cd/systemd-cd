@@ -42,6 +42,28 @@ func (m *ServiceManifestMerged) Validate() error {
 			}
 		}
 	}
+	for i, opt := range m.Opt {
+		if opt == "" {
+			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'opt_files[%d]' cannot be empty text", i)}
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+	}
+	for i, etc := range m.Etc {
+		if etc.Target == "" {
+			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'etc[%d].target' cannot be empty text", i)}
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		if etc.Option == "" {
+			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'etc[%d].option' cannot be empty text", i)}
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+	}
+	// TODO: validate env
+	logger.Logger().Warn("Environment variables are unsafe because they are not checked for security")
+	// for i, ev := range m.EnvVars {}
 	if m.Binaries != nil {
 		for i, binary := range *m.Binaries {
 			if binary == "" {
