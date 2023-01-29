@@ -81,5 +81,5 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 	}
 
 	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: UnitService{s.systemctl, name, uf, path, env}}}))
-	return UnitService{s.systemctl, name, uf, path, env}, err
+	return UnitService{s.systemctl, name, uf, path, env}, nil
 }
