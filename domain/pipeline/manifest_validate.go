@@ -19,11 +19,6 @@ func (m *ServiceManifestMerged) Validate() error {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
-	if m.Port != nil && (*m.Port < 1 || *m.Port > 65535) {
-		var err error = &errors.ErrValidationMsg{Msg: "failed to validate manifest: 'port' must be between 0 and 65535"}
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
-	}
 	if m.TestCommands != nil {
 		for i, cmd := range *m.TestCommands {
 			if cmd == "" {
@@ -49,21 +44,6 @@ func (m *ServiceManifestMerged) Validate() error {
 			return err
 		}
 	}
-	for i, etc := range m.Etc {
-		if etc.Target == "" {
-			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'etc[%d].target' cannot be empty text", i)}
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
-		}
-		if etc.Option == "" {
-			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'etc[%d].option' cannot be empty text", i)}
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
-		}
-	}
-	// TODO: validate env
-	logger.Logger().Warn("Environment variables are unsafe because they are not checked for security")
-	// for i, ev := range m.EnvVars {}
 	if m.Binaries != nil {
 		for i, binary := range *m.Binaries {
 			if binary == "" {
@@ -73,11 +53,36 @@ func (m *ServiceManifestMerged) Validate() error {
 			}
 		}
 	}
-	// TODO: omitempty
-	if m.ExecuteCommand == "" {
-		var err error = &errors.ErrValidationMsg{Msg: "failed to validate manifest: 'execute_command' is require"}
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
+	for i, s := range m.SystemdOptions {
+		// TODO: validate name duplication
+		if s.Name == "" {
+			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].name' cannot be empty text", i)}
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		if s.ExecuteCommand == "" {
+			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].execute_command' cannot be empty text", i)}
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		for j, etc := range s.Etc {
+			if etc.Target == "" {
+				var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].etc[%d].target' cannot be empty text", i, j)}
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+			if etc.Option == "" {
+				var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].etc[%d].option' cannot be empty text", i, j)}
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+		}
+		// TODO: validate port duplication
+		if s.Port != nil && (*s.Port < 1 || *s.Port > 65535) {
+			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].port' must be between 0 and 65535", i)}
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
 	}
 
 	logger.Logger().Trace("Finished")

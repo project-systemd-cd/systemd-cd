@@ -5,46 +5,50 @@ type ServiceManifestLocal struct {
 	GitTargetBranch string  `toml:"git_target_branch"`
 	GitManifestFile *string `toml:"git_manifest_file,omitempty"`
 
-	Name           string        `toml:"name"`
-	Description    *string       `toml:"description,omitempty"`
-	Port           *uint16       `toml:"port,omitempty"`
-	TestCommands   *[]string     `toml:"test_commands"`
-	BuildCommands  *[]string     `toml:"build_commands"`
-	Opt            *[]string     `toml:"opt_files"`
-	Etc            *[]PathOption `toml:"etc"`
-	EnvVars        []EnvVar      `toml:"env"`
-	Binaries       *[]string     `toml:"binaries"`
-	ExecuteCommand *string       `toml:"execute_command,omitempty"`
-	Args           *string       `toml:"args,omitempty"`
+	Name           string          `toml:"name"`
+	TestCommands   *[]string       `toml:"test_commands"`
+	BuildCommands  *[]string       `toml:"build_commands"`
+	Opt            *[]string       `toml:"opt_files"`
+	Binaries       *[]string       `toml:"binaries"`
+	SystemdOptions []SystemdOption `toml:"systemd"`
 }
 
 type ServiceManifestRemote struct {
-	Name          string       `toml:"name"`
-	Description   string       `toml:"description"`
-	Port          *uint16      `toml:"port,omitempty"`
-	TestCommands  *[]string    `toml:"test_commands"`
-	BuildCommands *[]string    `toml:"build_commands"`
-	Opt           []string     `toml:"opt_files,omitempty"`
-	Etc           []PathOption `toml:"etc,omitempty"`
-	Binaries      *[]string    `toml:"binaries"`
-	// TODO: omitempty
-	ExecuteCommand string `toml:"execute_command"`
-	Args           string `toml:"args"`
+	Name           string          `toml:"name"`
+	TestCommands   *[]string       `toml:"test_commands"`
+	BuildCommands  *[]string       `toml:"build_commands"`
+	Opt            []string        `toml:"opt_files,omitempty"`
+	Binaries       *[]string       `toml:"binaries"`
+	SystemdOptions []SystemdOption `toml:"systemd"`
 }
 
 type ServiceManifestMerged struct {
-	Name          string       `toml:"name"`
-	Description   string       `toml:"description"`
-	Port          *uint16      `toml:"port,omitempty"`
-	TestCommands  *[]string    `toml:"test_commands"`
-	BuildCommands *[]string    `toml:"build_commands"`
-	Opt           []string     `toml:"opt_files,omitempty"`
-	Etc           []PathOption `toml:"etc,omitempty"`
-	EnvVars       []EnvVar     `toml:"env"`
-	Binaries      *[]string    `toml:"binaries"`
-	// TODO: omitempty
-	ExecuteCommand string `toml:"execute_command"`
-	Args           string `toml:"args"`
+	Name           string                `toml:"name"`
+	TestCommands   *[]string             `toml:"test_commands"`
+	BuildCommands  *[]string             `toml:"build_commands"`
+	Opt            []string              `toml:"opt_files,omitempty"`
+	Binaries       *[]string             `toml:"binaries"`
+	SystemdOptions []SystemdOptionMerged `toml:"systemd"`
+}
+
+type SystemdOption struct {
+	Name           string       `toml:"name"`
+	Description    *string      `toml:"description,omitempty"`
+	ExecuteCommand string       `toml:"execute_command"`
+	Args           string       `toml:"args"`
+	EnvVars        []EnvVar     `toml:"env"`
+	Etc            []PathOption `toml:"etc,omitempty"`
+	Port           *uint16      `toml:"port,omitempty"`
+}
+
+type SystemdOptionMerged struct {
+	Name           string       `toml:"name"`
+	Description    string       `toml:"description,omitempty"`
+	ExecuteCommand string       `toml:"execute_command"`
+	Args           string       `toml:"args"`
+	EnvVars        []EnvVar     `toml:"env"`
+	Etc            []PathOption `toml:"etc,omitempty"`
+	Port           *uint16      `toml:"port,omitempty"`
 }
 
 type PathOption struct {

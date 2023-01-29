@@ -40,29 +40,32 @@ func (p *pipeline) Init() (err error) {
 	}
 
 	// Install
-	service, err := p.install()
+	services, err := p.install()
 	if err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
+	logger.Logger().Debugf("Debug:\n\tservices: %v", services)
 
-	// Execute over systemd
-	err = service.Start()
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
-	}
+	for _, s := range services {
+		// Execute over systemd
+		err = s.Start()
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
 
-	// Get status of systemd service
-	s, err := service.GetStatus()
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
-	}
-	if s != systemd.StatusRunning {
-		err = fmt.Errorf("systemd service '%s' is not running", p.ManifestMerged.Name)
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
+		// Get status of systemd service
+		s, err := s.GetStatus()
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		if s != systemd.StatusRunning {
+			err = fmt.Errorf("systemd service '%s' is not running", p.ManifestMerged.Name)
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
 	}
 
 	p.Status = StatusSynced

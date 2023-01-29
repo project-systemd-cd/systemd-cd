@@ -108,19 +108,33 @@ func main() {
 		GitTargetBranch: "main",
 		GitManifestFile: nil,
 		Name:            "prometheus_sh_exporter",
-		Description:     func() *string { s := "The shell exporter allows probing with shell scripts."; return &s }(),
-		Port:            func() *uint16 { p := uint16(9923); return &p }(),
 		TestCommands:    nil,
 		BuildCommands:   func() *[]string { s := []string{"/usr/bin/go build"}; return &s }(),
 		Opt:             &[]string{},
-		Etc: &[]pipeline.PathOption{{
-			Target: "sh.yml",
-			Option: "-config.file",
+		Binaries:        func() *[]string { s := []string{"prometheus_sh_exporter"}; return &s }(),
+		SystemdOptions: []pipeline.SystemdOption{{
+			Name:           "prometheus_sh_exporter",
+			Description:    func() *string { s := "The shell exporter allows probing with shell scripts."; return &s }(),
+			ExecuteCommand: "prometheus_sh_exporter",
+			Args:           "",
+			EnvVars:        []pipeline.EnvVar{},
+			Etc: []pipeline.PathOption{{
+				Target: "sh.yml",
+				Option: "-config.file",
+			}},
+			Port: func() *uint16 { p := uint16(9923); return &p }(),
+		}, {
+			Name:           "prometheus_sh_exporter2",
+			Description:    func() *string { s := "The shell exporter allows probing with shell scripts."; return &s }(),
+			ExecuteCommand: "prometheus_sh_exporter",
+			Args:           "--port 9924",
+			EnvVars:        []pipeline.EnvVar{},
+			Etc: []pipeline.PathOption{{
+				Target: "sh.yml",
+				Option: "-config.file",
+			}},
+			Port: func() *uint16 { p := uint16(9924); return &p }(),
 		}},
-		EnvVars:        []pipeline.EnvVar{},
-		Binaries:       func() *[]string { s := []string{"prometheus_sh_exporter"}; return &s }(),
-		ExecuteCommand: func() *string { s := "prometheus_sh_exporter"; return &s }(),
-		Args:           nil,
 	})
 	if err != nil {
 		logger.Logger().Fatalf("Failed:\n\terr: %v", err)

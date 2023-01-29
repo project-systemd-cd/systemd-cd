@@ -20,7 +20,7 @@ type iPipeline interface {
 	test() error
 	build() error
 	backupInstalled() error
-	install() (systemd.UnitService, error)
+	install() ([]systemd.UnitService, error)
 
 	// Restore latest backup.
 	// If `CommitId` specified, restore backup of specified version.

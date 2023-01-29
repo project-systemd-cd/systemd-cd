@@ -25,7 +25,7 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	}
 
 	// Read file
-	manifestInRepository := new(ServiceManifestRemote)
+	manifestRemote := new(ServiceManifestRemote)
 	b := &bytes.Buffer{}
 	err := unix.ReadFile(manifestFilePath, b)
 	if err != nil && !os.IsNotExist(err) {
@@ -34,7 +34,7 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	}
 	if !os.IsNotExist(err) {
 		// If manifest file exists, unmarshal to struct
-		err = toml.Decode(b, manifestInRepository)
+		err = toml.Decode(b, manifestRemote)
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return ServiceManifestMerged{}, err
@@ -42,26 +42,31 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	}
 
 	// Merge to local manifest
+	var manifestRemoteSystemdOptions []SystemdOptionMerged = nil
+	for _, s := range manifestRemote.SystemdOptions {
+		description := p.RepositoryLocal.RemoteUrl
+		if s.Description != nil && *s.Description != "" {
+			description = *s.Description
+		}
+		manifestRemoteSystemdOptions = append(manifestRemoteSystemdOptions, SystemdOptionMerged{
+			Name:           s.Name,
+			Description:    description,
+			ExecuteCommand: s.ExecuteCommand,
+			Args:           s.Args,
+			EnvVars:        s.EnvVars,
+			Etc:            s.Etc,
+			Port:           s.Port,
+		})
+	}
 	manifestMerged := ServiceManifestMerged{
-		Name:           manifestInRepository.Name,
-		Description:    manifestInRepository.Description,
-		Port:           manifestInRepository.Port,
-		TestCommands:   manifestInRepository.TestCommands,
-		BuildCommands:  manifestInRepository.BuildCommands,
-		Opt:            manifestInRepository.Opt,
-		Etc:            manifestInRepository.Etc,
-		EnvVars:        p.ManifestLocal.EnvVars,
-		Binaries:       manifestInRepository.Binaries,
-		ExecuteCommand: manifestInRepository.ExecuteCommand,
-		Args:           manifestInRepository.Args,
+		Name:           manifestRemote.Name,
+		TestCommands:   manifestRemote.TestCommands,
+		BuildCommands:  manifestRemote.BuildCommands,
+		Opt:            manifestRemote.Opt,
+		Binaries:       manifestRemote.Binaries,
+		SystemdOptions: manifestRemoteSystemdOptions,
 	}
 	manifestMerged.Name = p.ManifestLocal.Name
-	if p.ManifestLocal.Description != nil {
-		manifestMerged.Description = *p.ManifestLocal.Description
-	}
-	if p.ManifestLocal.Port != nil {
-		manifestMerged.Port = p.ManifestLocal.Port
-	}
 	if p.ManifestLocal.TestCommands != nil {
 		manifestMerged.TestCommands = p.ManifestLocal.TestCommands
 	}
@@ -71,17 +76,27 @@ func (p pipeline) loadManifest() (ServiceManifestMerged, error) {
 	if p.ManifestLocal.Opt != nil {
 		manifestMerged.Opt = *p.ManifestLocal.Opt
 	}
-	if p.ManifestLocal.Etc != nil {
-		manifestMerged.Etc = *p.ManifestLocal.Etc
-	}
 	if p.ManifestLocal.Binaries != nil {
 		manifestMerged.Binaries = p.ManifestLocal.Binaries
 	}
-	if p.ManifestLocal.ExecuteCommand != nil {
-		manifestMerged.ExecuteCommand = *p.ManifestLocal.ExecuteCommand
+	var systemdOptions []SystemdOptionMerged = nil
+	for _, s := range p.ManifestLocal.SystemdOptions {
+		description := p.RepositoryLocal.RemoteUrl
+		if s.Description != nil && *s.Description != "" {
+			description = *s.Description
+		}
+		systemdOptions = append(systemdOptions, SystemdOptionMerged{
+			Name:           s.Name,
+			Description:    description,
+			ExecuteCommand: s.ExecuteCommand,
+			Args:           s.Args,
+			EnvVars:        s.EnvVars,
+			Etc:            s.Etc,
+			Port:           s.Port,
+		})
 	}
-	if p.ManifestLocal.Args != nil {
-		manifestMerged.Args = *p.ManifestLocal.Args
+	if systemdOptions != nil {
+		manifestMerged.SystemdOptions = systemdOptions
 	}
 
 	// Validate manifest
