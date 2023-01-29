@@ -87,26 +87,42 @@ func (p *pipeline) Sync() (err error) {
 	}
 	logger.Logger().Debugf("Debug:\n\tservices: %v", services)
 
-	for _, s := range services {
-		// Execute over systemd
-		err = s.Restart()
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
-		}
+	// Execute over systemd
+	if services != nil || len(services) != 0 {
+		failedToExecuteOverSystemd := false
+		for _, s := range services {
+			// Execute over systemd
+			err = s.Restart()
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
 
-		// Get status of systemd service
-		s, err := s.GetStatus()
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
+			// Get status of systemd service
+			status, err := s.GetStatus()
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+			if status != systemd.StatusRunning {
+				failedToExecuteOverSystemd = true
+				break
+			}
 		}
-		if s != systemd.StatusRunning {
-			// If failed to execute over systemd, restore from backup
+		if failedToExecuteOverSystemd {
+			// Restore from backup
 			err = p.restoreBackup(restoreBackupOptions{})
 			if err != nil {
 				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return err
+			}
+			for _, s := range services {
+				// Restart systemd service
+				err = s.Restart()
+				if err != nil {
+					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+					return err
+				}
 			}
 		}
 	}
