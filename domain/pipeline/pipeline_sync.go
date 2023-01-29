@@ -40,6 +40,16 @@ func (p *pipeline) Sync() (err error) {
 	oldStatus := p.Status
 	p.Status = StatusSyncing
 
+	// Backup
+	if oldStatus != StatusError {
+		// TODO: stop systemd service before backup
+		err = p.backupInstalled()
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+	}
+
 	// Pull
 	_, err = p.RepositoryLocal.Pull(false)
 	if err != nil {
@@ -67,16 +77,6 @@ func (p *pipeline) Sync() (err error) {
 	if err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
-	}
-
-	// Backup
-	if oldStatus != StatusError {
-		// TODO: stop systemd service before backup
-		err = p.backupInstalled()
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
-		}
 	}
 
 	// Install

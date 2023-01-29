@@ -48,7 +48,6 @@ func (p pipeline) backupInstalled() error {
 
 	}
 
-	// TODO: check condition with old manifest.
 	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
 		// Backup binary
 		// e.g.
@@ -70,7 +69,6 @@ func (p pipeline) backupInstalled() error {
 		}
 	}
 
-	// TODO: check condition with old manifest.
 	if len(p.ManifestMerged.Opt) != 0 {
 		// Backup opt
 		// e.g.
