@@ -111,7 +111,6 @@ func main() {
 		Name:            "prometheus_sh_exporter",
 		TestCommands:    nil,
 		BuildCommands:   func() *[]string { s := []string{"/usr/bin/go build"}; return &s }(),
-		Opt:             &[]string{},
 		Binaries:        func() *[]string { s := []string{"prometheus_sh_exporter"}; return &s }(),
 		SystemdOptions: []pipeline.SystemdOption{{
 			Name:           "prometheus_sh_exporter",
@@ -123,6 +122,7 @@ func main() {
 				Target: "sh.yml",
 				Option: "-config.file",
 			}},
+			Opt:  []string{"LICENSE"},
 			Port: func() *uint16 { p := uint16(9923); return &p }(),
 		}, {
 			Name:           "prometheus_sh_exporter2",
@@ -134,6 +134,7 @@ func main() {
 				Target: "sh.yml",
 				Option: "-config.file",
 			}},
+			Opt:  []string{},
 			Port: func() *uint16 { p := uint16(9924); return &p }(),
 		}},
 	})

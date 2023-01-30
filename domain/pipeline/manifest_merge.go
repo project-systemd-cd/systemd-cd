@@ -17,6 +17,7 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 			Args:           s.Args,
 			EnvVars:        s.EnvVars,
 			Etc:            s.Etc,
+			Opt:            s.Opt,
 			Port:           s.Port,
 		})
 	}
@@ -26,7 +27,6 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 		GitTagRegex:     local.GitTagRegex,
 		TestCommands:    remote.TestCommands,
 		BuildCommands:   remote.BuildCommands,
-		Opt:             remote.Opt,
 		Binaries:        remote.Binaries,
 		SystemdOptions:  manifestRemoteSystemdOptions,
 	}
@@ -36,9 +36,6 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 	}
 	if local.BuildCommands != nil {
 		manifestMerged.BuildCommands = local.BuildCommands
-	}
-	if local.Opt != nil {
-		manifestMerged.Opt = *local.Opt
 	}
 	if local.Binaries != nil {
 		manifestMerged.Binaries = local.Binaries
@@ -56,6 +53,7 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 			Args:           s.Args,
 			EnvVars:        s.EnvVars,
 			Etc:            s.Etc,
+			Opt:            s.Opt,
 			Port:           s.Port,
 		})
 	}

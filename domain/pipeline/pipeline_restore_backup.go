@@ -51,16 +51,19 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		}
 	}
 
-	if p.ManifestMerged.Opt != nil {
-		// Restore opt files
-		err = unix.Cp(
-			unix.ExecuteOption{},
-			unix.CpOption{Recursive: true, Force: true},
-			backupPath+"opt/*",
-			p.service.PathOptDir,
-		)
-		if err != nil {
-			return err
+	for _, s := range p.ManifestMerged.SystemdOptions {
+		if s.Opt != nil && len(s.Opt) != 0 {
+			// Restore opt files
+			err = unix.Cp(
+				unix.ExecuteOption{},
+				unix.CpOption{Recursive: true, Force: true},
+				backupPath+"opt/*",
+				p.service.PathOptDir,
+			)
+			if err != nil {
+				return err
+			}
+			break
 		}
 	}
 

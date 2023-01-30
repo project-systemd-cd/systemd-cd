@@ -41,6 +41,27 @@ func (p pipeline) backupInstalled() error {
 				return err
 			}
 
+			if len(s.Opt) != 0 {
+				// Backup opt files
+				// e.g.
+				// `cp /usr/local/systemd-cd/opt/<unit_name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/opt/<unit_name>/`
+				err = unix.MkdirIfNotExist(backupPath + "opt/" + s.Name)
+				if err != nil {
+					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+					return err
+				}
+				err = unix.Mv(
+					unix.ExecuteOption{},
+					unix.MvOption{},
+					p.service.PathOptDir+s.Name+"/*",
+					backupPath+"opt/"+s.Name,
+				)
+				if err != nil {
+					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+					return err
+				}
+			}
+
 			// Backup env file
 			// e.g.
 			// `cp /usr/local/systemd-cd/etc/default/<unit_name> /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/env/<unit_name>`
@@ -71,27 +92,6 @@ func (p pipeline) backupInstalled() error {
 			unix.MvOption{},
 			p.service.PathBinDir+p.ManifestMerged.Name+"/*",
 			backupPath+"bin/",
-		)
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
-		}
-	}
-
-	if len(p.ManifestMerged.Opt) != 0 {
-		// Backup opt files
-		// e.g.
-		// `cp /usr/local/systemd-cd/opt/<name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/opt/`
-		err = unix.MkdirIfNotExist(backupPath + "opt/")
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
-		}
-		err = unix.Mv(
-			unix.ExecuteOption{},
-			unix.MvOption{},
-			p.service.PathOptDir+p.ManifestMerged.Name+"/*",
-			backupPath+"opt/",
 		)
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))

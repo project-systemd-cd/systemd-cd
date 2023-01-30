@@ -37,13 +37,7 @@ func (m *ServiceManifestMerged) Validate() error {
 			}
 		}
 	}
-	for i, opt := range m.Opt {
-		if opt == "" {
-			var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'opt_files[%d]' cannot be empty text", i)}
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
-		}
-	}
+
 	if m.Binaries != nil {
 		for i, binary := range *m.Binaries {
 			if binary == "" {
@@ -73,6 +67,13 @@ func (m *ServiceManifestMerged) Validate() error {
 			}
 			if etc.Option == "" {
 				var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].etc[%d].option' cannot be empty text", i, j)}
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+		}
+		for j, opt := range s.Opt {
+			if opt == "" {
+				var err error = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].opt_files[%d]' cannot be empty text", i, j)}
 				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return err
 			}

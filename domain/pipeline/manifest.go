@@ -1,6 +1,5 @@
 package pipeline
 
-// TODO: .Opt -> .SystemdOptions[i].Opt
 type ServiceManifestLocal struct {
 	GitRemoteUrl    string  `toml:"git_remote_url"`
 	GitTargetBranch string  `toml:"git_target_branch"`
@@ -10,29 +9,24 @@ type ServiceManifestLocal struct {
 	Name           string          `toml:"name"`
 	TestCommands   *[]string       `toml:"test_commands"`
 	BuildCommands  *[]string       `toml:"build_commands"`
-	Opt            *[]string       `toml:"opt_files"`
 	Binaries       *[]string       `toml:"binaries"`
 	SystemdOptions []SystemdOption `toml:"systemd"`
 }
 
-// TODO: .Opt -> .SystemdOptions[i].Opt
 type ServiceManifestRemote struct {
 	Name           string          `toml:"name"`
 	TestCommands   *[]string       `toml:"test_commands"`
 	BuildCommands  *[]string       `toml:"build_commands"`
-	Opt            []string        `toml:"opt_files,omitempty"`
 	Binaries       *[]string       `toml:"binaries"`
 	SystemdOptions []SystemdOption `toml:"systemd"`
 }
 
-// TODO: .Opt -> .SystemdOptions[i].Opt
 type ServiceManifestMerged struct {
 	Name            string                `toml:"name"`
 	GitTargetBranch string                `toml:"git_target_branch"`
 	GitTagRegex     *string               `toml:"git_taget_regex"`
 	TestCommands    *[]string             `toml:"test_commands"`
 	BuildCommands   *[]string             `toml:"build_commands"`
-	Opt             []string              `toml:"opt_files,omitempty"`
 	Binaries        *[]string             `toml:"binaries"`
 	SystemdOptions  []SystemdOptionMerged `toml:"systemd"`
 }
@@ -44,6 +38,7 @@ type SystemdOption struct {
 	Args           string       `toml:"args"`
 	EnvVars        []EnvVar     `toml:"env"`
 	Etc            []PathOption `toml:"etc,omitempty"`
+	Opt            []string     `toml:"opt_files,omitempty"`
 	Port           *uint16      `toml:"port,omitempty"`
 }
 
@@ -54,6 +49,7 @@ type SystemdOptionMerged struct {
 	Args           string       `toml:"args"`
 	EnvVars        []EnvVar     `toml:"env"`
 	Etc            []PathOption `toml:"etc,omitempty"`
+	Opt            []string     `toml:"opt_files,omitempty"`
 	Port           *uint16      `toml:"port,omitempty"`
 }
 

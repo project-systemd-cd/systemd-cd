@@ -11,6 +11,11 @@ func (p *pipeline) findBackupLatest() (backupPath string, err error) {
 	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
 
 	backupBasePath := p.service.PathBackupDir + p.ManifestMerged.Name + "/"
+	err = unix.MkdirIfNotExist(backupBasePath)
+	if err != nil {
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+		return "", err
+	}
 	s, err := unix.Ls(
 		unix.ExecuteOption{},
 		unix.LsOption{SortByDescendingTime: true},

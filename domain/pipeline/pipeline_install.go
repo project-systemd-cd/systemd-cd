@@ -10,31 +10,6 @@ import (
 func (p pipeline) install() ([]systemd.UnitService, error) {
 	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
 
-	var pathWorkingDir *string
-	if p.ManifestMerged.Opt != nil {
-		pathOptDir := p.service.PathOptDir + p.ManifestMerged.Name + "/"
-		err := unix.MkdirIfNotExist(pathOptDir)
-		if err != nil {
-			return nil, err
-		}
-		pathWorkingDir = &pathOptDir
-
-		// Copy opt files
-		for _, src := range p.ManifestMerged.Opt {
-			// Copy opt file
-			err := unix.Cp(
-				unix.ExecuteOption{WorkingDirectory: (*string)(&p.RepositoryLocal.Path)},
-				unix.CpOption{Recursive: true, Parents: true, Force: true},
-				src,
-				pathOptDir+src,
-			)
-			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-				return nil, err
-			}
-		}
-	}
-
 	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
 		pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
 		err := unix.MkdirIfNotExist(pathBinDir)
@@ -67,10 +42,42 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 		}
 
 		for _, service := range p.ManifestMerged.SystemdOptions {
+			execStart := strings.TrimPrefix(service.ExecuteCommand, "./")
+			if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
+				for _, binary := range *p.ManifestMerged.Binaries {
+					pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
+					pathBinFile := pathBinDir + strings.TrimPrefix(binary, "./")
+
+					// If binary file name equals execute command, change to absolute path
+					if strings.Split(strings.TrimPrefix(service.ExecuteCommand, "./"), " ")[0] ==
+						strings.TrimPrefix(binary, "./") {
+						// Cut out cli args
+						args := strings.TrimPrefix(
+							execStart,
+							strings.TrimPrefix(binary, "./"),
+						)
+						// Create command for `ExecStart` in systemd unit
+						execStart = pathBinFile + args
+						break
+					}
+				}
+			}
+
 			args := service.Args
 			if strings.TrimSpace(args) != "" && !strings.HasPrefix(args, " ") {
 				args = " " + args
 			}
+
+			pathEnvFile := p.service.PathSystemdUnitEnvFileDir + service.Name
+			env := map[string]string{}
+			if service.EnvVars != nil {
+				// Set environment variables
+				for _, e := range service.EnvVars {
+					env[e.Name] = e.Value
+				}
+			}
+
+			argsEtc := ""
 			if service.Etc != nil {
 				// Copy or create etc files and add to cli options
 				for _, etc := range service.Etc {
@@ -96,36 +103,31 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 						}
 					}
 					// Add to cli options
-					args += " " + etc.Option + " " + pathEtcDir + etc.Target
+					argsEtc += " " + etc.Option + " " + pathEtcDir + etc.Target
 				}
 			}
 
-			pathEnvFile := p.service.PathSystemdUnitEnvFileDir + service.Name
-			env := map[string]string{}
-			if service.EnvVars != nil {
-				// Set environment variables
-				for _, e := range service.EnvVars {
-					env[e.Name] = e.Value
+			var pathWorkingDir *string
+			if service.Opt != nil {
+				pathOptDir := p.service.PathOptDir + service.Name + "/"
+				err := unix.MkdirIfNotExist(pathOptDir)
+				if err != nil {
+					return nil, err
 				}
-			}
+				pathWorkingDir = &pathOptDir
 
-			execStart := strings.TrimPrefix(service.ExecuteCommand, "./")
-			if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
-				for _, binary := range *p.ManifestMerged.Binaries {
-					pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
-					pathBinFile := pathBinDir + strings.TrimPrefix(binary, "./")
-
-					// If binary file name equals execute command, change to absolute path
-					if strings.Split(strings.TrimPrefix(service.ExecuteCommand, "./"), " ")[0] ==
-						strings.TrimPrefix(binary, "./") {
-						// Cut out cli args
-						args := strings.TrimPrefix(
-							execStart,
-							strings.TrimPrefix(binary, "./"),
-						)
-						// Create command for `ExecStart` in systemd unit
-						execStart = pathBinFile + args
-						break
+				// Copy opt files
+				for _, src := range service.Opt {
+					// Copy opt file
+					err := unix.Cp(
+						unix.ExecuteOption{WorkingDirectory: (*string)(&p.RepositoryLocal.Path)},
+						unix.CpOption{Recursive: true, Parents: true, Force: true},
+						src,
+						pathOptDir+src,
+					)
+					if err != nil {
+						logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+						return nil, err
 					}
 				}
 			}
@@ -146,7 +148,7 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 						Type:             &unitType,
 						WorkingDirectory: pathWorkingDir,
 						EnvironmentFile:  &pathEnvFile,
-						ExecStart:        execStart + args,
+						ExecStart:        execStart + args + argsEtc,
 						ExecStop:         nil,
 						ExecReload:       nil,
 						Restart:          nil,
