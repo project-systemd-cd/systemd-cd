@@ -1,9 +1,8 @@
 package pipeline
 
 import (
-	"errors"
-	"fmt"
 	"strings"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
 )
@@ -23,7 +22,7 @@ func (p *pipeline) findBackupByCommitId(commitId string) (backupPath string, err
 		return "", err
 	}
 	if len(s) == 0 {
-		err = errors.New("no backups")
+		err = &errors.ErrNotFound{Object: "backup", IdName: "version", Id: commitId}
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
@@ -40,7 +39,7 @@ func (p *pipeline) findBackupByCommitId(commitId string) (backupPath string, err
 		}
 	}
 	if !found {
-		err = fmt.Errorf("backup of version '%s' not found", commitId)
+		err = &errors.ErrNotFound{Object: "backup", IdName: "version", Id: commitId}
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}

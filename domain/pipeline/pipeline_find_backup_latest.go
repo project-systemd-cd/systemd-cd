@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"errors"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
 )
@@ -21,7 +21,7 @@ func (p *pipeline) findBackupLatest() (backupPath string, err error) {
 		return "", err
 	}
 	if len(s) == 0 {
-		err = errors.New("no backups")
+		err = &errors.ErrNotFound{Object: "backup"}
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}

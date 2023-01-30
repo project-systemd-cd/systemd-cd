@@ -72,10 +72,20 @@ func (p *pipeline) Sync() (err error) {
 	// Backup
 	if oldStatus != StatusError {
 		// TODO: stop systemd service before backup
-		err = p.backupInstalled()
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return err
+		_, err = p.findBackupByCommitId(p.RepositoryLocal.RefCommitId)
+		var ErrNotFound *errors.ErrNotFound
+		notFound := errorss.As(err, &ErrNotFound)
+		if notFound {
+			err = p.backupInstalled()
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+		} else {
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
 		}
 	}
 
