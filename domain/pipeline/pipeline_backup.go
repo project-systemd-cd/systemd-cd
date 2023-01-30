@@ -41,6 +41,39 @@ func (p pipeline) backupInstalled() error {
 				return err
 			}
 
+			// Backup env file
+			// e.g.
+			// `cp /usr/local/systemd-cd/etc/default/<unit_name> /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/env/<unit_name>`
+			err = unix.Mv(
+				unix.ExecuteOption{},
+				unix.MvOption{},
+				p.service.PathSystemdUnitEnvFileDir+s.Name,
+				backupPath+"env/",
+			)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+
+			// Backup etc file
+			// e.g.
+			// `cp /usr/local/systemd-cd/etc/<unit_name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/etc/<unit_name>/`
+			err = unix.MkdirIfNotExist(backupPath + "etc/" + s.Name)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+			err = unix.Mv(
+				unix.ExecuteOption{},
+				unix.MvOption{},
+				p.service.PathEtcDir+s.Name+"/*",
+				backupPath+"etc/"+s.Name+"/",
+			)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+
 			if len(s.Opt) != 0 {
 				// Backup opt files
 				// e.g.
@@ -54,26 +87,12 @@ func (p pipeline) backupInstalled() error {
 					unix.ExecuteOption{},
 					unix.MvOption{},
 					p.service.PathOptDir+s.Name+"/*",
-					backupPath+"opt/"+s.Name,
+					backupPath+"opt/"+s.Name+"/",
 				)
 				if err != nil {
 					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
-			}
-
-			// Backup env file
-			// e.g.
-			// `cp /usr/local/systemd-cd/etc/default/<unit_name> /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/env/<unit_name>`
-			err = unix.Mv(
-				unix.ExecuteOption{},
-				unix.MvOption{},
-				p.service.PathSystemdUnitEnvFileDir+s.Name,
-				backupPath+"env/",
-			)
-			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-				return err
 			}
 		}
 	}

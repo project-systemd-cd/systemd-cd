@@ -58,22 +58,39 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
-	}
 
-	for _, s := range p.ManifestMerged.SystemdOptions {
-		if s.Opt != nil && len(s.Opt) != 0 {
-			// Restore opt files
-			err = unix.Cp(
-				unix.ExecuteOption{},
-				unix.CpOption{Recursive: true, Force: true},
-				backupPath+"opt/*",
-				p.service.PathOptDir,
-			)
-			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-				return err
+		for _, s := range p.ManifestMerged.SystemdOptions {
+			if s.Etc != nil && len(s.Etc) != 0 {
+				// Restore etc files
+				err = unix.Cp(
+					unix.ExecuteOption{},
+					unix.CpOption{Recursive: true, Force: true},
+					backupPath+"etc/*",
+					p.service.PathEtcDir,
+				)
+				if err != nil {
+					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+					return err
+				}
+				break
 			}
-			break
+		}
+
+		for _, s := range p.ManifestMerged.SystemdOptions {
+			if s.Opt != nil && len(s.Opt) != 0 {
+				// Restore opt files
+				err = unix.Cp(
+					unix.ExecuteOption{},
+					unix.CpOption{Recursive: true, Force: true},
+					backupPath+"opt/*",
+					p.service.PathOptDir,
+				)
+				if err != nil {
+					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+					return err
+				}
+				break
+			}
 		}
 	}
 

@@ -35,12 +35,6 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 
 	systemdServices := []systemd.UnitService{}
 	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
-		pathEtcDir := p.service.PathEtcDir + p.ManifestMerged.Name + "/"
-		err := unix.MkdirIfNotExist(pathEtcDir)
-		if err != nil {
-			return nil, err
-		}
-
 		for _, service := range p.ManifestMerged.SystemdOptions {
 			execStart := strings.TrimPrefix(service.ExecuteCommand, "./")
 			if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
@@ -79,6 +73,12 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 
 			argsEtc := ""
 			if service.Etc != nil {
+				pathEtcDir := p.service.PathEtcDir + service.Name + "/"
+				err := unix.MkdirIfNotExist(pathEtcDir)
+				if err != nil {
+					return nil, err
+				}
+
 				// Copy or create etc files and add to cli options
 				for _, etc := range service.Etc {
 					etcFilePath := pathEtcDir + etc.Target
