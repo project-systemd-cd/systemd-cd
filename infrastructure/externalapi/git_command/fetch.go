@@ -12,7 +12,7 @@ func (g *GitCommand) Fetch(workingDir git.Path) error {
 	if err != nil {
 		return err
 	}
-	err = r.Fetch(&gitcommand.FetchOptions{})
+	err = r.Fetch(&gitcommand.FetchOptions{Tags: gitcommand.AllTags})
 	if err == gitcommand.NoErrAlreadyUpToDate {
 		logger.Logger().Trace("Finished")
 		return nil

@@ -106,6 +106,7 @@ func main() {
 	p1, err := p.NewPipeline(pipeline.ServiceManifestLocal{
 		GitRemoteUrl:    "https://github.com/tingtt/prometheus_sh_exporter.git",
 		GitTargetBranch: "main",
+		GitTagRegex:     func() *string { s := "v*"; return &s }(),
 		GitManifestFile: nil,
 		Name:            "prometheus_sh_exporter",
 		TestCommands:    nil,

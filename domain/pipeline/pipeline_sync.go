@@ -1,6 +1,8 @@
 package pipeline
 
 import (
+	errorss "errors"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 )
@@ -32,11 +34,28 @@ func (p *pipeline) Sync() (err error) {
 	}
 	p.ManifestMerged = mm
 
-	// Check update
-	updateExists, err := p.GetUpdateExistence()
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
+	// Check updates
+	updateExists := false
+	var checkoutCommitId *string
+	if mm.GitTagRegex != nil {
+		hash, err := p.RepositoryLocal.FindHashByTagRegex(*p.ManifestLocal.GitTagRegex)
+		if err != nil {
+			var ErrNotFound *errors.ErrNotFound
+			if !errorss.As(err, &ErrNotFound) {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+		} else {
+			updateExists = true
+			checkoutCommitId = &hash
+		}
+	} else {
+		// Check update
+		updateExists, err = p.GetUpdateExistence()
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
 	}
 	if !updateExists {
 		// Already synced
@@ -60,11 +79,26 @@ func (p *pipeline) Sync() (err error) {
 		}
 	}
 
-	// Pull
-	_, err = p.RepositoryLocal.Pull(false)
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
+	if checkoutCommitId != nil {
+		// Checkout
+		err = p.RepositoryLocal.Checkout(*checkoutCommitId)
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+	} else {
+		// Checkout branch
+		err = p.RepositoryLocal.CheckoutBranch("refs/heads/" + p.ManifestMerged.GitTargetBranch)
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		// Pull
+		_, err = p.RepositoryLocal.Pull(false)
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
 	}
 
 	// Get manifest and merge local manifest
@@ -139,7 +173,12 @@ func (p *pipeline) Sync() (err error) {
 					return err
 				}
 			}
-			// TODO: checkout old commit id
+			// Checkout old commit id
+			err = p.RepositoryLocal.Checkout(oldCommitId)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
 			// TODO: record commit id failed
 		}
 	}

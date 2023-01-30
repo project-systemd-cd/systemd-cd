@@ -38,20 +38,6 @@ func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch str
 				return
 			}
 		}
-		// Check branch
-		s, err = git.command.RefBranchName(path)
-		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-			return
-		}
-		if s != branch {
-			// if branch is different, switch branch
-			err = git.command.Checkout(path, branch)
-			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-				return
-			}
-		}
 		repo = &RepositoryLocal{
 			git:          &git,
 			RemoteUrl:    remoteUrl,

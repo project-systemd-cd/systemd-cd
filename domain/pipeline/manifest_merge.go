@@ -21,12 +21,14 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 		})
 	}
 	manifestMerged := ServiceManifestMerged{
-		Name:           remote.Name,
-		TestCommands:   remote.TestCommands,
-		BuildCommands:  remote.BuildCommands,
-		Opt:            remote.Opt,
-		Binaries:       remote.Binaries,
-		SystemdOptions: manifestRemoteSystemdOptions,
+		Name:            remote.Name,
+		GitTargetBranch: local.GitTargetBranch,
+		GitTagRegex:     local.GitTagRegex,
+		TestCommands:    remote.TestCommands,
+		BuildCommands:   remote.BuildCommands,
+		Opt:             remote.Opt,
+		Binaries:        remote.Binaries,
+		SystemdOptions:  manifestRemoteSystemdOptions,
 	}
 	manifestMerged.Name = local.Name
 	if local.TestCommands != nil {
