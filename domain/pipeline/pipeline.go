@@ -12,11 +12,11 @@ type iPipeline interface {
 	// If fail to execute over systemd, restore from backup.
 	Sync() error
 
-	CheckUpdate() (updateExists bool, err error)
+	GetUpdateExistence() (updateExists bool, err error)
 	GetStatus() Status
 	GetCommitRef() string
 
-	loadManifest() (ServiceManifestMerged, error)
+	getRemoteManifest() (ServiceManifestRemote, error)
 	test() error
 	build() error
 	backupInstalled() error

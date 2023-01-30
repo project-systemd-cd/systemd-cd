@@ -18,12 +18,17 @@ func (p *pipeline) Init() (err error) {
 	p.Status = StatusSyncing
 
 	// Get manifest and merge local manifest
-	m, err := p.loadManifest()
+	m, err := p.getRemoteManifest()
 	if err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
-	p.ManifestMerged = m
+	mm, err := m.merge(p.RepositoryLocal.RemoteUrl, p.ManifestLocal)
+	if err != nil {
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+		return err
+	}
+	p.ManifestMerged = mm
 
 	// Test
 	err = p.test()

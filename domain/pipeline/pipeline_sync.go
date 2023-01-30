@@ -14,16 +14,26 @@ func (p *pipeline) Sync() (err error) {
 		}
 	}()
 
+	if p.Status == StatusSyncing {
+		logger.Logger().Debugf("Pipeline \"%s\" is syncing", p.ManifestMerged.Name)
+		return nil
+	}
+
 	// Get manifest and merge local manifest
-	m, err := p.loadManifest()
+	m, err := p.getRemoteManifest()
 	if err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
-	p.ManifestMerged = m
+	mm, err := m.merge(p.RepositoryLocal.RemoteUrl, p.ManifestLocal)
+	if err != nil {
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+		return err
+	}
+	p.ManifestMerged = mm
 
 	// Check update
-	updateExists, err := p.CheckUpdate()
+	updateExists, err := p.GetUpdateExistence()
 	if err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
@@ -36,11 +46,8 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Update exists
-	if p.Status == StatusSyncing {
-		logger.Logger().Debugf("Pipeline \"%s\" is syncing", p.ManifestMerged.Name)
-		return nil
-	}
 	oldStatus := p.Status
+	oldCommitId := p.GetCommitRef()
 	p.Status = StatusSyncing
 
 	// Backup
@@ -61,12 +68,17 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Get manifest and merge local manifest
-	m2, err := p.loadManifest()
+	m2, err := p.getRemoteManifest()
 	if err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
-	p.ManifestMerged = m2
+	mm2, err := m2.merge(p.RepositoryLocal.RemoteUrl, p.ManifestLocal)
+	if err != nil {
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+		return err
+	}
+	p.ManifestMerged = mm2
 
 	// Test
 	err = p.test()
@@ -114,7 +126,7 @@ func (p *pipeline) Sync() (err error) {
 		}
 		if failedToExecuteOverSystemd {
 			// Restore from backup
-			err = p.restoreBackup(restoreBackupOptions{})
+			err = p.restoreBackup(restoreBackupOptions{&oldCommitId})
 			if err != nil {
 				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return err
@@ -127,6 +139,8 @@ func (p *pipeline) Sync() (err error) {
 					return err
 				}
 			}
+			// TODO: checkout old commit id
+			// TODO: record commit id failed
 		}
 	}
 

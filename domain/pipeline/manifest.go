@@ -1,5 +1,6 @@
 package pipeline
 
+// TODO: .Opt -> .SystemdOptions[i].Opt
 type ServiceManifestLocal struct {
 	GitRemoteUrl    string  `toml:"git_remote_url"`
 	GitTargetBranch string  `toml:"git_target_branch"`
@@ -13,6 +14,7 @@ type ServiceManifestLocal struct {
 	SystemdOptions []SystemdOption `toml:"systemd"`
 }
 
+// TODO: .Opt -> .SystemdOptions[i].Opt
 type ServiceManifestRemote struct {
 	Name           string          `toml:"name"`
 	TestCommands   *[]string       `toml:"test_commands"`
@@ -22,6 +24,7 @@ type ServiceManifestRemote struct {
 	SystemdOptions []SystemdOption `toml:"systemd"`
 }
 
+// TODO: .Opt -> .SystemdOptions[i].Opt
 type ServiceManifestMerged struct {
 	Name           string                `toml:"name"`
 	TestCommands   *[]string             `toml:"test_commands"`

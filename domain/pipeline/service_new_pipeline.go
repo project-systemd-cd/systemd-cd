@@ -80,7 +80,9 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) 
 	if cloned {
 		err = p.Init()
 	} else {
-		err = p.Sync()
+		if p.Status != StatusSyncing {
+			err = p.Sync()
+		}
 	}
 	if err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
