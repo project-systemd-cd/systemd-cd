@@ -9,6 +9,12 @@ type ErrNotFound struct {
 }
 
 func (e *ErrNotFound) Error() string {
+	if e.IdName == "" && e.Id == "" {
+		return fmt.Sprintf("\"%s\" not found", e.Object)
+	}
+	if e.IdName == "" {
+		e.IdName = "id"
+	}
 	return fmt.Sprintf("\"%s\" not found (%s: \"%s\")", e.Object, e.IdName, e.Id)
 }
 
