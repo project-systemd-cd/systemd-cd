@@ -23,9 +23,12 @@ func (p *pipeline) Sync() (err error) {
 	p.ManifestMerged = m
 
 	// Check update
-	if outOfSync, err := p.RepositoryLocal.DiffExists(true); err != nil {
+	updateExists, err := p.CheckUpdate()
+	if err != nil {
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
-	} else if !outOfSync {
+	}
+	if !updateExists {
 		// Already synced
 		p.Status = StatusSynced
 		logger.Logger().Tracef("Finished: Pipeline \"%s\" already up to date", p.ManifestMerged.Name)
