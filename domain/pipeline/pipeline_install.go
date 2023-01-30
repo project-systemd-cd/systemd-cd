@@ -58,7 +58,6 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 		}
 	}
 
-	pathEnvFile := p.service.PathSystemdUnitEnvFileDir + p.ManifestMerged.Name
 	pathEtcDir := p.service.PathEtcDir + p.ManifestMerged.Name + "/"
 	err := unix.MkdirIfNotExist(pathEtcDir)
 	if err != nil {
@@ -99,6 +98,7 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 			}
 		}
 
+		pathEnvFile := p.service.PathSystemdUnitEnvFileDir + service.Name
 		env := map[string]string{}
 		if service.EnvVars != nil {
 			// Set environment variables

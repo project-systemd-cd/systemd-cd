@@ -20,8 +20,8 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 	err = unix.Cp(
 		unix.ExecuteOption{},
 		unix.CpOption{Force: true},
-		backupPath+"unit.service",
-		p.service.PathSystemdUnitFileDir+p.ManifestMerged.Name+".service",
+		backupPath+"systemd/*",
+		p.service.PathSystemdUnitFileDir,
 	)
 	if err != nil {
 		return err
@@ -31,8 +31,8 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 	err = unix.Cp(
 		unix.ExecuteOption{},
 		unix.CpOption{Force: true},
-		backupPath+"env",
-		p.service.PathSystemdUnitEnvFileDir+p.ManifestMerged.Name,
+		backupPath+"env/*",
+		p.service.PathSystemdUnitEnvFileDir,
 	)
 	if err != nil {
 		return err

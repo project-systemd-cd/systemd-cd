@@ -20,32 +20,46 @@ func (p pipeline) backupInstalled() error {
 		return err
 	}
 
-	// Backup systemd unit file
-	// e.g.
-	// `cp /usr/local/lib/systemd/system/<name>.service /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/unit.service`
-	err = unix.Mv(
-		unix.ExecuteOption{},
-		unix.MvOption{},
-		p.service.PathSystemdUnitFileDir+p.ManifestMerged.Name+".service",
-		backupPath+"unit.service",
-	)
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
+		err = unix.MkdirIfNotExist(backupPath + "systemd/")
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		err = unix.MkdirIfNotExist(backupPath + "env/")
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		for _, s := range p.ManifestMerged.SystemdOptions {
+			// Backup systemd unit file
+			// e.g.
+			// `cp /usr/local/lib/systemd/system/<unit_name>.service /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/systemd/<unit_name>.service`
+			err = unix.Mv(
+				unix.ExecuteOption{},
+				unix.MvOption{},
+				p.service.PathSystemdUnitFileDir+s.Name+".service",
+				backupPath+"systemd/",
+			)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
 
-	}
-
-	// Backup env file
-	// e.g.
-	// `cp /usr/local/systemd-cd/etc/default/<name> /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/env`
-	err = unix.Mv(
-		unix.ExecuteOption{},
-		unix.MvOption{},
-		p.service.PathSystemdUnitEnvFileDir+p.ManifestMerged.Name,
-		backupPath+"env",
-	)
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-
+			// Backup env file
+			// e.g.
+			// `cp /usr/local/systemd-cd/etc/default/<unit_name> /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/env/<unit_name>`
+			err = unix.Mv(
+				unix.ExecuteOption{},
+				unix.MvOption{},
+				p.service.PathSystemdUnitEnvFileDir+s.Name,
+				backupPath+"env/",
+			)
+			if err != nil {
+				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+				return err
+			}
+		}
 	}
 
 	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
@@ -65,7 +79,7 @@ func (p pipeline) backupInstalled() error {
 		)
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-
+			return err
 		}
 	}
 
@@ -86,7 +100,7 @@ func (p pipeline) backupInstalled() error {
 		)
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-
+			return err
 		}
 	}
 
