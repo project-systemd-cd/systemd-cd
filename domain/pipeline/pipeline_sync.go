@@ -22,22 +22,22 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Get manifest and merge local manifest
-	m, err := p.getRemoteManifest()
-	if err != nil {
+	if m, err := p.getRemoteManifest(); err != nil {
 		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
+	} else {
+		mm, err := m.merge(p.RepositoryLocal.RemoteUrl, p.ManifestLocal)
+		if err != nil {
+			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+			return err
+		}
+		p.ManifestMerged = mm
 	}
-	mm, err := m.merge(p.RepositoryLocal.RemoteUrl, p.ManifestLocal)
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
-	}
-	p.ManifestMerged = mm
 
 	// Check updates
 	updateExists := false
 	var checkoutCommitId *string
-	if mm.GitTagRegex != nil {
+	if p.ManifestMerged.GitTagRegex != nil {
 		hash, err := p.RepositoryLocal.FindHashByTagRegex(*p.ManifestLocal.GitTagRegex)
 		if err != nil {
 			var ErrNotFound *errors.ErrNotFound
@@ -46,8 +46,10 @@ func (p *pipeline) Sync() (err error) {
 				return err
 			}
 		} else {
-			updateExists = true
-			checkoutCommitId = &hash
+			if hash != p.RepositoryLocal.RefCommitId {
+				updateExists = true
+				checkoutCommitId = &hash
+			}
 		}
 	} else {
 		// Check update
