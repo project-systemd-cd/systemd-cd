@@ -1,15 +1,15 @@
 package git_command
 
 import (
-	"systemd-cd/domain/model/git"
-	"systemd-cd/domain/model/logger"
+	"systemd-cd/domain/git"
+	"systemd-cd/domain/logger"
 
 	gitcommand "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 func (g *GitCommand) Clone(path git.Path, remoteUrl string, targetBranch string, recursive bool) error {
-	logger.Logger().Tracef("Called:\n\tpath: %v\n\tremoteUrl: %v\n\ttargetBranch: %v\n\trecursive: %v", path, remoteUrl, targetBranch, recursive)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: path}, {Name: "remoteUrl", Value: remoteUrl}, {Name: "targetBranch", Value: targetBranch}, {Name: "recursive", Value: recursive}}))
 
 	_, err := gitcommand.PlainClone(string(path), false, &gitcommand.CloneOptions{
 		URL:               remoteUrl,
@@ -17,10 +17,10 @@ func (g *GitCommand) Clone(path git.Path, remoteUrl string, targetBranch string,
 		RecurseSubmodules: gitcommand.DefaultSubmoduleRecursionDepth,
 	})
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
 	logger.Logger().Trace("Finished")
-	return err
+	return nil
 }

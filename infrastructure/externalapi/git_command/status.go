@@ -1,22 +1,22 @@
 package git_command
 
 import (
-	"systemd-cd/domain/model/git"
-	"systemd-cd/domain/model/logger"
+	"systemd-cd/domain/git"
+	"systemd-cd/domain/logger"
 )
 
 func (g *GitCommand) IsGitDirectory(workingDir git.Path) (bool, error) {
-	logger.Logger().Tracef("Called:\n\tworkingDir: %v", workingDir)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "workingDir", Value: workingDir}}))
 
 	_, err := open(workingDir)
 	if err == git.ErrRepositoryNotExists {
-		logger.Logger().Tracef("Finished:\n\tIsGitDirectory: %v", false)
+		logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "IsGitDirectory", Value: false}}))
 		return false, nil
 	}
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return false, err
 	}
-	logger.Logger().Tracef("Finished:\n\tIsGitDirectory: %v", true)
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "IsGitDirectory", Value: true}}))
 	return true, nil
 }

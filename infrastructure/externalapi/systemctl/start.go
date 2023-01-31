@@ -1,13 +1,16 @@
 package systemctl
 
-import "systemd-cd/domain/model/logger"
+import (
+	"systemd-cd/domain/logger"
+	"systemd-cd/domain/unix"
+)
 
 func (s systemctl) Start(service string) error {
-	logger.Logger().Tracef("Called:\n\targ.service: %v", service)
+	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "service", Value: service}}))
 
-	_, _, _, err := executeCommand("systemctl", "start", service)
+	_, _, _, err := unix.Execute(unix.ExecuteOption{}, "systemctl", "start", service)
 	if err != nil {
-		logger.Logger().Errorf("Error:\n\terr: %v", err)
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
