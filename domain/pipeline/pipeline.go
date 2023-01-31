@@ -12,7 +12,6 @@ type iPipeline interface {
 	// If fail to execute over systemd, restore from backup.
 	Sync() error
 
-	HeadIsLatesetOfBranch(branch string) (updateExists bool, err error)
 	GetStatus() Status
 	GetCommitRef() string
 

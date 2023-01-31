@@ -58,7 +58,8 @@ func (p *pipeline) Sync() (err error) {
 		}
 	} else {
 		// Check update
-		latest, err := p.HeadIsLatesetOfBranch(p.ManifestMerged.GitTargetBranch)
+		// Check update
+		latest, err := p.RepositoryLocal.HeadIsLatesetOfBranch(p.ManifestMerged.GitTargetBranch)
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
