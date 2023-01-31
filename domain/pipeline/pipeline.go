@@ -22,6 +22,8 @@ type iPipeline interface {
 	backupInstalled() error
 	install() ([]systemd.UnitService, error)
 
+	generateSystemdServiceUnits() []systemdUnit
+
 	// Restore latest backup.
 	// If `CommitId` specified, restore backup of specified version.
 	restoreBackup(restoreBackupOptions) error
@@ -31,6 +33,12 @@ type iPipeline interface {
 }
 
 type Path = string
+
+type systemdUnit struct {
+	Name     string
+	UnitFile systemd.UnitFileService
+	Env      map[string]string
+}
 
 type restoreBackupOptions struct {
 	CommidId *string
