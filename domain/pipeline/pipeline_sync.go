@@ -35,6 +35,11 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Check updates
+	err = p.RepositoryLocal.Fetch()
+	if err != nil {
+		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
+		return err
+	}
 	updateExists := false
 	var checkoutCommitId *string
 	if p.ManifestMerged.GitTagRegex != nil {
@@ -53,10 +58,13 @@ func (p *pipeline) Sync() (err error) {
 		}
 	} else {
 		// Check update
-		updateExists, err = p.GetUpdateExistence()
+		latest, err := p.HeadIsLatesetOfBranch(p.ManifestMerged.GitTargetBranch)
 		if err != nil {
 			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
+		}
+		if !latest {
+			updateExists = true
 		}
 	}
 	if !updateExists {

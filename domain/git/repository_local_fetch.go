@@ -1,5 +1,5 @@
 package git
 
-func (r *RepositoryLocal) fetch() error {
+func (r *RepositoryLocal) Fetch() error {
 	return r.git.command.Fetch(r.Path)
 }
