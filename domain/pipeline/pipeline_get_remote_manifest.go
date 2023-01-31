@@ -42,5 +42,6 @@ func (p pipeline) getRemoteManifest() (ServiceManifestRemote, error) {
 		}
 	}
 
+	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *manifestRemote}}))
 	return *manifestRemote, nil
 }
