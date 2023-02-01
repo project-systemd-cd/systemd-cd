@@ -21,6 +21,7 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 			} else {
 				logger.Logger().Debugf("> localManifest[%d].GitTagRegex = %v", i, *sml.GitTagRegex)
 			}
+			logger.Logger().Tracef("> localManifest[%d] = %+v", i, sml)
 		}
 	}
 	defer func() {

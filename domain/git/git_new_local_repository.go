@@ -15,6 +15,7 @@ func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch str
 		if err == nil {
 			logger.Logger().Debugf("> cloned = %v", cloned)
 			logger.Logger().Debugf("> commitId = %v", repo.RefCommitId)
+			logger.Logger().Tracef("> repositoryLocal = %+v", repo)
 			logger.Logger().Debug("END   - Instantiate git local repository")
 		} else {
 			logger.Logger().Error("FAILED - Instantiate git local repository")

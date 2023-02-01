@@ -101,6 +101,7 @@ func MarshalUnitFile(u UnitFileService) (b []byte, err error) {
 	logger.Logger().Debugf("< unitFile.UnitDirective.Description = %v", u.Unit.Description)
 	defer func() {
 		if err == nil {
+			logger.Logger().Tracef("> text = %s", string(b))
 			logger.Logger().Debug("END   - Marshal systemd unit file")
 		} else {
 			logger.Logger().Error("FAILED - Marshal systemd unit file")

@@ -9,7 +9,8 @@ import (
 // findBackupLatest implements iPipeline
 func (p *pipeline) findBackupLatest() (backupPath string, err error) {
 	logger.Logger().Debug("START - Find latest backup")
-	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", *p)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debugf("> backupPath = %v", backupPath)

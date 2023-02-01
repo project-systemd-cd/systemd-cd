@@ -11,8 +11,14 @@ import (
 func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (us UnitService, err error) {
 	logger.Logger().Debug("START - Instantiate systemd unit service")
 	logger.Logger().Debugf("< name = %v", name)
+	logger.Logger().Tracef("< unitFile = %+v", uf)
+	logger.Logger().Tracef("< env = %+v", env)
 	defer func() {
 		if err == nil {
+			logger.Logger().Tracef("> unitService.Name = %+v", us.Name)
+			logger.Logger().Tracef("> unitService.unitFile = %+v", us.unitFile)
+			logger.Logger().Tracef("> unitService.Path = %+v", us.Path)
+			logger.Logger().Tracef("> unitService.EnvironmentFileValues = %+v", us.EnvironmentFileValues)
 			logger.Logger().Debug("END   - Instantiate systemd unit service")
 		} else {
 			logger.Logger().Error("FAILED - Instantiate systemd unit service")

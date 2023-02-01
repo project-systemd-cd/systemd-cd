@@ -4,10 +4,13 @@ import "systemd-cd/domain/logger"
 
 func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifestLocal) (m ServiceManifestMerged, err error) {
 	logger.Logger().Debug("START - Merge local manifest to remote manifest")
+	logger.Logger().Tracef("* remoteManifest = %+v", remote)
 	logger.Logger().Debugf("< localManifest.Name = %v", local.Name)
 	logger.Logger().Debugf("< remoteUrl = %v", remoteUrl)
+	logger.Logger().Tracef("< localManifest = %+v", local)
 	defer func() {
 		if err == nil {
+			logger.Logger().Tracef("> manifestMerged = %+v", m)
 			logger.Logger().Debug("END   - Merge local manifest to remote manifest")
 		} else {
 			logger.Logger().Error("FAILED - Merge local manifest to remote manifest")

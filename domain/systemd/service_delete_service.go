@@ -9,6 +9,7 @@ import (
 func (s Systemd) DeleteService(u UnitService) (err error) {
 	logger.Logger().Debug("START - Delete systemd service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
+	logger.Logger().Tracef("< unitService = %+v", u.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Delete systemd service")

@@ -8,7 +8,8 @@ import (
 
 func (m *ServiceManifestMerged) Validate() (err error) {
 	logger.Logger().Debug("START - Validate manifest")
-	logger.Logger().Debugf("< manifestMerged.Name = %v", m.Name)
+	logger.Logger().Debugf("* manifestMerged.Name = %v", m.Name)
+	logger.Logger().Tracef("* manifestMerged = %+v", *m)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Validate manifest")

@@ -9,7 +9,8 @@ import (
 
 func (p pipeline) backupInstalled() (err error) {
 	logger.Logger().Debug("START - Backup pipeline files")
-	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", p)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Backup pipeline files")

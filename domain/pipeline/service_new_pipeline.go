@@ -11,6 +11,7 @@ import (
 // NewPipeline implements iPipelineService
 func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err error) {
 	logger.Logger().Debug("START - Instantiate pipeline with repository data")
+	logger.Logger().Tracef("* pipelineService = %+v", s)
 	logger.Logger().Debugf("< manifestLocal.Name = %v", m.Name)
 	defer func() {
 		if err == nil {

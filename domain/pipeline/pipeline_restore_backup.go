@@ -7,7 +7,8 @@ import (
 
 func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 	logger.Logger().Debug("START - Restore pipeline files from backup")
-	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", p)
 	logger.Logger().Debugf("< option = %+v", o)
 	defer func() {
 		if err == nil {

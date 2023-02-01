@@ -11,6 +11,7 @@ func (s Systemd) writeUnitFileService(u UnitFileService, path string) (err error
 	logger.Logger().Debug("START - Write systemd unit file")
 	logger.Logger().Debugf("< path = %v", path)
 	logger.Logger().Debugf("< unitFile.UnitDirective.Description = %v", u.Unit.Description)
+	logger.Logger().Tracef("< unitFile = %+v", u)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Write systemd unit file")

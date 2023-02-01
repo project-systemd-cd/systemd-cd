@@ -8,10 +8,12 @@ import (
 
 func (p *pipeline) generateSystemdServiceUnits() (units []systemdUnit) {
 	logger.Logger().Debug("START - Generate systemd service units")
-	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", *p)
 	defer func() {
 		for i, su := range units {
 			logger.Logger().Debugf("> units[%d].Name = %v", i, su.Name)
+			logger.Logger().Tracef("> units[%d] = %+v", i, su)
 		}
 		logger.Logger().Debug("END   - Generate systemd service units")
 	}()

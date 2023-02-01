@@ -14,6 +14,7 @@ func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGenerate
 	defer func() {
 		if err == nil {
 			logger.Logger().Debugf("> unitFile.UnitDirective.Description = %v", u.Unit.Description)
+			logger.Logger().Tracef("> unitFile = %+v", u)
 			logger.Logger().Debugf("> isGeneratedBySystemdCd = %v", isGeneratedBySystemdCd)
 			logger.Logger().Debug("END   - Load systemd unit file")
 		} else {
