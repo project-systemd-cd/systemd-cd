@@ -6,24 +6,25 @@ import (
 )
 
 func (p pipeline) test() (err error) {
-	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - Execute pipeline test command")
-	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Info("-----------------------------------------------------------")
+	logger.Logger().Info("START - Execute pipeline test command")
+	logger.Logger().Infof("* pipeline.Name = %v", p.ManifestMerged.Name)
 	logger.Logger().Tracef("* pipeline = %+v", p)
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Info("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Debug("END   - Execute pipeline test command")
+			logger.Logger().Info("END   - Execute pipeline test command")
 		} else {
 			logger.Logger().Error("FAILED - Execute pipeline test command")
 			logger.Logger().Error(err)
 		}
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
 	if p.ManifestMerged.TestCommands != nil {
 		for _, cmd := range *p.ManifestMerged.TestCommands {
+			logger.Logger().Infof("Execute command \"%v\" (workingDir: \"%v\")", cmd, p.RepositoryLocal.Path)
 			_, _, _, err = unix.Execute(
 				unix.ExecuteOption{
 					WorkingDirectory: (*string)(&p.RepositoryLocal.Path),

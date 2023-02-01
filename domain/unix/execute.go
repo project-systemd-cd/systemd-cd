@@ -2,8 +2,10 @@ package unix
 
 import (
 	"bytes"
+	"errors"
 	"os/exec"
 	"strings"
+	"systemd-cd/domain/logger"
 )
 
 type ExecuteOption struct {
@@ -11,6 +13,24 @@ type ExecuteOption struct {
 }
 
 func Execute(o ExecuteOption, name string, arg ...string) (exitCode int, stdout bytes.Buffer, stderr bytes.Buffer, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Execute command")
+	logger.Logger().Debugf("< command =%v", strings.Join(append([]string{name}, arg...), " "))
+	logger.Logger().Debugf("< option = %+v", o)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Tracef("> stdout = %+v", stdout.String())
+			logger.Logger().Debug("END   - Execute command")
+		} else {
+			logger.Logger().Error("FAILED - Execute command")
+			logger.Logger().Error(err)
+			logger.Logger().Error("exit status", exitCode)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
+
 	containWildcard := false
 	for _, a := range arg {
 		if strings.Contains(a, "*") {
@@ -35,8 +55,10 @@ func Execute(o ExecuteOption, name string, arg ...string) (exitCode int, stdout 
 	err = cmd.Run()
 	exitCode = cmd.ProcessState.ExitCode()
 	if err != nil {
+		if strings.HasPrefix(err.Error(), "exit status") {
+			err = errors.New(stderr.String())
+		}
 		return
 	}
-
 	return
 }

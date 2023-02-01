@@ -11,7 +11,7 @@ var pipelines []pipeline.IPipeline
 
 func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - Start pipeline runner")
+	logger.Logger().Info("START - Start pipeline runner")
 	if manifests != nil {
 		for i, sml := range *manifests {
 			logger.Logger().Debugf("> localManifest[%d].Name = %v", i, sml.Name)
@@ -29,7 +29,7 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Debug("END   - Start pipeline runner")
+			logger.Logger().Info("END   - Start pipeline runner")
 		} else {
 			logger.Logger().Error("FAILED - Start pipeline runner")
 			logger.Logger().Error(err)
@@ -43,6 +43,8 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 			return err
 		}
 	}
+
+	logger.Logger().Info("Get pipelines from repository")
 
 	foundPipelines := []string{}
 	metadatas, err := s.pipelineService.FindPipelines()
@@ -58,8 +60,14 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 
 		for _, sml := range *manifests {
 			if sml.Name == m.Name {
+				logger.Logger().Infof("Pipeline loaded \"%v\"", m.Name)
+				err = ip.Sync()
+				if err != nil {
+					return err
+				}
 				pipelines = append(pipelines, ip)
 				foundPipelines = append(foundPipelines, m.Name)
+				break
 			}
 		}
 	}
@@ -68,15 +76,13 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 		for _, foundPipeline := range foundPipelines {
 			if m.Name == foundPipeline {
 				found = true
+				break
 			}
 		}
 		if !found {
+			logger.Logger().Infof("Initialize pipeline \"%v\"", m.Name)
 			var pipeline pipeline.IPipeline
 			pipeline, err = s.pipelineService.NewPipeline(m)
-			if err != nil {
-				return err
-			}
-			err = pipeline.Sync()
 			if err != nil {
 				return err
 			}

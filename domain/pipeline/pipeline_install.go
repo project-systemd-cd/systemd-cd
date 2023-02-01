@@ -8,27 +8,28 @@ import (
 )
 
 func (p pipeline) install() (systemdServices []systemd.UnitService, err error) {
-	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - Install pipeline files")
-	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Info("-----------------------------------------------------------")
+	logger.Logger().Info("START - Install pipeline files")
+	logger.Logger().Infof("* pipeline.Name = %v", p.ManifestMerged.Name)
 	logger.Logger().Tracef("* pipeline = %+v", p)
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Info("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 		if err == nil {
 			for i, us := range systemdServices {
-				logger.Logger().Debugf("> unitService[%d].Name = %v", i, us.Name)
+				logger.Logger().Infof("> unitService[%d].Name = %v", i, us.Name)
 				logger.Logger().Tracef("> unitService[%d] = %+v", i, us)
 			}
-			logger.Logger().Debug("END   - Install pipeline files")
+			logger.Logger().Info("END   - Install pipeline files")
 		} else {
 			logger.Logger().Error("FAILED - Install pipeline files")
 			logger.Logger().Error(err)
 		}
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
 	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
+		logger.Logger().Info("Install binary files")
 		pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
 		err = unix.MkdirIfNotExist(pathBinDir)
 		if err != nil {
@@ -52,7 +53,9 @@ func (p pipeline) install() (systemdServices []systemd.UnitService, err error) {
 
 	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
 		for _, service := range p.ManifestMerged.SystemdOptions {
+			logger.Logger().Infof("Install files for \"%s\" as systemd unit", service.Name)
 			if service.Etc != nil {
+				logger.Logger().Info(" Install etc files")
 				pathEtcDir := p.service.PathEtcDir + service.Name + "/"
 				err = unix.MkdirIfNotExist(pathEtcDir)
 				if err != nil {
@@ -84,6 +87,7 @@ func (p pipeline) install() (systemdServices []systemd.UnitService, err error) {
 			}
 
 			if service.Opt != nil {
+				logger.Logger().Info(" Install opt files")
 				pathOptDir := p.service.PathOptDir + service.Name + "/"
 				err = unix.MkdirIfNotExist(pathOptDir)
 				if err != nil {

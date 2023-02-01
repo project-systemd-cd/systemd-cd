@@ -78,7 +78,7 @@ func main() {
 	logger.Logger().Trace("-----------------------------------------------------------")
 	logger.Logger().Trace("Analize cli options")
 	logger.Logger().Trace("-----------------------------------------------------------")
-	logger.Logger().Debugf("Log level is %s", *logLevel)
+	logger.Logger().Infof("Log level is %s", *logLevel)
 	logger.Logger().Tracef("< --log.level = %v", *logLevel)
 	logger.Logger().Tracef("< --log.report-caller = %v", *logReportCaller)
 	logger.Logger().Tracef("< --log.timestamp = %v", *logTimestamp)
@@ -90,6 +90,8 @@ func main() {
 	logger.Logger().Tracef("< --dir.systemd-unit-file = %v", *systemdUnitFileDestDir)
 	logger.Logger().Tracef("< --dir.systemd-unit-env-file = %v", *systemdUnitEnvFileDestDir)
 	logger.Logger().Tracef("< --dir.backup = %v", *backupDestDir)
+	logger.Logger().Tracef("< --file.manifest = %v", *manifestPaths)
+	logger.Logger().Tracef("< --pipeline.interval = %v", *pipelineInterval)
 	logger.Logger().Trace("-----------------------------------------------------------")
 
 	s, err := systemd.New(systemctl.New(), *systemdUnitFileDestDir)

@@ -93,10 +93,6 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 
 	if cloned {
 		err = p1.Init()
-	} else {
-		if p1.Status != StatusSyncing {
-			err = p1.Sync()
-		}
 	}
 
 	p = p1

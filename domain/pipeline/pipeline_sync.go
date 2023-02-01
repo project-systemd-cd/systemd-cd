@@ -8,20 +8,20 @@ import (
 )
 
 func (p *pipeline) Sync() (err error) {
-	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - Sync pipeline")
-	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Info("-----------------------------------------------------------")
+	logger.Logger().Info("START - Sync pipeline")
+	logger.Logger().Infof("* pipeline.Name = %v", p.ManifestLocal.Name)
 	logger.Logger().Tracef("* pipeline = %+v", *p)
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Info("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Debug("END   - Sync pipeline")
+			logger.Logger().Info("END   - Sync pipeline")
 		} else {
 			logger.Logger().Error("FAILED - Sync pipeline")
 			logger.Logger().Error(err)
 		}
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
 	defer func() {
@@ -31,6 +31,7 @@ func (p *pipeline) Sync() (err error) {
 	}()
 
 	if p.Status == StatusSyncing {
+		logger.Logger().Infof("Skip to sync pipeline \"%v\", because state is syncing", p.ManifestLocal.Name)
 		return nil
 	}
 
@@ -81,6 +82,11 @@ func (p *pipeline) Sync() (err error) {
 	}
 	if !updateExists {
 		// Already synced
+		if p.ManifestMerged.GitTagRegex == nil {
+			logger.Logger().Infof("Pipeline \"%v\" has no updates (branch: %v)", p.ManifestMerged.Name, p.ManifestMerged.GitTargetBranch)
+		} else {
+			logger.Logger().Infof("Pipeline \"%v\" has no updates (tag: %v)", p.ManifestMerged.Name, *p.ManifestMerged.GitTagRegex)
+		}
 		p.Status = StatusSynced
 		return nil
 	}
@@ -92,7 +98,10 @@ func (p *pipeline) Sync() (err error) {
 
 	// Backup
 	if oldStatus != StatusError {
-		// TODO: stop systemd service before backup
+		for _, s := range p.ManifestMerged.SystemdOptions {
+			// TODO: stop systemd service before backup
+			logger.Logger().Infof("Stop systemd unit service \"%v\"", s.Name)
+		}
 		_, err = p.findBackupByCommitId(p.RepositoryLocal.RefCommitId)
 		var ErrNotFound *errors.ErrNotFound
 		notFound := errorss.As(err, &ErrNotFound)
