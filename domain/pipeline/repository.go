@@ -5,7 +5,7 @@ import "systemd-cd/domain/git"
 type IRepository interface {
 	SavePipeline(PipelineMetadata) error
 
-	FindPipeline(name string) (PipelineMetadata, error)
+	FindPipelineByName(name string) (PipelineMetadata, error)
 	FindPipelines() ([]PipelineMetadata, error)
 }
 

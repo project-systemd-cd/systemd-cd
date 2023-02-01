@@ -9,6 +9,7 @@ import (
 
 func (p pipeline) install() (systemdServices []systemd.UnitService, err error) {
 	logger.Logger().Debug("START - Install pipeline files")
+	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Install pipeline files")

@@ -9,6 +9,7 @@ import (
 
 func (p *pipeline) Sync() (err error) {
 	logger.Logger().Debug("START - Sync pipeline")
+	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Sync pipeline")

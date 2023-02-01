@@ -10,6 +10,7 @@ import (
 // NewService implements iSystemdService
 func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (us UnitService, err error) {
 	logger.Logger().Debug("START - Instantiate systemd unit service")
+	logger.Logger().Debugf("< name = %v", name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Instantiate systemd unit service")

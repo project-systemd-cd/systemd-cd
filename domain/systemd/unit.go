@@ -39,6 +39,8 @@ type (
 
 func (u UnitService) Enable(startNow bool) (err error) {
 	logger.Logger().Debug("START - Enable systemd unit service")
+	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
+	logger.Logger().Debugf("< startNow = %v", startNow)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Enable systemd unit service")
@@ -54,6 +56,8 @@ func (u UnitService) Enable(startNow bool) (err error) {
 
 func (u UnitService) Disable(stopNow bool) (err error) {
 	logger.Logger().Debug("START - Disable systemd unit service")
+	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
+	logger.Logger().Debugf("< stopNow = %v", stopNow)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Disable systemd unit service")
@@ -69,6 +73,7 @@ func (u UnitService) Disable(stopNow bool) (err error) {
 
 func (u UnitService) Start() (err error) {
 	logger.Logger().Debug("START - Start systemd unit service")
+	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Start systemd unit service")
@@ -83,6 +88,7 @@ func (u UnitService) Start() (err error) {
 
 func (u UnitService) Stop() (err error) {
 	logger.Logger().Debug("START - Stop systemd unit service")
+	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Stop systemd unit service")
@@ -98,6 +104,7 @@ func (u UnitService) Stop() (err error) {
 
 func (u UnitService) Restart() (err error) {
 	logger.Logger().Debug("START - Restart systemd unit service")
+	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Restart systemd unit service")
@@ -113,8 +120,10 @@ func (u UnitService) Restart() (err error) {
 
 func (u UnitService) GetStatus() (s Status, err error) {
 	logger.Logger().Debug("START - Get status of systemd unit service")
+	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
 	defer func() {
 		if err == nil {
+			logger.Logger().Debugf("> status = %v", s)
 			logger.Logger().Debug("END   - Get status of systemd unit service")
 		} else {
 			logger.Logger().Error("FAILED - Get status of systemd unit service")

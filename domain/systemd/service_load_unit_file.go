@@ -10,8 +10,11 @@ import (
 // loadUnitFileSerivce implements iSystemdService
 func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error) {
 	logger.Logger().Debug("START - Load systemd unit file")
+	logger.Logger().Debugf("< path = %v", path)
 	defer func() {
 		if err == nil {
+			logger.Logger().Debugf("> unitFile.UnitDirective.Description = %v", u.Unit.Description)
+			logger.Logger().Debugf("> isGeneratedBySystemdCd = %v", isGeneratedBySystemdCd)
 			logger.Logger().Debug("END   - Load systemd unit file")
 		} else {
 			logger.Logger().Error("FAILED - Load systemd unit file")

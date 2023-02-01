@@ -12,8 +12,8 @@ type IPipelineService interface {
 	NewPipeline(ServiceManifestLocal) (IPipeline, error)
 
 	FindPipelines() ([]PipelineMetadata, error)
-	FindPipeline(name string) (PipelineMetadata, error)
-	FindSystemdService(name string) (systemd.IService, error)
+	FindPipelineByName(name string) (PipelineMetadata, error)
+	FindSystemdServiceByName(name string) (systemd.IService, error)
 }
 
 type Directories struct {
@@ -28,6 +28,13 @@ type Directories struct {
 
 func NewService(repo IRepository, git git.IService, systemd systemd.IService, d Directories) (p IPipelineService, err error) {
 	logger.Logger().Debug("START - Instantiate pipeline service")
+	logger.Logger().Debugf("< dirSrc = %v", d.Src)
+	logger.Logger().Debugf("< dirBinary = %v", d.Binary)
+	logger.Logger().Debugf("< dirEtc = %v", d.Etc)
+	logger.Logger().Debugf("< dirOpt = %v", d.Opt)
+	logger.Logger().Debugf("< dirSystemdUnitFile = %v", d.SystemdUnitFile)
+	logger.Logger().Debugf("< dirSystemdUnitEnvFile = %v", d.SystemdUnitEnvFile)
+	logger.Logger().Debugf("< dirBackup = %v", d.Backup)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Instantiate pipeline service")
@@ -73,29 +80,4 @@ type pipelineService struct {
 	PathSystemdUnitFileDir    string
 	PathSystemdUnitEnvFileDir string
 	PathBackupDir             string
-}
-
-// FindPipeline implements IPipelineService
-func (s pipelineService) FindPipeline(name string) (PipelineMetadata, error) {
-	m, err := s.repo.FindPipeline(name)
-	if err != nil {
-		return PipelineMetadata{}, err
-	}
-
-	return m, nil
-}
-
-// FindPipelines implements IPipelineService
-func (s pipelineService) FindPipelines() ([]PipelineMetadata, error) {
-	metadatas, err := s.repo.FindPipelines()
-	if err != nil {
-		return nil, err
-	}
-
-	return metadatas, nil
-}
-
-// FindSystemdService implements IPipelineService
-func (s pipelineService) FindSystemdService(name string) (systemd.IService, error) {
-	panic("unimplemented")
 }

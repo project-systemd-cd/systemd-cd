@@ -8,6 +8,7 @@ import (
 
 func (p *pipeline) Init() (err error) {
 	logger.Logger().Debug("START - Initialize pipeline")
+	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Initialize pipeline")

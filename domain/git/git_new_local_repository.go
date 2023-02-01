@@ -8,8 +8,13 @@ const DefaultRemoteName = "origin"
 // If local git repository does not exist, execute clone.
 func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch string) (cloned bool, repo *RepositoryLocal, err error) {
 	logger.Logger().Debug("START - Instantiate git local repository")
+	logger.Logger().Debugf("< path = %v", path)
+	logger.Logger().Debugf("< remoteUrl = %v", remoteUrl)
+	logger.Logger().Debugf("< branch = %v", branch)
 	defer func() {
 		if err == nil {
+			logger.Logger().Debugf("> cloned = %v", cloned)
+			logger.Logger().Debugf("> commitId = %v", repo.RefCommitId)
 			logger.Logger().Debug("END   - Instantiate git local repository")
 		} else {
 			logger.Logger().Error("FAILED - Instantiate git local repository")

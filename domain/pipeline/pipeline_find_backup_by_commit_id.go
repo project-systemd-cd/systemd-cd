@@ -10,8 +10,10 @@ import (
 // findBackupByCommitId implements iPipeline
 func (p *pipeline) findBackupByCommitId(commitId string) (backupPath string, err error) {
 	logger.Logger().Debug("START - Find backup by commit id")
+	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
 	defer func() {
 		if err == nil {
+			logger.Logger().Debugf("> backupPath = %v", backupPath)
 			logger.Logger().Debug("END   - Find backup by commit id")
 		} else {
 			logger.Logger().Error("FAILED - Find backup by commit id")

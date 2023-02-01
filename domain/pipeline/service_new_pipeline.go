@@ -11,6 +11,7 @@ import (
 // NewPipeline implements iPipelineService
 func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err error) {
 	logger.Logger().Debug("START - Instantiate pipeline with repository data")
+	logger.Logger().Debugf("< manifestLocal.Name = %v", m.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Instantiate pipeline with repository data")
@@ -23,7 +24,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 	//* NOTE: Receiver must not a pointer
 
 	// Find pipeline from repository
-	mp, err := s.repo.FindPipeline(m.Name)
+	mp, err := s.repo.FindPipelineByName(m.Name)
 	ErrNotFound := &errors.ErrNotFound{}
 	notFound := errorss.As(err, &ErrNotFound)
 	if err != nil && !notFound {

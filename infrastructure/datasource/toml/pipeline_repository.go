@@ -27,8 +27,8 @@ type rPipeline struct {
 	basePath string
 }
 
-// FindPipeline implements pipeline.IRepository
-func (r *rPipeline) FindPipeline(name string) (pipeline.PipelineMetadata, error) {
+// FindPipelineByName implements pipeline.IRepository
+func (r *rPipeline) FindPipelineByName(name string) (pipeline.PipelineMetadata, error) {
 	s, err := unix.Ls(
 		unix.ExecuteOption{},
 		unix.LsOption{DirTrailiingSlash: true},

@@ -4,6 +4,7 @@ import "systemd-cd/domain/logger"
 
 func (r *RepositoryLocal) CheckoutBranch(branch string) (err error) {
 	logger.Logger().Debug("START - Git checkout to brach")
+	logger.Logger().Debugf("< branch = %v", branch)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Git checkout to brach")

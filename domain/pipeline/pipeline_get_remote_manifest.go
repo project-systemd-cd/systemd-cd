@@ -13,8 +13,10 @@ const defaultManifestFileName = ".systemd-cd.yaml"
 
 func (p pipeline) getRemoteManifest() (m ServiceManifestRemote, err error) {
 	logger.Logger().Debug("START - Get manifest in git repository")
+	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
 	defer func() {
 		if err == nil {
+			logger.Logger().Debugf("> manifestRemote.Name = %v", m.Name)
 			logger.Logger().Debug("END   - Get manifest in git repository")
 		} else {
 			logger.Logger().Error("FAILED - Get manifest in git repository")

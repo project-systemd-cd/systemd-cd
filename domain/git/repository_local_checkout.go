@@ -4,6 +4,7 @@ import "systemd-cd/domain/logger"
 
 func (r *RepositoryLocal) Checkout(hash string) (err error) {
 	logger.Logger().Debug("START - Git checkout to commit")
+	logger.Logger().Debugf("< commitId = %v", hash)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Git checkout to commit")

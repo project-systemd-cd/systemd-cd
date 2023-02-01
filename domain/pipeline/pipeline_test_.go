@@ -7,6 +7,7 @@ import (
 
 func (p pipeline) test() (err error) {
 	logger.Logger().Debug("START - Execute pipeline test command")
+	logger.Logger().Debugf("< pipeline.Name = %v", p.ManifestMerged.Name)
 	defer func() {
 		if err == nil {
 			logger.Logger().Debug("END   - Execute pipeline test command")

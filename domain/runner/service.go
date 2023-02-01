@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/pipeline"
 	"time"
 )
@@ -20,13 +21,25 @@ func (o Option) validate() error {
 	return nil
 }
 
-func NewService(p pipeline.IPipelineService, o Option) (IRunnerService, error) {
-	err := o.validate()
+func NewService(p pipeline.IPipelineService, o Option) (service IRunnerService, err error) {
+	logger.Logger().Debug("START - Instantiate pipeline service")
+	logger.Logger().Debugf("< option = %+v", o)
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate pipeline service")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate pipeline service")
+			logger.Logger().Error(err)
+		}
+	}()
+
+	err = o.validate()
 	if err != nil {
 		return &runnerService{}, err
 	}
 
-	return &runnerService{p, o}, nil
+	service = &runnerService{p, o}
+	return service, err
 }
 
 type runnerService struct {
