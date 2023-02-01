@@ -4,10 +4,21 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"systemd-cd/domain/logger"
 )
 
 // NewService implements iSystemdService
-func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (UnitService, error) {
+func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (us UnitService, err error) {
+	logger.Logger().Debug("START - Instantiate systemd unit service")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate systemd unit service")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate systemd unit service")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// load unit file
 	path := strings.Join([]string{s.unitFileDir, name, ".service"}, "")
 	loaded, isGeneratedBySystemdCd, err := s.loadUnitFileSerivce(path)
@@ -39,7 +50,9 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 	if uf.Service.EnvironmentFile != nil {
 		// load env file
 		envPath := *uf.Service.EnvironmentFile
-		loaded, isGeneratedBySystemdCd, err := s.loadEnvFile(envPath)
+		var loaded map[string]string
+		var isGeneratedBySystemdCd bool
+		loaded, isGeneratedBySystemdCd, err = s.loadEnvFile(envPath)
 		if err != nil && !os.IsNotExist(err) {
 			// fail
 			return UnitService{}, err
@@ -72,5 +85,6 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 		return UnitService{}, err
 	}
 
-	return UnitService{s.systemctl, name, uf, path, env}, nil
+	us = UnitService{s.systemctl, name, uf, path, env}
+	return us, nil
 }

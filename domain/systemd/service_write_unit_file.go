@@ -2,10 +2,22 @@ package systemd
 
 import (
 	"bytes"
+	"systemd-cd/domain/logger"
+	"systemd-cd/domain/unix"
 )
 
 // writeUnitFileService implements iSystemdService
-func (s Systemd) writeUnitFileService(u UnitFileService, path string) error {
+func (s Systemd) writeUnitFileService(u UnitFileService, path string) (err error) {
+	logger.Logger().Debug("START - Write systemd unit file")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Write systemd unit file")
+		} else {
+			logger.Logger().Error("FAILED - Write systemd unit file")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Marshal
 	b := &bytes.Buffer{}
 	// Add annotation to distinct generator
@@ -17,7 +29,7 @@ func (s Systemd) writeUnitFileService(u UnitFileService, path string) error {
 	}
 
 	// Write to file
-	err := writeFile(path, b.Bytes())
+	err = unix.WriteFile(path, b.Bytes())
 	if err != nil {
 		return err
 	}

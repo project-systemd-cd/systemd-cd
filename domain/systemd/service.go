@@ -3,6 +3,8 @@ package systemd
 import (
 	"errors"
 	"strings"
+	"systemd-cd/domain/logger"
+	"systemd-cd/domain/unix"
 )
 
 var (
@@ -23,10 +25,20 @@ type IService interface {
 	writeEnvFile(e map[string]string, path string) error
 }
 
-func New(s Systemctl, unitFileDir string) (IService, error) {
+func New(s Systemctl, unitFileDir string) (service IService, err error) {
+	logger.Logger().Debug("START - Instantiate systemd service (domain service, not systemd unit service)")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate systemd service (domain service, not systemd unit service)")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate systemd service (domain service, not systemd unit service)")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// check `unitFileDir`
 	// TODO: if invalid dir path, print warning
-	err := mkdirIfNotExist(unitFileDir)
+	err = unix.MkdirIfNotExist(unitFileDir)
 	if err != nil {
 		return Systemd{}, err
 	}
@@ -36,7 +48,8 @@ func New(s Systemctl, unitFileDir string) (IService, error) {
 		unitFileDir += "/"
 	}
 
-	return Systemd{s, unitFileDir}, nil
+	service = Systemd{s, unitFileDir}
+	return service, nil
 }
 
 // Implements iSystemdService

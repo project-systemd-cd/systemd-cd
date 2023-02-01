@@ -2,14 +2,25 @@ package pipeline
 
 import (
 	"strings"
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 	"systemd-cd/domain/unix"
 )
 
-func (p pipeline) install() ([]systemd.UnitService, error) {
+func (p pipeline) install() (systemdServices []systemd.UnitService, err error) {
+	logger.Logger().Debug("START - Install pipeline files")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Install pipeline files")
+		} else {
+			logger.Logger().Error("FAILED - Install pipeline files")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
 		pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
-		err := unix.MkdirIfNotExist(pathBinDir)
+		err = unix.MkdirIfNotExist(pathBinDir)
 		if err != nil {
 			return nil, err
 		}
@@ -17,7 +28,7 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 			pathBinFile := pathBinDir + strings.TrimPrefix(binary, "./")
 
 			// Copy binary files
-			err := unix.Cp(
+			err = unix.Cp(
 				unix.ExecuteOption{},
 				unix.CpOption{Force: true},
 				string(p.RepositoryLocal.Path)+"/"+binary,
@@ -29,12 +40,11 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 		}
 	}
 
-	systemdServices := []systemd.UnitService{}
 	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
 		for _, service := range p.ManifestMerged.SystemdOptions {
 			if service.Etc != nil {
 				pathEtcDir := p.service.PathEtcDir + service.Name + "/"
-				err := unix.MkdirIfNotExist(pathEtcDir)
+				err = unix.MkdirIfNotExist(pathEtcDir)
 				if err != nil {
 					return nil, err
 				}
@@ -44,13 +54,13 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 					etcFilePath := pathEtcDir + etc.Target
 					if etc.Content != nil {
 						// Create etc file
-						err := unix.WriteFile(etcFilePath, []byte(*etc.Content))
+						err = unix.WriteFile(etcFilePath, []byte(*etc.Content))
 						if err != nil {
 							return nil, err
 						}
 					} else {
 						// Copy etc file
-						err := unix.Cp(
+						err = unix.Cp(
 							unix.ExecuteOption{WorkingDirectory: (*string)(&p.RepositoryLocal.Path)},
 							unix.CpOption{Recursive: true, Force: true},
 							etc.Target,
@@ -65,7 +75,7 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 
 			if service.Opt != nil {
 				pathOptDir := p.service.PathOptDir + service.Name + "/"
-				err := unix.MkdirIfNotExist(pathOptDir)
+				err = unix.MkdirIfNotExist(pathOptDir)
 				if err != nil {
 					return nil, err
 				}
@@ -73,7 +83,7 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 				// Copy opt files
 				for _, src := range service.Opt {
 					// Copy opt file
-					err := unix.Cp(
+					err = unix.Cp(
 						unix.ExecuteOption{WorkingDirectory: (*string)(&p.RepositoryLocal.Path)},
 						unix.CpOption{Recursive: true, Parents: true, Force: true},
 						src,
@@ -87,7 +97,8 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 		}
 
 		for _, unit := range p.generateSystemdServiceUnits() {
-			s, err := p.service.Systemd.NewService(unit.Name, unit.UnitFile, unit.Env)
+			var s systemd.UnitService
+			s, err = p.service.Systemd.NewService(unit.Name, unit.UnitFile, unit.Env)
 			if err != nil {
 				return nil, err
 			}

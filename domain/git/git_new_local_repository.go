@@ -1,10 +1,22 @@
 package git
 
+import "systemd-cd/domain/logger"
+
 const DefaultRemoteName = "origin"
 
 // Open local git repository.
 // If local git repository does not exist, execute clone.
 func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch string) (cloned bool, repo *RepositoryLocal, err error) {
+	logger.Logger().Debug("START - Instantiate git local repository")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate git local repository")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate git local repository")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Open git dir if exists
 	exists, err := git.command.IsGitDirectory(path)
 	if err != nil {

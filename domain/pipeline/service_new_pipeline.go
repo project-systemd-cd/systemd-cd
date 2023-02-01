@@ -5,10 +5,21 @@ import (
 	"reflect"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/git"
+	"systemd-cd/domain/logger"
 )
 
 // NewPipeline implements iPipelineService
-func (s pipelineService) NewPipeline(m ServiceManifestLocal) (IPipeline, error) {
+func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err error) {
+	logger.Logger().Debug("START - Instantiate pipeline with repository data")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate pipeline with repository data")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate pipeline with repository data")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	//* NOTE: Receiver must not a pointer
 
 	// Find pipeline from repository
@@ -59,7 +70,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (IPipeline, error) 
 	}
 
 	// Define pipeline
-	p := &pipeline{
+	p1 := &pipeline{
 		ManifestLocal:   mp.ManifestLocal,
 		RepositoryLocal: nil,
 		Status:          StatusOutOfSync,
@@ -69,21 +80,19 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (IPipeline, error) 
 	// Open local repository
 	var cloned bool
 	// if local repository not exists, clone remote repository
-	cloned, p.RepositoryLocal, err = s.Git.NewLocalRepository(mp.PathLocalRepository, mp.ManifestLocal.GitRemoteUrl, mp.ManifestLocal.GitTargetBranch)
+	cloned, p1.RepositoryLocal, err = s.Git.NewLocalRepository(mp.PathLocalRepository, mp.ManifestLocal.GitRemoteUrl, mp.ManifestLocal.GitTargetBranch)
 	if err != nil {
 		return &pipeline{}, err
 	}
 
 	if cloned {
-		err = p.Init()
+		err = p1.Init()
 	} else {
-		if p.Status != StatusSyncing {
-			err = p.Sync()
+		if p1.Status != StatusSyncing {
+			err = p1.Sync()
 		}
 	}
-	if err != nil {
-		return p, err
-	}
 
-	return p, nil
+	p = p1
+	return p, err
 }

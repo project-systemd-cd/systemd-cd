@@ -3,13 +3,25 @@ package systemd
 import (
 	"bytes"
 	"strings"
+	"systemd-cd/domain/logger"
+	"systemd-cd/domain/unix"
 )
 
 // loadUnitFileSerivce implements iSystemdService
 func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error) {
+	logger.Logger().Debug("START - Load systemd unit file")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Load systemd unit file")
+		} else {
+			logger.Logger().Error("FAILED - Load systemd unit file")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Read file
 	b := &bytes.Buffer{}
-	err = readFile(path, b)
+	err = unix.ReadFile(path, b)
 	if err != nil {
 		return
 	}

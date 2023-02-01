@@ -5,13 +5,24 @@ import (
 	"strings"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/toml"
+	"systemd-cd/domain/unix"
 )
 
 // loadEnvFile implements iSystemdService
 func (s Systemd) loadEnvFile(path string) (e map[string]string, isGeneratedBySystemdCd bool, err error) {
+	logger.Logger().Debug("START - Load systemd env file")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Load systemd env file")
+		} else {
+			logger.Logger().Error("FAILED - Load systemd env file")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Read file
 	b := &bytes.Buffer{}
-	err = readFile(path, b)
+	err = unix.ReadFile(path, b)
 	if err != nil {
 		return
 	}

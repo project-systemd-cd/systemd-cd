@@ -2,15 +2,26 @@ package runner
 
 import (
 	"errors"
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/pipeline"
 	"time"
 )
 
 var pipelines []pipeline.IPipeline
 
-func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) error {
+func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err error) {
+	logger.Logger().Debug("START - Start pipeline runner")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Start pipeline runner")
+		} else {
+			logger.Logger().Error("FAILED - Start pipeline runner")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	if manifests == nil {
-		err := errors.New("\"manifests\" must not nil pointer")
+		err = errors.New("\"manifests\" must not nil pointer")
 		if err != nil {
 			return err
 		}
@@ -22,7 +33,8 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) error 
 		return err
 	}
 	for _, m := range metadatas {
-		ip, err := s.pipelineService.NewPipeline(m.ManifestLocal)
+		var ip pipeline.IPipeline
+		ip, err = s.pipelineService.NewPipeline(m.ManifestLocal)
 		if err != nil {
 			return err
 		}
@@ -42,7 +54,8 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) error 
 			}
 		}
 		if !found {
-			pipeline, err := s.pipelineService.NewPipeline(m)
+			var pipeline pipeline.IPipeline
+			pipeline, err = s.pipelineService.NewPipeline(m)
 			if err != nil {
 				return err
 			}

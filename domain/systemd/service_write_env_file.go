@@ -6,10 +6,21 @@ import (
 	"strings"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/toml"
+	"systemd-cd/domain/unix"
 )
 
 // writeEnvFile implements iSystemdService
-func (s Systemd) writeEnvFile(e map[string]string, path string) error {
+func (s Systemd) writeEnvFile(e map[string]string, path string) (err error) {
+	logger.Logger().Debug("START - Write systemd env file")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Write systemd env file")
+		} else {
+			logger.Logger().Error("FAILED - Write systemd env file")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Check env file path and mkdir
 	if strings.HasSuffix(path, "/") {
 		err := fmt.Errorf("service env file path %v is not a file", path)
@@ -19,7 +30,7 @@ func (s Systemd) writeEnvFile(e map[string]string, path string) error {
 		err := fmt.Errorf("service env file path %v must be absolute", path)
 		return err
 	}
-	err := mkdirIfNotExist("/" + strings.Join(strings.Split(path, "/")[1:len(strings.Split(path, "/"))-1], "/"))
+	err = unix.MkdirIfNotExist("/" + strings.Join(strings.Split(path, "/")[1:len(strings.Split(path, "/"))-1], "/"))
 	if err != nil {
 		return err
 	}
@@ -37,7 +48,7 @@ func (s Systemd) writeEnvFile(e map[string]string, path string) error {
 	}
 
 	// Write to file
-	err = writeFile(path, b.Bytes())
+	err = unix.WriteFile(path, b.Bytes())
 	if err != nil {
 		return err
 	}

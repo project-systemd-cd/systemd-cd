@@ -4,13 +4,24 @@ import (
 	"bytes"
 	"os"
 	"strings"
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/toml"
 	"systemd-cd/domain/unix"
 )
 
 const defaultManifestFileName = ".systemd-cd.yaml"
 
-func (p pipeline) getRemoteManifest() (ServiceManifestRemote, error) {
+func (p pipeline) getRemoteManifest() (m ServiceManifestRemote, err error) {
+	logger.Logger().Debug("START - Get manifest in git repository")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Get manifest in git repository")
+		} else {
+			logger.Logger().Error("FAILED - Get manifest in git repository")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	//* NOTE: No error if file not found
 
 	// Get paths
@@ -24,19 +35,18 @@ func (p pipeline) getRemoteManifest() (ServiceManifestRemote, error) {
 	}
 
 	// Read file
-	manifestRemote := new(ServiceManifestRemote)
 	b := &bytes.Buffer{}
-	err := unix.ReadFile(manifestFilePath, b)
+	err = unix.ReadFile(manifestFilePath, b)
 	if err != nil && !os.IsNotExist(err) {
 		return ServiceManifestRemote{}, err
 	}
 	fileExists := !os.IsNotExist(err)
 	if fileExists {
-		err = toml.Decode(b, manifestRemote)
+		err = toml.Decode(b, &m)
 		if err != nil {
 			return ServiceManifestRemote{}, err
 		}
 	}
 
-	return *manifestRemote, nil
+	return m, nil
 }

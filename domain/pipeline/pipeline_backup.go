@@ -2,16 +2,27 @@ package pipeline
 
 import (
 	"strconv"
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
 	"time"
 )
 
-func (p pipeline) backupInstalled() error {
+func (p pipeline) backupInstalled() (err error) {
+	logger.Logger().Debug("START - Backup pipeline files")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Backup pipeline files")
+		} else {
+			logger.Logger().Error("FAILED - Backup pipeline files")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Create directory for backup
 	// e.g.
 	// /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/
 	backupPath := p.service.PathBackupDir + p.ManifestMerged.Name + "/" + strconv.FormatInt(time.Now().Unix(), 10) + "_" + p.GetCommitRef() + "/"
-	err := unix.MkdirIfNotExist(backupPath)
+	err = unix.MkdirIfNotExist(backupPath)
 	if err != nil {
 		return err
 	}

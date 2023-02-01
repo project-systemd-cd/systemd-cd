@@ -6,8 +6,12 @@ import (
 	"systemd-cd/domain/systemd"
 )
 
-func (p *pipeline) generateSystemdServiceUnits() []systemdUnit {
-	units := []systemdUnit{}
+func (p *pipeline) generateSystemdServiceUnits() (units []systemdUnit) {
+	logger.Logger().Debug("START - Generate systemd service units")
+	defer func() {
+		logger.Logger().Debug("END   - Generate systemd service units")
+	}()
+
 	unitType := systemd.UnitTypeSimple
 
 	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {

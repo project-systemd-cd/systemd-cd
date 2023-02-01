@@ -1,10 +1,21 @@
 package pipeline
 
 import (
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
 )
 
 func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
+	logger.Logger().Debug("START - Restore pipeline files from backup")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Restore pipeline files from backup")
+		} else {
+			logger.Logger().Error("FAILED - Restore pipeline files from backup")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Find backup
 	backupPath := ""
 	if o.CommidId != nil {

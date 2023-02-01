@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"reflect"
 	"strings"
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/toml"
 )
 
@@ -95,7 +96,17 @@ type (
 	}
 )
 
-func MarshalUnitFile(u UnitFileService) ([]byte, error) {
+func MarshalUnitFile(u UnitFileService) (b []byte, err error) {
+	logger.Logger().Debug("START - Marshal systemd unit file")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Marshal systemd unit file")
+		} else {
+			logger.Logger().Error("FAILED - Marshal systemd unit file")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	ut := unitFileServiceToml{
 		Unit: unitDirectiveToml{
 			Description:   u.Unit.Description,
@@ -125,24 +136,35 @@ func MarshalUnitFile(u UnitFileService) ([]byte, error) {
 	}
 
 	// Encode to toml
-	b := &bytes.Buffer{}
+	b2 := &bytes.Buffer{}
 	indent := ""
-	err := toml.Encode(b, ut, toml.EncodeOption{
+	err = toml.Encode(b2, ut, toml.EncodeOption{
 		Indent: &indent,
 	})
 	if err != nil {
 		return nil, err
 	}
-	b.WriteString("\n")
+	b2.WriteString("\n")
 
 	// Convert to UnitFile format
-	s := strings.ReplaceAll(b.String(), " = \"", "=")
+	s := strings.ReplaceAll(b2.String(), " = \"", "=")
 	s = strings.ReplaceAll(s, "\"\n", "\n")
 
-	return []byte(s), nil
+	b = []byte(s)
+	return b, nil
 }
 
 func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
+	logger.Logger().Debug("START - Unmarshal systemd unit file")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Unmarshal systemd unit file")
+		} else {
+			logger.Logger().Error("FAILED - Unmarshal systemd unit file")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	// Convert to toml format
 	b2 := &bytes.Buffer{}
 	for _, l := range strings.Split(b.String(), "\n") {
@@ -196,6 +218,7 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 }
 
 func slice(s *string) []string {
+	// TODO: refactor name and arg
 	if s == nil {
 		return nil
 	}
@@ -203,6 +226,7 @@ func slice(s *string) []string {
 }
 
 func spacedString(s []string) *string {
+	// TODO: refactor name and arg
 	s2 := strings.Join(s, " ")
 	return &s2
 }

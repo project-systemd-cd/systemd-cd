@@ -3,6 +3,7 @@ package pipeline
 import (
 	"strings"
 	"systemd-cd/domain/git"
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 	"systemd-cd/domain/unix"
 )
@@ -25,7 +26,17 @@ type Directories struct {
 	Backup             string
 }
 
-func NewService(repo IRepository, git git.IService, systemd systemd.IService, d Directories) (IPipelineService, error) {
+func NewService(repo IRepository, git git.IService, systemd systemd.IService, d Directories) (p IPipelineService, err error) {
+	logger.Logger().Debug("START - Instantiate pipeline service")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate pipeline service")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate pipeline service")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	for _, d := range []*string{
 		&d.Src, &d.Binary, &d.Etc, &d.Opt,
 		&d.SystemdUnitFile, &d.SystemdUnitEnvFile, &d.Backup,
@@ -35,13 +46,13 @@ func NewService(repo IRepository, git git.IService, systemd systemd.IService, d 
 			*d += "/"
 		}
 		// Create directory
-		err := unix.MkdirIfNotExist(*d)
+		err = unix.MkdirIfNotExist(*d)
 		if err != nil {
 			return pipelineService{}, err
 		}
 	}
 
-	p := &pipelineService{
+	p = &pipelineService{
 		repo, git, systemd,
 		d.Src, d.Binary, d.Etc, d.Opt,
 		d.SystemdUnitFile, d.SystemdUnitEnvFile, d.Backup,

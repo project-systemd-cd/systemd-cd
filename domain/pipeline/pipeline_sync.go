@@ -3,10 +3,21 @@ package pipeline
 import (
 	errorss "errors"
 	"systemd-cd/domain/errors"
+	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 )
 
 func (p *pipeline) Sync() (err error) {
+	logger.Logger().Debug("START - Sync pipeline")
+	defer func() {
+		if err == nil {
+			logger.Logger().Debug("END   - Sync pipeline")
+		} else {
+			logger.Logger().Error("FAILED - Sync pipeline")
+			logger.Logger().Error(err)
+		}
+	}()
+
 	defer func() {
 		if err != nil {
 			p.Status = StatusError
@@ -18,9 +29,12 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Get manifest and merge local manifest
-	if m, err := p.getRemoteManifest(); err != nil {
-		return err
-	} else {
+	{
+		var m ServiceManifestRemote
+		m, err = p.getRemoteManifest()
+		if err != nil {
+			return err
+		}
 		mm, err := m.merge(p.RepositoryLocal.RemoteUrl, p.ManifestLocal)
 		if err != nil {
 			return err
