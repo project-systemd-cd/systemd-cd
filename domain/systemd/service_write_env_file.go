@@ -11,16 +11,20 @@ import (
 
 // writeEnvFile implements iSystemdService
 func (s Systemd) writeEnvFile(e map[string]string, path string) (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Write systemd env file")
 	logger.Logger().Debugf("< env = %+v", e)
 	logger.Logger().Debugf("< path = %v", path)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Write systemd env file")
 		} else {
 			logger.Logger().Error("FAILED - Write systemd env file")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	// Check env file path and mkdir

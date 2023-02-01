@@ -10,6 +10,7 @@ import (
 var pipelines []pipeline.IPipeline
 
 func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Start pipeline runner")
 	if manifests != nil {
 		for i, sml := range *manifests {
@@ -24,13 +25,16 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 			logger.Logger().Tracef("> localManifest[%d] = %+v", i, sml)
 		}
 	}
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Start pipeline runner")
 		} else {
 			logger.Logger().Error("FAILED - Start pipeline runner")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	if manifests == nil {

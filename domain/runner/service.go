@@ -22,15 +22,19 @@ func (o Option) validate() error {
 }
 
 func NewService(p pipeline.IPipelineService, o Option) (service IRunnerService, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate pipeline service")
 	logger.Logger().Debugf("< option = %+v", o)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Instantiate pipeline service")
 		} else {
 			logger.Logger().Error("FAILED - Instantiate pipeline service")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	err = o.validate()

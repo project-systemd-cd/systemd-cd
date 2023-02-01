@@ -97,9 +97,12 @@ type (
 )
 
 func MarshalUnitFile(u UnitFileService) (b []byte, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Marshal systemd unit file")
 	logger.Logger().Debugf("< unitFile.UnitDirective.Description = %v", u.Unit.Description)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Tracef("> text = %s", string(b))
 			logger.Logger().Debug("END   - Marshal systemd unit file")
@@ -107,6 +110,7 @@ func MarshalUnitFile(u UnitFileService) (b []byte, err error) {
 			logger.Logger().Error("FAILED - Marshal systemd unit file")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	ut := unitFileServiceToml{

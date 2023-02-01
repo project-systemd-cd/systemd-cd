@@ -7,16 +7,20 @@ import (
 )
 
 func (m *ServiceManifestMerged) Validate() (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Validate manifest")
 	logger.Logger().Debugf("* manifestMerged.Name = %v", m.Name)
 	logger.Logger().Tracef("* manifestMerged = %+v", *m)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Validate manifest")
 		} else {
 			logger.Logger().Error("FAILED - Validate manifest")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	if m.Name == "" {

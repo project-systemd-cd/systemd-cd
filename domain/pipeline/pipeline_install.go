@@ -8,10 +8,13 @@ import (
 )
 
 func (p pipeline) install() (systemdServices []systemd.UnitService, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Install pipeline files")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
 	logger.Logger().Tracef("* pipeline = %+v", p)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			for i, us := range systemdServices {
 				logger.Logger().Debugf("> unitService[%d].Name = %v", i, us.Name)
@@ -22,6 +25,7 @@ func (p pipeline) install() (systemdServices []systemd.UnitService, err error) {
 			logger.Logger().Error("FAILED - Install pipeline files")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {

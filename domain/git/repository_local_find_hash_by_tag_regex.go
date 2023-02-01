@@ -7,9 +7,12 @@ import (
 )
 
 func (r *RepositoryLocal) FindHashByTagRegex(regex string) (hash string, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Find git commit hash by regex of git tag")
 	logger.Logger().Debugf("< regex = %v", regex)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		var ErrNotFound *errors.ErrNotFound
 		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debugf("> commitId = %v", hash)
@@ -18,6 +21,7 @@ func (r *RepositoryLocal) FindHashByTagRegex(regex string) (hash string, err err
 			logger.Logger().Error("FAILED - Find git commit hash by regex of git tag")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	hash, err = r.git.command.FindHashByTagRegex(r.Path, regex)

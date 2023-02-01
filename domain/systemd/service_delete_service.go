@@ -7,16 +7,20 @@ import (
 
 // DeleteService implements iSystemdService
 func (s Systemd) DeleteService(u UnitService) (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Delete systemd service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
 	logger.Logger().Tracef("< unitService = %+v", u.Name)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Delete systemd service")
 		} else {
 			logger.Logger().Error("FAILED - Delete systemd service")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	err = u.Disable(true)

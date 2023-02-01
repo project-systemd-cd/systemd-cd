@@ -2,6 +2,8 @@ package systemd
 
 import (
 	"bytes"
+	errorss "errors"
+	"os"
 	"strings"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/toml"
@@ -10,10 +12,13 @@ import (
 
 // loadEnvFile implements iSystemdService
 func (s Systemd) loadEnvFile(path string) (e map[string]string, isGeneratedBySystemdCd bool, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Load systemd env file")
 	logger.Logger().Debugf("< path = %v", path)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
-		if err == nil {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil || errorss.Is(err, os.ErrNotExist) {
 			logger.Logger().Debugf("> e = %+v", e)
 			logger.Logger().Debugf("> isGeneratedBySystemdCd = %v", isGeneratedBySystemdCd)
 			logger.Logger().Debug("END   - Load systemd env file")
@@ -21,6 +26,7 @@ func (s Systemd) loadEnvFile(path string) (e map[string]string, isGeneratedBySys
 			logger.Logger().Error("FAILED - Load systemd env file")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	// Read file

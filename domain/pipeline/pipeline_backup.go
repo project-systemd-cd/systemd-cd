@@ -8,16 +8,20 @@ import (
 )
 
 func (p pipeline) backupInstalled() (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Backup pipeline files")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
 	logger.Logger().Tracef("* pipeline = %+v", p)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Backup pipeline files")
 		} else {
 			logger.Logger().Error("FAILED - Backup pipeline files")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	// Create directory for backup

@@ -8,16 +8,20 @@ import (
 )
 
 func (p *pipeline) Sync() (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Sync pipeline")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
 	logger.Logger().Tracef("* pipeline = %+v", *p)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Sync pipeline")
 		} else {
 			logger.Logger().Error("FAILED - Sync pipeline")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	defer func() {

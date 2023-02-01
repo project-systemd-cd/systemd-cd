@@ -9,11 +9,14 @@ import (
 
 // NewService implements iSystemdService
 func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (us UnitService, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate systemd unit service")
 	logger.Logger().Debugf("< name = %v", name)
 	logger.Logger().Tracef("< unitFile = %+v", uf)
 	logger.Logger().Tracef("< env = %+v", env)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Tracef("> unitService.Name = %+v", us.Name)
 			logger.Logger().Tracef("> unitService.unitFile = %+v", us.unitFile)
@@ -24,6 +27,7 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 			logger.Logger().Error("FAILED - Instantiate systemd unit service")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	// load unit file

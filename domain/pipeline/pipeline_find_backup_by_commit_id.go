@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	errorss "errors"
 	"strings"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
@@ -9,17 +10,22 @@ import (
 
 // findBackupByCommitId implements iPipeline
 func (p *pipeline) findBackupByCommitId(commitId string) (backupPath string, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Find backup by commit id")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
 	logger.Logger().Tracef("* pipeline = %+v", *p)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
-		if err == nil {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debugf("> backupPath = %v", backupPath)
 			logger.Logger().Debug("END   - Find backup by commit id")
 		} else {
 			logger.Logger().Error("FAILED - Find backup by commit id")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	backupBasePath := p.service.PathBackupDir + p.ManifestMerged.Name + "/"

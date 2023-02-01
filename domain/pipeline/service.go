@@ -27,6 +27,7 @@ type Directories struct {
 }
 
 func NewService(repo IRepository, git git.IService, systemd systemd.IService, d Directories) (p IPipelineService, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate pipeline service")
 	logger.Logger().Debugf("< dirSrc = %v", d.Src)
 	logger.Logger().Debugf("< dirBinary = %v", d.Binary)
@@ -35,13 +36,16 @@ func NewService(repo IRepository, git git.IService, systemd systemd.IService, d 
 	logger.Logger().Debugf("< dirSystemdUnitFile = %v", d.SystemdUnitFile)
 	logger.Logger().Debugf("< dirSystemdUnitEnvFile = %v", d.SystemdUnitEnvFile)
 	logger.Logger().Debugf("< dirBackup = %v", d.Backup)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Instantiate pipeline service")
 		} else {
 			logger.Logger().Error("FAILED - Instantiate pipeline service")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	for _, d := range []*string{

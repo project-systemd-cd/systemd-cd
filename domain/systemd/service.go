@@ -26,15 +26,19 @@ type IService interface {
 }
 
 func New(s Systemctl, unitFileDir string) (service IService, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate systemd service (domain service, not systemd unit service)")
 	logger.Logger().Debugf("< unitFileDir = %v", unitFileDir)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Instantiate systemd service (domain service, not systemd unit service)")
 		} else {
 			logger.Logger().Error("FAILED - Instantiate systemd service (domain service, not systemd unit service)")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	// check `unitFileDir`

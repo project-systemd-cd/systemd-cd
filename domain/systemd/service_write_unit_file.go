@@ -8,17 +8,21 @@ import (
 
 // writeUnitFileService implements iSystemdService
 func (s Systemd) writeUnitFileService(u UnitFileService, path string) (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Write systemd unit file")
 	logger.Logger().Debugf("< path = %v", path)
 	logger.Logger().Debugf("< unitFile.UnitDirective.Description = %v", u.Unit.Description)
 	logger.Logger().Tracef("< unitFile = %+v", u)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Write systemd unit file")
 		} else {
 			logger.Logger().Error("FAILED - Write systemd unit file")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	// Marshal

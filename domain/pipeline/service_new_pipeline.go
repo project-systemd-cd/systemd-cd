@@ -10,16 +10,20 @@ import (
 
 // NewPipeline implements iPipelineService
 func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate pipeline with repository data")
 	logger.Logger().Tracef("* pipelineService = %+v", s)
 	logger.Logger().Debugf("< manifestLocal.Name = %v", m.Name)
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debug("END   - Instantiate pipeline with repository data")
 		} else {
 			logger.Logger().Error("FAILED - Instantiate pipeline with repository data")
 			logger.Logger().Error(err)
 		}
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	//* NOTE: Receiver must not a pointer
