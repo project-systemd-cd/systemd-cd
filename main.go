@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"systemd-cd/domain/git"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/logrus"
 	"systemd-cd/domain/pipeline"
+	"systemd-cd/domain/runner"
 	"systemd-cd/domain/systemd"
 	"systemd-cd/infrastructure/datasource/toml"
 	"systemd-cd/infrastructure/externalapi/git_command"
@@ -30,6 +30,9 @@ var (
 	systemdUnitFileDestDir    = pflag.String("dir.systemd-unit-file", "/usr/local/lib/systemd/system/", "Path to systemd unit files.")
 	systemdUnitEnvFileDestDir = pflag.String("dir.systemd-unit-env-file", "/usr/local/systemd-cd/etc/default/", "Path to systemd env files")
 	backupDestDir             = pflag.String("dir.backup", "/var/backups/systemd-cd/", "Path to service backup files")
+
+	manifestPaths    = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
+	pipelineInterval = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
 )
 
 func convertLogLevel(str string) (ok bool, lv logger.Level) {
@@ -103,46 +106,26 @@ func main() {
 		os.Exit(1)
 	}
 
-	p1, err := p.NewPipeline(pipeline.ServiceManifestLocal{
-		GitRemoteUrl:    "https://github.com/tingtt/prometheus_sh_exporter.git",
-		GitTargetBranch: "main",
-		GitTagRegex:     func() *string { s := "v*"; return &s }(),
-		GitManifestFile: nil,
-		Name:            "prometheus_sh_exporter",
-		TestCommands:    nil,
-		BuildCommands:   func() *[]string { s := []string{"/usr/bin/go build"}; return &s }(),
-		Binaries:        func() *[]string { s := []string{"prometheus_sh_exporter"}; return &s }(),
-		SystemdOptions: []pipeline.SystemdOption{{
-			Name:           "prometheus_sh_exporter",
-			Description:    func() *string { s := "The shell exporter allows probing with shell scripts."; return &s }(),
-			ExecuteCommand: "prometheus_sh_exporter",
-			Args:           "",
-			EnvVars:        []pipeline.EnvVar{},
-			Etc: []pipeline.PathOption{{
-				Target: "sh.yml",
-				Option: "-config.file",
-			}},
-			Opt:  []string{"LICENSE"},
-			Port: func() *uint16 { p := uint16(9923); return &p }(),
-		}, {
-			Name:           "prometheus_sh_exporter2",
-			Description:    func() *string { s := "The shell exporter allows probing with shell scripts."; return &s }(),
-			ExecuteCommand: "prometheus_sh_exporter",
-			Args:           "--port 9924",
-			EnvVars:        []pipeline.EnvVar{},
-			Etc: []pipeline.PathOption{{
-				Target: "sh.yml",
-				Option: "-config.file",
-			}},
-			Opt:  []string{},
-			Port: func() *uint16 { p := uint16(9924); return &p }(),
-		}},
-	})
+	runner, err := runner.NewService(p, runner.Option{PollingInterval: time.Duration(*pipelineInterval) * time.Second})
 	if err != nil {
 		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("p1.GetStatus(): %v\n", p1.GetStatus())
-	fmt.Printf("p1.GetCommitRef(): %v\n", p1.GetCommitRef())
+	manifests := []pipeline.ServiceManifestLocal{}
+
+	for _, path := range *manifestPaths {
+		sml, err := loadManifest(path)
+		if err != nil {
+			logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+			os.Exit(1)
+		}
+		manifests = append(manifests, sml)
+	}
+
+	err = runner.Start(&manifests)
+	if err != nil {
+		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		os.Exit(1)
+	}
 }
