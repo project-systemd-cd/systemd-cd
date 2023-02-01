@@ -4,19 +4,15 @@ import (
 	"os"
 	"reflect"
 	"strings"
-	"systemd-cd/domain/logger"
 )
 
 // NewService implements iSystemdService
 func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (UnitService, error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "name", Value: name}, {Value: uf}, {Name: "env", Value: env}}))
-
 	// load unit file
 	path := strings.Join([]string{s.unitFileDir, name, ".service"}, "")
 	loaded, isGeneratedBySystemdCd, err := s.loadUnitFileSerivce(path)
 	if err != nil && !os.IsNotExist(err) {
 		// fail
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return UnitService{}, err
 	}
 
@@ -37,7 +33,6 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 	}
 	if err != nil {
 		// fail
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return UnitService{}, err
 	}
 
@@ -47,7 +42,6 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 		loaded, isGeneratedBySystemdCd, err := s.loadEnvFile(envPath)
 		if err != nil && !os.IsNotExist(err) {
 			// fail
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return UnitService{}, err
 		}
 
@@ -68,7 +62,6 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 		}
 		if err != nil {
 			// fail
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return UnitService{}, err
 		}
 	}
@@ -76,10 +69,8 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 	// daemon-reload
 	err = s.systemctl.DaemonReload()
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return UnitService{}, err
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: UnitService{s.systemctl, name, uf, path, env}}}))
 	return UnitService{s.systemctl, name, uf, path, env}, nil
 }

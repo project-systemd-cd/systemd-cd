@@ -2,14 +2,11 @@ package pipeline
 
 import (
 	"strings"
-	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 	"systemd-cd/domain/unix"
 )
 
 func (p pipeline) install() ([]systemd.UnitService, error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
-
 	if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
 		pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
 		err := unix.MkdirIfNotExist(pathBinDir)
@@ -27,7 +24,6 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 				pathBinFile,
 			)
 			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return nil, err
 			}
 		}
@@ -50,7 +46,6 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 						// Create etc file
 						err := unix.WriteFile(etcFilePath, []byte(*etc.Content))
 						if err != nil {
-							logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 							return nil, err
 						}
 					} else {
@@ -62,7 +57,6 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 							etcFilePath,
 						)
 						if err != nil {
-							logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 							return nil, err
 						}
 					}
@@ -86,7 +80,6 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 						pathOptDir+src,
 					)
 					if err != nil {
-						logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 						return nil, err
 					}
 				}
@@ -96,13 +89,11 @@ func (p pipeline) install() ([]systemd.UnitService, error) {
 		for _, unit := range p.generateSystemdServiceUnits() {
 			s, err := p.service.Systemd.NewService(unit.Name, unit.UnitFile, unit.Env)
 			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return nil, err
 			}
 			systemdServices = append(systemdServices, s)
 		}
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: systemdServices}}))
 	return systemdServices, nil
 }

@@ -5,13 +5,11 @@ import (
 	"reflect"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/git"
-	"systemd-cd/domain/logger"
 )
 
 // NewPipeline implements iPipelineService
-func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) {
+func (s pipelineService) NewPipeline(m ServiceManifestLocal) (IPipeline, error) {
 	//* NOTE: Receiver must not a pointer
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: m}}))
 
 	// Find pipeline from repository
 	mp, err := s.repo.FindPipeline(m.Name)
@@ -73,7 +71,6 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) 
 	// if local repository not exists, clone remote repository
 	cloned, p.RepositoryLocal, err = s.Git.NewLocalRepository(mp.PathLocalRepository, mp.ManifestLocal.GitRemoteUrl, mp.ManifestLocal.GitTargetBranch)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return &pipeline{}, err
 	}
 
@@ -85,10 +82,8 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) 
 		}
 	}
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return p, err
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *p}}))
 	return p, nil
 }

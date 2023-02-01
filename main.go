@@ -77,7 +77,7 @@ func main() {
 
 	s, err := systemd.New(systemctl.New(), *systemdUnitFileDestDir)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
@@ -85,7 +85,7 @@ func main() {
 
 	repo, err := toml.NewRepositoryPipeline(*varDir)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
@@ -102,13 +102,13 @@ func main() {
 		},
 	)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
 	runner, err := runner.NewService(p, runner.Option{PollingInterval: time.Duration(*pipelineInterval) * time.Second})
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
@@ -117,7 +117,7 @@ func main() {
 	for _, path := range *manifestPaths {
 		sml, err := loadManifest(path)
 		if err != nil {
-			logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+			logger.Logger().Fatal(err)
 			os.Exit(1)
 		}
 		manifests = append(manifests, sml)
@@ -125,7 +125,7 @@ func main() {
 
 	err = runner.Start(&manifests)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 }

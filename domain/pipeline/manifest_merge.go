@@ -1,7 +1,5 @@
 package pipeline
 
-import "systemd-cd/domain/logger"
-
 func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifestLocal) (ServiceManifestMerged, error) {
 	// Merge to local manifest
 	var manifestRemoteSystemdOptions []SystemdOptionMerged = nil
@@ -64,7 +62,6 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 	// Validate manifest
 	err := manifestMerged.Validate()
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return ServiceManifestMerged{}, err
 	}
 

@@ -2,28 +2,23 @@ package pipeline
 
 import (
 	"strconv"
-	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
 	"time"
 )
 
 func (p pipeline) backupInstalled() error {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
-
 	// Create directory for backup
 	// e.g.
 	// /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/
 	backupPath := p.service.PathBackupDir + p.ManifestMerged.Name + "/" + strconv.FormatInt(time.Now().Unix(), 10) + "_" + p.GetCommitRef() + "/"
 	err := unix.MkdirIfNotExist(backupPath)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
 	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
 		err = unix.MkdirIfNotExist(backupPath+"systemd/", backupPath+"env/")
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 		for _, s := range p.ManifestMerged.SystemdOptions {
@@ -37,7 +32,6 @@ func (p pipeline) backupInstalled() error {
 				backupPath+"systemd/",
 			)
 			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return err
 			}
 
@@ -51,7 +45,6 @@ func (p pipeline) backupInstalled() error {
 				backupPath+"env/",
 			)
 			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return err
 			}
 
@@ -61,7 +54,6 @@ func (p pipeline) backupInstalled() error {
 				// `cp /usr/local/systemd-cd/etc/<unit_name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/etc/<unit_name>/`
 				err = unix.MkdirIfNotExist(backupPath + "etc/" + s.Name)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 				err = unix.Mv(
@@ -71,7 +63,6 @@ func (p pipeline) backupInstalled() error {
 					backupPath+"etc/"+s.Name+"/",
 				)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 			}
@@ -82,7 +73,6 @@ func (p pipeline) backupInstalled() error {
 				// `cp /usr/local/systemd-cd/opt/<unit_name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/opt/<unit_name>/`
 				err = unix.MkdirIfNotExist(backupPath + "opt/" + s.Name)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 				err = unix.Mv(
@@ -92,7 +82,6 @@ func (p pipeline) backupInstalled() error {
 					backupPath+"opt/"+s.Name+"/",
 				)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 			}
@@ -105,7 +94,6 @@ func (p pipeline) backupInstalled() error {
 		// `cp /usr/local/systemd-cd/bin/<name>/* /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/bin/`
 		err = unix.MkdirIfNotExist(backupPath + "bin/")
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 		err = unix.Mv(
@@ -115,11 +103,9 @@ func (p pipeline) backupInstalled() error {
 			backupPath+"bin/",
 		)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}
 
-	logger.Logger().Trace("Finished")
 	return nil
 }

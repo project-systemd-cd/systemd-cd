@@ -1,13 +1,10 @@
 package pipeline
 
 import (
-	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
 )
 
 func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}, {Value: o}}))
-
 	// Find backup
 	backupPath := ""
 	if o.CommidId != nil {
@@ -16,7 +13,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		backupPath, err = p.findBackupLatest()
 	}
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
@@ -29,7 +25,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			p.service.PathBinDir+p.ManifestMerged.Name+"/*",
 		)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}
@@ -43,7 +38,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			p.service.PathSystemdUnitFileDir,
 		)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 
@@ -55,7 +49,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			p.service.PathSystemdUnitEnvFileDir,
 		)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 
@@ -69,7 +62,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 					p.service.PathEtcDir,
 				)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 				break
@@ -86,7 +78,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 					p.service.PathOptDir,
 				)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 				break
@@ -94,6 +85,5 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		}
 	}
 
-	logger.Logger().Trace("Finished")
 	return nil
 }

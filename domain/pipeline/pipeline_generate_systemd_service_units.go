@@ -7,8 +7,6 @@ import (
 )
 
 func (p *pipeline) generateSystemdServiceUnits() []systemdUnit {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
-
 	units := []systemdUnit{}
 	unitType := systemd.UnitTypeSimple
 
@@ -100,6 +98,5 @@ func (p *pipeline) generateSystemdServiceUnits() []systemdUnit {
 		}
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "units", Value: units}}))
 	return units
 }
