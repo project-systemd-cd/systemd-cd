@@ -12,7 +12,6 @@ type iPipeline interface {
 	// If fail to execute over systemd, restore from backup.
 	Sync() error
 
-	GetUpdateExistence() (updateExists bool, err error)
 	GetStatus() Status
 	GetCommitRef() string
 
@@ -21,6 +20,8 @@ type iPipeline interface {
 	build() error
 	backupInstalled() error
 	install() ([]systemd.UnitService, error)
+
+	generateSystemdServiceUnits() []systemdUnit
 
 	// Restore latest backup.
 	// If `CommitId` specified, restore backup of specified version.
@@ -31,6 +32,12 @@ type iPipeline interface {
 }
 
 type Path = string
+
+type systemdUnit struct {
+	Name     string
+	UnitFile systemd.UnitFileService
+	Env      map[string]string
+}
 
 type restoreBackupOptions struct {
 	CommidId *string

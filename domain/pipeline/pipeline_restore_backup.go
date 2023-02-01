@@ -60,7 +60,7 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		}
 
 		for _, s := range p.ManifestMerged.SystemdOptions {
-			if s.Etc != nil && len(s.Etc) != 0 {
+			if len(s.Etc) != 0 {
 				// Restore etc files
 				err = unix.Cp(
 					unix.ExecuteOption{},
@@ -77,7 +77,7 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		}
 
 		for _, s := range p.ManifestMerged.SystemdOptions {
-			if s.Opt != nil && len(s.Opt) != 0 {
+			if len(s.Opt) != 0 {
 				// Restore opt files
 				err = unix.Cp(
 					unix.ExecuteOption{},
