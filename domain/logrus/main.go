@@ -62,7 +62,6 @@ func (w *WrapLogrus) SetLevel(level logger.Level) error {
 	} else {
 		// ログレベルを適用
 		w.Logger.SetLevel(logrus.Level(level))
-		w.Infof("Log level: %q", w.Level.String())
 	}
 
 	return err

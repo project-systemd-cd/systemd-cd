@@ -3,12 +3,9 @@ package unix
 import (
 	"bytes"
 	"os"
-	"systemd-cd/domain/logger"
 )
 
 func ReadFile(path string, b *bytes.Buffer) error {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}, {Value: b}}))
-
 	// Open file
 	f, err := os.Open(path)
 	if err != nil {
@@ -25,12 +22,10 @@ func ReadFile(path string, b *bytes.Buffer) error {
 			break
 		}
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 		b.Write(bytes.Trim(data, "\x00"))
 	}
 
-	logger.Logger().Trace("Finished")
 	return nil
 }

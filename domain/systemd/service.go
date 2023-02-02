@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 	"systemd-cd/domain/logger"
+	"systemd-cd/domain/unix"
 )
 
 var (
@@ -24,14 +25,26 @@ type IService interface {
 	writeEnvFile(e map[string]string, path string) error
 }
 
-func New(s Systemctl, unitFileDir string) (IService, error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: s}, {Name: "unitFileDir", Value: unitFileDir}}))
+func New(s Systemctl, unitFileDir string) (service IService, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Instantiate systemd service (domain service, not systemd unit service)")
+	logger.Logger().Debugf("< unitFileDir = %v", unitFileDir)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate systemd service (domain service, not systemd unit service)")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate systemd service (domain service, not systemd unit service)")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	// check `unitFileDir`
 	// TODO: if invalid dir path, print warning
-	err := mkdirIfNotExist(unitFileDir)
+	err = unix.MkdirIfNotExist(unitFileDir)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return Systemd{}, err
 	}
 
@@ -40,8 +53,8 @@ func New(s Systemctl, unitFileDir string) (IService, error) {
 		unitFileDir += "/"
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: Systemd{s, unitFileDir}}}))
-	return Systemd{s, unitFileDir}, nil
+	service = Systemd{s, unitFileDir}
+	return service, nil
 }
 
 // Implements iSystemdService

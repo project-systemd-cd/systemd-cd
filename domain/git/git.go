@@ -1,5 +1,7 @@
 package git
 
+import "systemd-cd/domain/logger"
+
 type IService interface {
 	// Open local git repository.
 	// If local git repository does not exist, execute clone.
@@ -7,6 +9,11 @@ type IService interface {
 }
 
 func NewService(git GitCommand) IService {
+	logger.Logger().Debug("START - Instantiate git service")
+	defer func() {
+		logger.Logger().Debug("END   - Instantiate git service")
+	}()
+
 	return &gitService{command: git}
 }
 

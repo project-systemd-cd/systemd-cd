@@ -8,8 +8,12 @@ import (
 	"systemd-cd/domain/unix"
 )
 
-type iPipelineService interface {
-	NewPipeline(ServiceManifestLocal) (iPipeline, error)
+type IPipelineService interface {
+	NewPipeline(ServiceManifestLocal) (IPipeline, error)
+
+	FindPipelines() ([]PipelineMetadata, error)
+	FindPipelineByName(name string) (PipelineMetadata, error)
+	FindSystemdServiceByName(name string) (systemd.IService, error)
 }
 
 type Directories struct {
@@ -22,8 +26,27 @@ type Directories struct {
 	Backup             string
 }
 
-func NewService(repo IRepository, git git.IService, systemd systemd.IService, d Directories) (iPipelineService, error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "directories", Value: d}}))
+func NewService(repo IRepository, git git.IService, systemd systemd.IService, d Directories) (p IPipelineService, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Instantiate pipeline service")
+	logger.Logger().Debugf("< dirSrc = %v", d.Src)
+	logger.Logger().Debugf("< dirBinary = %v", d.Binary)
+	logger.Logger().Debugf("< dirEtc = %v", d.Etc)
+	logger.Logger().Debugf("< dirOpt = %v", d.Opt)
+	logger.Logger().Debugf("< dirSystemdUnitFile = %v", d.SystemdUnitFile)
+	logger.Logger().Debugf("< dirSystemdUnitEnvFile = %v", d.SystemdUnitEnvFile)
+	logger.Logger().Debugf("< dirBackup = %v", d.Backup)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate pipeline service")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate pipeline service")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	for _, d := range []*string{
 		&d.Src, &d.Binary, &d.Etc, &d.Opt,
@@ -34,20 +57,18 @@ func NewService(repo IRepository, git git.IService, systemd systemd.IService, d 
 			*d += "/"
 		}
 		// Create directory
-		err := unix.MkdirIfNotExist(*d)
+		err = unix.MkdirIfNotExist(*d)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return pipelineService{}, err
 		}
 	}
 
-	p := &pipelineService{
+	p = &pipelineService{
 		repo, git, systemd,
 		d.Src, d.Binary, d.Etc, d.Opt,
 		d.SystemdUnitFile, d.SystemdUnitEnvFile, d.Backup,
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *p}}))
 	return p, nil
 }
 

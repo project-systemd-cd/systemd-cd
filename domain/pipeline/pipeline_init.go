@@ -7,7 +7,21 @@ import (
 )
 
 func (p *pipeline) Init() (err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
+	logger.Logger().Info("-----------------------------------------------------------")
+	logger.Logger().Info("START - Initialize pipeline")
+	logger.Logger().Infof("* pipeline.Name = %v", p.ManifestLocal.Name)
+	logger.Logger().Tracef("* pipeline = %+v", *p)
+	logger.Logger().Info("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Info("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Info("END   - Initialize pipeline")
+		} else {
+			logger.Logger().Error("FAILED - Initialize pipeline")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Info("-----------------------------------------------------------")
+	}()
 
 	defer func() {
 		if err != nil {
@@ -18,14 +32,13 @@ func (p *pipeline) Init() (err error) {
 	p.Status = StatusSyncing
 
 	// Get manifest and merge local manifest
+	logger.Logger().Info("Get manifest in git repository and merge to local manifest")
 	m, err := p.getRemoteManifest()
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 	mm, err := m.merge(p.RepositoryLocal.RemoteUrl, p.ManifestLocal)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 	p.ManifestMerged = mm
@@ -33,47 +46,40 @@ func (p *pipeline) Init() (err error) {
 	// Test
 	err = p.test()
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
 	// Build
 	err = p.build()
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
 	// Install
 	services, err := p.install()
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
-	logger.Logger().Debugf("Debug:\n\tservices: %v", services)
 
-	for _, s := range services {
+	for _, us := range services {
 		// Execute over systemd
-		err = s.Start()
+		err = us.Start()
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 
 		// Get status of systemd service
-		s, err := s.GetStatus()
+		var s systemd.Status
+		s, err = us.GetStatus()
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 		if s != systemd.StatusRunning {
 			err = fmt.Errorf("systemd service '%s' is not running", p.ManifestMerged.Name)
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}
 
 	p.Status = StatusSynced
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: p.Status}}))
 	return nil
 }

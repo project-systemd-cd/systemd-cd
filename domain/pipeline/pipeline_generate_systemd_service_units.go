@@ -6,10 +6,22 @@ import (
 	"systemd-cd/domain/systemd"
 )
 
-func (p *pipeline) generateSystemdServiceUnits() []systemdUnit {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
+func (p *pipeline) generateSystemdServiceUnits() (units []systemdUnit) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Generate systemd service units")
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", *p)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		for i, su := range units {
+			logger.Logger().Debugf("> units[%d].Name = %v", i, su.Name)
+			logger.Logger().Tracef("> units[%d] = %+v", i, su)
+		}
+		logger.Logger().Debug("END   - Generate systemd service units")
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
-	units := []systemdUnit{}
 	unitType := systemd.UnitTypeSimple
 
 	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
@@ -100,6 +112,5 @@ func (p *pipeline) generateSystemdServiceUnits() []systemdUnit {
 		}
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "units", Value: units}}))
 	return units
 }

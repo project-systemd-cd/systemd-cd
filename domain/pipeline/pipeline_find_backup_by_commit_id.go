@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	errorss "errors"
 	"strings"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
@@ -9,12 +10,27 @@ import (
 
 // findBackupByCommitId implements iPipeline
 func (p *pipeline) findBackupByCommitId(commitId string) (backupPath string, err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}, {Name: "commitId", Value: commitId}}))
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Find backup by commit id")
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", *p)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
+			logger.Logger().Debugf("> backupPath = %v", backupPath)
+			logger.Logger().Debug("END   - Find backup by commit id")
+		} else {
+			logger.Logger().Error("FAILED - Find backup by commit id")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	backupBasePath := p.service.PathBackupDir + p.ManifestMerged.Name + "/"
 	err = unix.MkdirIfNotExist(backupBasePath)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 	s, err := unix.Ls(
@@ -23,12 +39,10 @@ func (p *pipeline) findBackupByCommitId(commitId string) (backupPath string, err
 		backupBasePath,
 	)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 	if len(s) == 0 {
 		err = &errors.ErrNotFound{Object: "backup", IdName: "version", Id: commitId}
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 
@@ -45,10 +59,8 @@ func (p *pipeline) findBackupByCommitId(commitId string) (backupPath string, err
 	}
 	if !found {
 		err = &errors.ErrNotFound{Object: "backup", IdName: "version", Id: commitId}
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "backupBasePath", Value: backupBasePath}}))
 	return backupPath, nil
 }

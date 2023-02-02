@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	errorss "errors"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
@@ -8,12 +9,27 @@ import (
 
 // findBackupLatest implements iPipeline
 func (p *pipeline) findBackupLatest() (backupPath string, err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}}))
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Find latest backup")
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", *p)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
+			logger.Logger().Debugf("> backupPath = %v", backupPath)
+			logger.Logger().Debug("END   - Find latest backup")
+		} else {
+			logger.Logger().Error("FAILED - Find latest backup")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	backupBasePath := p.service.PathBackupDir + p.ManifestMerged.Name + "/"
 	err = unix.MkdirIfNotExist(backupBasePath)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 	s, err := unix.Ls(
@@ -22,17 +38,14 @@ func (p *pipeline) findBackupLatest() (backupPath string, err error) {
 		backupBasePath,
 	)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 	if len(s) == 0 {
 		err = &errors.ErrNotFound{Object: "backup"}
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return "", err
 	}
 
 	backupPath = backupBasePath + s[0] + "/"
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "backupBasePath", Value: backupBasePath}}))
 	return backupPath, nil
 }

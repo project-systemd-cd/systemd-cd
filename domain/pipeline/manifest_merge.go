@@ -2,7 +2,26 @@ package pipeline
 
 import "systemd-cd/domain/logger"
 
-func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifestLocal) (ServiceManifestMerged, error) {
+func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifestLocal) (m ServiceManifestMerged, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Merge local manifest to remote manifest")
+	logger.Logger().Tracef("* remoteManifest = %+v", remote)
+	logger.Logger().Debugf("< localManifest.Name = %v", local.Name)
+	logger.Logger().Debugf("< remoteUrl = %v", remoteUrl)
+	logger.Logger().Tracef("< localManifest = %+v", local)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Tracef("> manifestMerged = %+v", m)
+			logger.Logger().Debug("END   - Merge local manifest to remote manifest")
+		} else {
+			logger.Logger().Error("FAILED - Merge local manifest to remote manifest")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
+
 	// Merge to local manifest
 	var manifestRemoteSystemdOptions []SystemdOptionMerged = nil
 	for _, s := range remote.SystemdOptions {
@@ -21,7 +40,7 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 			Port:           s.Port,
 		})
 	}
-	manifestMerged := ServiceManifestMerged{
+	m = ServiceManifestMerged{
 		Name:            remote.Name,
 		GitTargetBranch: local.GitTargetBranch,
 		GitTagRegex:     local.GitTagRegex,
@@ -30,15 +49,15 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 		Binaries:        remote.Binaries,
 		SystemdOptions:  manifestRemoteSystemdOptions,
 	}
-	manifestMerged.Name = local.Name
+	m.Name = local.Name
 	if local.TestCommands != nil {
-		manifestMerged.TestCommands = local.TestCommands
+		m.TestCommands = local.TestCommands
 	}
 	if local.BuildCommands != nil {
-		manifestMerged.BuildCommands = local.BuildCommands
+		m.BuildCommands = local.BuildCommands
 	}
 	if local.Binaries != nil {
-		manifestMerged.Binaries = local.Binaries
+		m.Binaries = local.Binaries
 	}
 	var systemdOptions []SystemdOptionMerged = nil
 	for _, s := range local.SystemdOptions {
@@ -58,15 +77,14 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 		})
 	}
 	if systemdOptions != nil {
-		manifestMerged.SystemdOptions = systemdOptions
+		m.SystemdOptions = systemdOptions
 	}
 
 	// Validate manifest
-	err := manifestMerged.Validate()
+	err = m.Validate()
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return ServiceManifestMerged{}, err
 	}
 
-	return manifestMerged, nil
+	return m, nil
 }

@@ -5,7 +5,7 @@ import (
 	"systemd-cd/domain/systemd"
 )
 
-type iPipeline interface {
+type IPipeline interface {
 	// Execute test, execute build, and install.
 	Init() error
 	// If update exists, pull src and manifest, execute test, execute build, backup old files and install new version.

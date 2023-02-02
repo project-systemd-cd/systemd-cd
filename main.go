@@ -75,9 +75,28 @@ func main() {
 	}
 	logger.Logger().SetLevel(lv)
 
+	logger.Logger().Trace("-----------------------------------------------------------")
+	logger.Logger().Trace("Analize cli options")
+	logger.Logger().Trace("-----------------------------------------------------------")
+	logger.Logger().Infof("Log level is %s", *logLevel)
+	logger.Logger().Tracef("< --log.level = %v", *logLevel)
+	logger.Logger().Tracef("< --log.report-caller = %v", *logReportCaller)
+	logger.Logger().Tracef("< --log.timestamp = %v", *logTimestamp)
+	logger.Logger().Tracef("< --dir.var = %v", *varDir)
+	logger.Logger().Tracef("< --dir.src = %v", *srcDestDir)
+	logger.Logger().Tracef("< --dir.binary = %v", *binaryDestDir)
+	logger.Logger().Tracef("< --dir.etc = %v", *etcDestDir)
+	logger.Logger().Tracef("< --dir.opt = %v", *optDestDir)
+	logger.Logger().Tracef("< --dir.systemd-unit-file = %v", *systemdUnitFileDestDir)
+	logger.Logger().Tracef("< --dir.systemd-unit-env-file = %v", *systemdUnitEnvFileDestDir)
+	logger.Logger().Tracef("< --dir.backup = %v", *backupDestDir)
+	logger.Logger().Tracef("< --file.manifest = %v", *manifestPaths)
+	logger.Logger().Tracef("< --pipeline.interval = %v", *pipelineInterval)
+	logger.Logger().Trace("-----------------------------------------------------------")
+
 	s, err := systemd.New(systemctl.New(), *systemdUnitFileDestDir)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
@@ -85,7 +104,7 @@ func main() {
 
 	repo, err := toml.NewRepositoryPipeline(*varDir)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
@@ -102,13 +121,13 @@ func main() {
 		},
 	)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
 	runner, err := runner.NewService(p, runner.Option{PollingInterval: time.Duration(*pipelineInterval) * time.Second})
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 
@@ -117,7 +136,7 @@ func main() {
 	for _, path := range *manifestPaths {
 		sml, err := loadManifest(path)
 		if err != nil {
-			logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+			logger.Logger().Fatal(err)
 			os.Exit(1)
 		}
 		manifests = append(manifests, sml)
@@ -125,7 +144,7 @@ func main() {
 
 	err = runner.Start(&manifests)
 	if err != nil {
-		logger.Logger().Fatalf("Failed:\n\terr: %v", err)
+		logger.Logger().Fatal(err)
 		os.Exit(1)
 	}
 }

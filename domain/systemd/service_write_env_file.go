@@ -6,26 +6,38 @@ import (
 	"strings"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/toml"
+	"systemd-cd/domain/unix"
 )
 
 // writeEnvFile implements iSystemdService
-func (s Systemd) writeEnvFile(e map[string]string, path string) error {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "env", Value: e}, {Name: "path", Value: path}}))
+func (s Systemd) writeEnvFile(e map[string]string, path string) (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Write systemd env file")
+	logger.Logger().Debugf("< env = %+v", e)
+	logger.Logger().Debugf("< path = %v", path)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Debug("END   - Write systemd env file")
+		} else {
+			logger.Logger().Error("FAILED - Write systemd env file")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	// Check env file path and mkdir
 	if strings.HasSuffix(path, "/") {
 		err := fmt.Errorf("service env file path %v is not a file", path)
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 	if !strings.HasPrefix(path, "/") {
 		err := fmt.Errorf("service env file path %v must be absolute", path)
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
-	err := mkdirIfNotExist("/" + strings.Join(strings.Split(path, "/")[1:len(strings.Split(path, "/"))-1], "/"))
+	err = unix.MkdirIfNotExist("/" + strings.Join(strings.Split(path, "/")[1:len(strings.Split(path, "/"))-1], "/"))
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
@@ -38,17 +50,14 @@ func (s Systemd) writeEnvFile(e map[string]string, path string) error {
 	logger.Logger().Warn("Unchecked code: no problem to systemd service environment file with TOML format.")
 	err = toml.Encode(b, e, toml.EncodeOption{Indent: &indent})
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
 	// Write to file
-	err = writeFile(path, b.Bytes())
+	err = unix.WriteFile(path, b.Bytes())
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
-	logger.Logger().Trace("Finished")
 	return err
 }

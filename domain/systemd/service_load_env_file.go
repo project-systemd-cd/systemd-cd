@@ -2,20 +2,37 @@ package systemd
 
 import (
 	"bytes"
+	errorss "errors"
+	"os"
 	"strings"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/toml"
+	"systemd-cd/domain/unix"
 )
 
 // loadEnvFile implements iSystemdService
 func (s Systemd) loadEnvFile(path string) (e map[string]string, isGeneratedBySystemdCd bool, err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}}))
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Load systemd env file")
+	logger.Logger().Debugf("< path = %v", path)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil || errorss.Is(err, os.ErrNotExist) {
+			logger.Logger().Debugf("> e = %+v", e)
+			logger.Logger().Debugf("> isGeneratedBySystemdCd = %v", isGeneratedBySystemdCd)
+			logger.Logger().Debug("END   - Load systemd env file")
+		} else {
+			logger.Logger().Error("FAILED - Load systemd env file")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	// Read file
 	b := &bytes.Buffer{}
-	err = readFile(path, b)
+	err = unix.ReadFile(path, b)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 
@@ -29,10 +46,8 @@ func (s Systemd) loadEnvFile(path string) (e map[string]string, isGeneratedBySys
 	logger.Logger().Warn("Unchecked code: no problem to systemd service environment file with TOML format.")
 	err = toml.Decode(b, &e)
 	if err != nil {
-		logger.Logger().Error("Error:\n\tisGeneratedBySystemdCd: %v\n\terr: %v", isGeneratedBySystemdCd, err)
 		return
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "isGeneratedBySystemdCd", Value: isGeneratedBySystemdCd}}))
 	return
 }

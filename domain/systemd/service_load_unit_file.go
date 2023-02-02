@@ -2,19 +2,37 @@ package systemd
 
 import (
 	"bytes"
+	errorss "errors"
+	"os"
 	"strings"
 	"systemd-cd/domain/logger"
+	"systemd-cd/domain/unix"
 )
 
 // loadUnitFileSerivce implements iSystemdService
 func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "path", Value: path}}))
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Load systemd unit file")
+	logger.Logger().Debugf("< path = %v", path)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil || errorss.Is(err, os.ErrNotExist) {
+			logger.Logger().Debugf("> unitFile.UnitDirective.Description = %v", u.Unit.Description)
+			logger.Logger().Tracef("> unitFile = %+v", u)
+			logger.Logger().Debugf("> isGeneratedBySystemdCd = %v", isGeneratedBySystemdCd)
+			logger.Logger().Debug("END   - Load systemd unit file")
+		} else {
+			logger.Logger().Error("FAILED - Load systemd unit file")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	// Read file
 	b := &bytes.Buffer{}
-	err = readFile(path, b)
+	err = unix.ReadFile(path, b)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 
@@ -26,10 +44,8 @@ func (s Systemd) loadUnitFileSerivce(path string) (u UnitFileService, isGenerate
 	// Unmarshal
 	u, err = UnmarshalUnitFile(b)
 	if err != nil {
-		logger.Logger().Error("Error:\n\tu: %v\n\tisGeneratedBySystemdCd: %v\n\terr: %v", u, isGeneratedBySystemdCd, err)
 		return
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "isGeneratedBySystemdCd", Value: isGeneratedBySystemdCd}}))
 	return
 }

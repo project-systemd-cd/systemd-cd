@@ -56,9 +56,7 @@ const (
 )
 
 func (u UnitFileService) Equals(target UnitFileService) (equal bool) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Name: "a", Value: u}, {Name: "b", Value: target}}))
 	equal = reflect.DeepEqual(u, target)
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "equal", Value: equal}}))
 	return
 }
 
@@ -98,8 +96,22 @@ type (
 	}
 )
 
-func MarshalUnitFile(u UnitFileService) ([]byte, error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: u}}))
+func MarshalUnitFile(u UnitFileService) (b []byte, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Marshal systemd unit file")
+	logger.Logger().Debugf("< unitFile.UnitDirective.Description = %v", u.Unit.Description)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Tracef("> text = %s", string(b))
+			logger.Logger().Debug("END   - Marshal systemd unit file")
+		} else {
+			logger.Logger().Error("FAILED - Marshal systemd unit file")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	ut := unitFileServiceToml{
 		Unit: unitDirectiveToml{
@@ -130,27 +142,36 @@ func MarshalUnitFile(u UnitFileService) ([]byte, error) {
 	}
 
 	// Encode to toml
-	b := &bytes.Buffer{}
+	b2 := &bytes.Buffer{}
 	indent := ""
-	err := toml.Encode(b, ut, toml.EncodeOption{
+	err = toml.Encode(b2, ut, toml.EncodeOption{
 		Indent: &indent,
 	})
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return nil, err
 	}
-	b.WriteString("\n")
+	b2.WriteString("\n")
 
 	// Convert to UnitFile format
-	s := strings.ReplaceAll(b.String(), " = \"", "=")
+	s := strings.ReplaceAll(b2.String(), " = \"", "=")
 	s = strings.ReplaceAll(s, "\"\n", "\n")
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Name: "[]byte", Value: s}}))
-	return []byte(s), nil
+	b = []byte(s)
+	return b, nil
 }
 
 func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: b}}))
+	logger.Logger().Debug("START - Unmarshal systemd unit file")
+	logger.Logger().Debugf("< bytes.Buffer = %v", b)
+	defer func() {
+		if err == nil {
+			logger.Logger().Debugf("> unitFile.UnitDirective.Description = %v", u.Unit.Description)
+			logger.Logger().Debug("END   - Unmarshal systemd unit file")
+		} else {
+			logger.Logger().Error("FAILED - Unmarshal systemd unit file")
+			logger.Logger().Error(err)
+		}
+	}()
 
 	// Convert to toml format
 	b2 := &bytes.Buffer{}
@@ -170,7 +191,6 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 	ut := &unitFileServiceToml{}
 	err = toml.Decode(b2, ut)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 
@@ -202,11 +222,11 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 		},
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: u}}))
 	return
 }
 
 func slice(s *string) []string {
+	// TODO: refactor name and arg
 	if s == nil {
 		return nil
 	}
@@ -214,6 +234,7 @@ func slice(s *string) []string {
 }
 
 func spacedString(s []string) *string {
+	// TODO: refactor name and arg
 	s2 := strings.Join(s, " ")
 	return &s2
 }

@@ -7,12 +7,29 @@ const DefaultRemoteName = "origin"
 // Open local git repository.
 // If local git repository does not exist, execute clone.
 func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch string) (cloned bool, repo *RepositoryLocal, err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: path}, {Name: "remoteUrl", Value: remoteUrl}, {Name: "branch", Value: branch}}))
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Instantiate git local repository")
+	logger.Logger().Debugf("< path = %v", path)
+	logger.Logger().Debugf("< remoteUrl = %v", remoteUrl)
+	logger.Logger().Debugf("< branch = %v", branch)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Debugf("> cloned = %v", cloned)
+			logger.Logger().Debugf("> commitId = %v", repo.RefCommitId)
+			logger.Logger().Tracef("> repositoryLocal = %+v", repo)
+			logger.Logger().Debug("END   - Instantiate git local repository")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate git local repository")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	// Open git dir if exists
 	exists, err := git.command.IsGitDirectory(path)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 	if exists {
@@ -20,21 +37,18 @@ func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch str
 		var ref string
 		ref, err = git.command.RefCommitId(path)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return
 		}
 		// Check remote url
 		var s string
 		s, err = git.command.GetRemoteUrl(path, DefaultRemoteName)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return
 		}
 		if s != remoteUrl {
 			// if remote url is different, set remote url
 			err = git.command.SetRemoteUrl(path, DefaultRemoteName, remoteUrl)
 			if err != nil {
-				logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 				return
 			}
 		}
@@ -45,21 +59,19 @@ func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch str
 			RefCommitId:  ref,
 			Path:         path,
 		}
-		logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *repo}}))
+
 		return false, repo, nil
 	}
 
 	// Clone
 	err = git.command.Clone(path, remoteUrl, branch, true)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 
 	// Get ref
 	ref, err := git.command.RefCommitId(path)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return
 	}
 	repo = &RepositoryLocal{
@@ -69,6 +81,6 @@ func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch str
 		RefCommitId:  ref,
 		Path:         path,
 	}
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *repo}}))
+
 	return true, repo, nil
 }

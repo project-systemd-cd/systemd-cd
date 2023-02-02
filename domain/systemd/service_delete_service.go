@@ -6,21 +6,30 @@ import (
 )
 
 // DeleteService implements iSystemdService
-func (s Systemd) DeleteService(u UnitService) error {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: u}}))
-	err := u.Disable(true)
+func (s Systemd) DeleteService(u UnitService) (err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Delete systemd service")
+	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
+	logger.Logger().Tracef("< unitService = %+v", u.Name)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Debug("END   - Delete systemd service")
+		} else {
+			logger.Logger().Error("FAILED - Delete systemd service")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
+
+	err = u.Disable(true)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
 	// Delete `.service` file
 	err = os.Remove(u.Path)
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return err
-	}
 
-	logger.Logger().Trace("Finished")
-	return nil
+	return err
 }

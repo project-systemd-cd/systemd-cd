@@ -9,12 +9,27 @@ import (
 )
 
 // NewPipeline implements iPipelineService
-func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) {
+func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err error) {
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Instantiate pipeline with repository data")
+	logger.Logger().Tracef("* pipelineService = %+v", s)
+	logger.Logger().Debugf("< manifestLocal.Name = %v", m.Name)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Debug("END   - Instantiate pipeline with repository data")
+		} else {
+			logger.Logger().Error("FAILED - Instantiate pipeline with repository data")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
+
 	//* NOTE: Receiver must not a pointer
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: m}}))
 
 	// Find pipeline from repository
-	mp, err := s.repo.FindPipeline(m.Name)
+	mp, err := s.repo.FindPipelineByName(m.Name)
 	ErrNotFound := &errors.ErrNotFound{}
 	notFound := errorss.As(err, &ErrNotFound)
 	if err != nil && !notFound {
@@ -61,7 +76,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) 
 	}
 
 	// Define pipeline
-	p := &pipeline{
+	p1 := &pipeline{
 		ManifestLocal:   mp.ManifestLocal,
 		RepositoryLocal: nil,
 		Status:          StatusOutOfSync,
@@ -71,24 +86,15 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (iPipeline, error) 
 	// Open local repository
 	var cloned bool
 	// if local repository not exists, clone remote repository
-	cloned, p.RepositoryLocal, err = s.Git.NewLocalRepository(mp.PathLocalRepository, mp.ManifestLocal.GitRemoteUrl, mp.ManifestLocal.GitTargetBranch)
+	cloned, p1.RepositoryLocal, err = s.Git.NewLocalRepository(mp.PathLocalRepository, mp.ManifestLocal.GitRemoteUrl, mp.ManifestLocal.GitTargetBranch)
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return &pipeline{}, err
 	}
 
 	if cloned {
-		err = p.Init()
-	} else {
-		if p.Status != StatusSyncing {
-			err = p.Sync()
-		}
-	}
-	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
-		return p, err
+		err = p1.Init()
 	}
 
-	logger.Logger().Trace(logger.Var2Text("Finished", []logger.Var{{Value: *p}}))
-	return p, nil
+	p = p1
+	return p, err
 }

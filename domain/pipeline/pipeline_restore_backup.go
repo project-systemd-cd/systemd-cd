@@ -6,7 +6,22 @@ import (
 )
 
 func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
-	logger.Logger().Trace(logger.Var2Text("Called", []logger.Var{{Value: p}, {Value: o}}))
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Restore pipeline files from backup")
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+	logger.Logger().Tracef("* pipeline = %+v", p)
+	logger.Logger().Debugf("< option = %+v", o)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	defer func() {
+		logger.Logger().Debug("-----------------------------------------------------------")
+		if err == nil {
+			logger.Logger().Debug("END   - Restore pipeline files from backup")
+		} else {
+			logger.Logger().Error("FAILED - Restore pipeline files from backup")
+			logger.Logger().Error(err)
+		}
+		logger.Logger().Debug("-----------------------------------------------------------")
+	}()
 
 	// Find backup
 	backupPath := ""
@@ -16,7 +31,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		backupPath, err = p.findBackupLatest()
 	}
 	if err != nil {
-		logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 		return err
 	}
 
@@ -29,7 +43,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			p.service.PathBinDir+p.ManifestMerged.Name+"/*",
 		)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 	}
@@ -43,7 +56,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			p.service.PathSystemdUnitFileDir,
 		)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 
@@ -55,7 +67,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			p.service.PathSystemdUnitEnvFileDir,
 		)
 		if err != nil {
-			logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 			return err
 		}
 
@@ -69,7 +80,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 					p.service.PathEtcDir,
 				)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 				break
@@ -86,7 +96,6 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 					p.service.PathOptDir,
 				)
 				if err != nil {
-					logger.Logger().Error(logger.Var2Text("Error", []logger.Var{{Name: "err", Value: err}}))
 					return err
 				}
 				break
@@ -94,6 +103,5 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		}
 	}
 
-	logger.Logger().Trace("Finished")
 	return nil
 }
