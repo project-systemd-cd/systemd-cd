@@ -1,5 +1,11 @@
 # systemd-cd
 
+## Build
+
+```bash
+go build .
+```
+
 ## Usage
 
 ```bash
@@ -12,9 +18,9 @@ You can specify multiple manifest files.
 ./systemd-cd -f <manifest>.toml -f <manifest>.toml
 ```
 
-## Configuration
+### Configuration
 
-### Sample `go`
+#### Sample `go`
 
 ```toml
 name = "prometheus_sh_exporter"
@@ -33,6 +39,8 @@ port = 9923
 
 [[systemd.etc]]
 target = "prometheus_sh_exporter.yml"
+content = """
+"""
 option = "-config.file"
 ```
 
@@ -46,7 +54,7 @@ It runs like this
 
 with `/usr/local/lib/systemd/system/prometheus_sh_exporter.service`
 
-### Sample `Next.js`
+#### Sample `Next.js`
 
 ```toml
 name = "nextjs-workspace"
