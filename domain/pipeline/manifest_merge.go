@@ -30,14 +30,15 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 			description = *s.Description
 		}
 		manifestRemoteSystemdOptions = append(manifestRemoteSystemdOptions, SystemdOptionMerged{
-			Name:        s.Name,
-			Description: description,
-			ExecStart:   s.ExecStart,
-			Args:        s.Args,
-			EnvVars:     s.EnvVars,
-			Etc:         s.Etc,
-			Opt:         s.Opt,
-			Port:        s.Port,
+			Name:         s.Name,
+			Description:  description,
+			ExecStartPre: s.ExecStartPre,
+			ExecStart:    s.ExecStart,
+			Args:         s.Args,
+			EnvVars:      s.EnvVars,
+			Etc:          s.Etc,
+			Opt:          s.Opt,
+			Port:         s.Port,
 		})
 	}
 	m = ServiceManifestMerged{
@@ -66,14 +67,15 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 			description = *s.Description
 		}
 		systemdOptions = append(systemdOptions, SystemdOptionMerged{
-			Name:        s.Name,
-			Description: description,
-			ExecStart:   s.ExecStart,
-			Args:        s.Args,
-			EnvVars:     s.EnvVars,
-			Etc:         s.Etc,
-			Opt:         s.Opt,
-			Port:        s.Port,
+			Name:         s.Name,
+			Description:  description,
+			ExecStartPre: s.ExecStartPre,
+			ExecStart:    s.ExecStart,
+			Args:         s.Args,
+			EnvVars:      s.EnvVars,
+			Etc:          s.Etc,
+			Opt:          s.Opt,
+			Port:         s.Port,
 		})
 	}
 	if systemdOptions != nil {

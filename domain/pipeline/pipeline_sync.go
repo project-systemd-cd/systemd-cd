@@ -5,6 +5,7 @@ import (
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
+	"time"
 )
 
 func (p *pipeline) Sync() (err error) {
@@ -174,6 +175,8 @@ func (p *pipeline) Sync() (err error) {
 			if err != nil {
 				return err
 			}
+
+			time.Sleep(time.Second)
 
 			// Get status of systemd service
 			status, err := s.GetStatus()

@@ -33,25 +33,27 @@ type ServiceManifestMerged struct {
 }
 
 type SystemdOption struct {
-	Name        string       `toml:"name"`
-	Description *string      `toml:"description,omitempty"`
-	ExecStart   string       `toml:"exec_start"`
-	Args        string       `toml:"args"`
-	EnvVars     []EnvVar     `toml:"env"`
-	Etc         []PathOption `toml:"etc,omitempty"`
-	Opt         []string     `toml:"opt_files,omitempty"`
-	Port        *uint16      `toml:"port,omitempty"`
+	Name         string       `toml:"name"`
+	Description  *string      `toml:"description,omitempty"`
+	ExecStartPre *string      `toml:"exec_start_pre,omitempty"`
+	ExecStart    string       `toml:"exec_start"`
+	Args         string       `toml:"args"`
+	EnvVars      []EnvVar     `toml:"env"`
+	Etc          []PathOption `toml:"etc,omitempty"`
+	Opt          []string     `toml:"opt_files,omitempty"`
+	Port         *uint16      `toml:"port,omitempty"`
 }
 
 type SystemdOptionMerged struct {
-	Name        string       `toml:"name"`
-	Description string       `toml:"description,omitempty"`
-	ExecStart   string       `toml:"exec_start"`
-	Args        string       `toml:"args"`
-	EnvVars     []EnvVar     `toml:"env"`
-	Etc         []PathOption `toml:"etc,omitempty"`
-	Opt         []string     `toml:"opt_files,omitempty"`
-	Port        *uint16      `toml:"port,omitempty"`
+	Name         string       `toml:"name"`
+	Description  string       `toml:"description,omitempty"`
+	ExecStartPre *string      `toml:"exec_start_pre,omitempty"`
+	ExecStart    string       `toml:"exec_start"`
+	Args         string       `toml:"args"`
+	EnvVars      []EnvVar     `toml:"env"`
+	Etc          []PathOption `toml:"etc,omitempty"`
+	Opt          []string     `toml:"opt_files,omitempty"`
+	Port         *uint16      `toml:"port,omitempty"`
 }
 
 type PathOption struct {

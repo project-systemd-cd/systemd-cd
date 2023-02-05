@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
+	"time"
 )
 
 func (p *pipeline) Init() (err error) {
@@ -67,6 +68,8 @@ func (p *pipeline) Init() (err error) {
 		if err != nil {
 			return err
 		}
+
+		time.Sleep(time.Second)
 
 		// Get status of systemd service
 		var s systemd.Status

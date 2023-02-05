@@ -93,6 +93,7 @@ func (p *pipeline) generateSystemdServiceUnits() (units []systemdUnit) {
 						Type:             &unitType,
 						WorkingDirectory: pathWorkingDir,
 						EnvironmentFile:  &pathEnvFile,
+						ExecStartPre:     service.ExecStartPre,
 						ExecStart:        execStart + args + argsEtc,
 						ExecStop:         nil,
 						ExecReload:       nil,

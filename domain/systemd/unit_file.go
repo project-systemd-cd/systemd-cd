@@ -30,6 +30,7 @@ type (
 		Type             *UnitType
 		WorkingDirectory *string
 		EnvironmentFile  *string
+		ExecStartPre     *string
 		ExecStart        string
 		ExecStop         *string
 		ExecReload       *string
@@ -80,6 +81,7 @@ type (
 		Type             *UnitType `toml:"Type,omitempty"`
 		WorkingDirectory *string   `toml:"WorkingDirectory,omitempty"`
 		EnvironmentFile  *string   `toml:"EnvironmentFile,omitempty"`
+		ExecStartPre     *string   `toml:"ExecStartPre,omitempty"`
 		ExecStart        string    `toml:"ExecStart"`
 		ExecStop         *string   `toml:"ExecStop,omitempty"`
 		ExecReload       *string   `toml:"ExecReload,omitempty"`
@@ -100,6 +102,9 @@ func MarshalUnitFile(u UnitFileService) (b []byte, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Marshal systemd unit file")
 	logger.Logger().Debugf("< unitFile.UnitDirective.Description = %v", u.Unit.Description)
+	logger.Logger().Tracef("< unitFile.UnitDirective = %+v", u.Unit)
+	logger.Logger().Tracef("< unitFile.ServiceDirective = %+v", u.Service)
+	logger.Logger().Tracef("< unitFile.InstallDirective = %+v", u.Install)
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
@@ -126,6 +131,7 @@ func MarshalUnitFile(u UnitFileService) (b []byte, err error) {
 			Type:             u.Service.Type,
 			WorkingDirectory: u.Service.WorkingDirectory,
 			EnvironmentFile:  u.Service.EnvironmentFile,
+			ExecStartPre:     u.Service.ExecStartPre,
 			ExecStart:        u.Service.ExecStart,
 			ExecStop:         u.Service.ExecStop,
 			ExecReload:       u.Service.ExecReload,
@@ -166,6 +172,9 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 	defer func() {
 		if err == nil {
 			logger.Logger().Debugf("> unitFile.UnitDirective.Description = %v", u.Unit.Description)
+			logger.Logger().Tracef("> unitFile.UnitDirective = %+v", u.Unit)
+			logger.Logger().Tracef("> unitFile.ServiceDirective = %+v", u.Service)
+			logger.Logger().Tracef("> unitFile.InstallDirective = %+v", u.Install)
 			logger.Logger().Debug("END   - Unmarshal systemd unit file")
 		} else {
 			logger.Logger().Error("FAILED - Unmarshal systemd unit file")
@@ -207,6 +216,7 @@ func UnmarshalUnitFile(b *bytes.Buffer) (u UnitFileService, err error) {
 			Type:             ut.Service.Type,
 			WorkingDirectory: ut.Service.WorkingDirectory,
 			EnvironmentFile:  ut.Service.EnvironmentFile,
+			ExecStartPre:     ut.Service.ExecStartPre,
 			ExecStart:        ut.Service.ExecStart,
 			ExecStop:         ut.Service.ExecStop,
 			ExecReload:       ut.Service.ExecReload,

@@ -62,6 +62,10 @@ func (m *ServiceManifestMerged) Validate() (err error) {
 			err = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].exec_start' cannot be empty text", i)}
 			return err
 		}
+		if s.ExecStartPre != nil && *s.ExecStartPre == "" {
+			err = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].exec_start_pre' cannot be empty text", i)}
+			return err
+		}
 		for j, etc := range s.Etc {
 			if etc.Target == "" {
 				err = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].etc[%d].target' cannot be empty text", i, j)}
