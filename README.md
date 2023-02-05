@@ -27,7 +27,7 @@ binaries = ["prometheus_sh_exporter"]
 [[systemd]]
 name = "prometheus_sh_exporter"
 description = "The shell exporter allows probing with shell scripts."
-execute_command = "./prometheus_sh_exporter"
+exec_start = "./prometheus_sh_exporter"
 args = "--port 9923"
 port = 9923
 
@@ -60,7 +60,7 @@ build_commands = ["/usr/local/bin/yarn install && /usr/local/bin/yarn build"]
 [[systemd]]
 name = "tingtt_web_site"
 description = "tingtt's portfolio with Next.js"
-execute_command = "/usr/local/bin/yarn start"
+exec_start = "/usr/local/bin/yarn start"
 args = "--port 3000"
 opt_files = [".next/", "node_modules/", "package.json", "public/"]
 port = 3000
