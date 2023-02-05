@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"strconv"
+	"strings"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/unix"
 	"time"
@@ -100,6 +101,20 @@ func (p pipeline) backupInstalled() (err error) {
 				)
 				if err != nil {
 					return err
+				}
+				for _, name := range s.Opt {
+					// Backup hidden files
+					if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "./.") {
+						err = unix.Mv(
+							unix.ExecuteOption{},
+							unix.MvOption{},
+							p.service.PathOptDir+s.Name+"/"+name,
+							backupPath+"opt/"+s.Name+"/",
+						)
+						if err != nil {
+							return err
+						}
+					}
 				}
 			}
 		}
