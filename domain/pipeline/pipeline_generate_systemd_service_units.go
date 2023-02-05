@@ -26,14 +26,14 @@ func (p *pipeline) generateSystemdServiceUnits() (units []systemdUnit) {
 
 	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
 		for _, service := range p.ManifestMerged.SystemdOptions {
-			execStart := strings.TrimPrefix(service.ExecuteCommand, "./")
+			execStart := strings.TrimPrefix(service.ExecStart, "./")
 			if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {
 				for _, binary := range *p.ManifestMerged.Binaries {
 					pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
 					pathBinFile := pathBinDir + strings.TrimPrefix(binary, "./")
 
 					// If binary file name equals execute command, change to absolute path
-					if strings.Split(strings.TrimPrefix(service.ExecuteCommand, "./"), " ")[0] ==
+					if strings.Split(strings.TrimPrefix(service.ExecStart, "./"), " ")[0] ==
 						strings.TrimPrefix(binary, "./") {
 						// Cut out cli args
 						args := strings.TrimPrefix(
@@ -93,6 +93,7 @@ func (p *pipeline) generateSystemdServiceUnits() (units []systemdUnit) {
 						Type:             &unitType,
 						WorkingDirectory: pathWorkingDir,
 						EnvironmentFile:  &pathEnvFile,
+						ExecStartPre:     service.ExecStartPre,
 						ExecStart:        execStart + args + argsEtc,
 						ExecStop:         nil,
 						ExecReload:       nil,

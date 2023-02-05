@@ -15,7 +15,7 @@ type ExecuteOption struct {
 func Execute(o ExecuteOption, name string, arg ...string) (exitCode int, stdout bytes.Buffer, stderr bytes.Buffer, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Execute command")
-	logger.Logger().Debugf("< command =%v", strings.Join(append([]string{name}, arg...), " "))
+	logger.Logger().Debugf("< command = %v", strings.Join(append([]string{name}, arg...), " "))
 	logger.Logger().Debugf("< option = %+v", o)
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {

@@ -93,6 +93,9 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 
 	if cloned {
 		err = p1.Init()
+		if err != nil {
+			// TODO: uninstall
+		}
 	}
 
 	p = p1

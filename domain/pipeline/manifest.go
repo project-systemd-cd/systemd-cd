@@ -1,12 +1,13 @@
 package pipeline
 
 type ServiceManifestLocal struct {
+	Name string `toml:"name"`
+
 	GitRemoteUrl    string  `toml:"git_remote_url"`
 	GitTargetBranch string  `toml:"git_target_branch"`
-	GitTagRegex     *string `toml:"git_taget_regex"`
+	GitTagRegex     *string `toml:"git_tag_regex"`
 	GitManifestFile *string `toml:"git_manifest_file,omitempty"`
 
-	Name           string          `toml:"name"`
 	TestCommands   *[]string       `toml:"test_commands"`
 	BuildCommands  *[]string       `toml:"build_commands"`
 	Binaries       *[]string       `toml:"binaries"`
@@ -24,7 +25,7 @@ type ServiceManifestRemote struct {
 type ServiceManifestMerged struct {
 	Name            string                `toml:"name"`
 	GitTargetBranch string                `toml:"git_target_branch"`
-	GitTagRegex     *string               `toml:"git_taget_regex"`
+	GitTagRegex     *string               `toml:"git_tag_regex"`
 	TestCommands    *[]string             `toml:"test_commands"`
 	BuildCommands   *[]string             `toml:"build_commands"`
 	Binaries        *[]string             `toml:"binaries"`
@@ -32,25 +33,27 @@ type ServiceManifestMerged struct {
 }
 
 type SystemdOption struct {
-	Name           string       `toml:"name"`
-	Description    *string      `toml:"description,omitempty"`
-	ExecuteCommand string       `toml:"execute_command"`
-	Args           string       `toml:"args"`
-	EnvVars        []EnvVar     `toml:"env"`
-	Etc            []PathOption `toml:"etc,omitempty"`
-	Opt            []string     `toml:"opt_files,omitempty"`
-	Port           *uint16      `toml:"port,omitempty"`
+	Name         string       `toml:"name"`
+	Description  *string      `toml:"description,omitempty"`
+	ExecStartPre *string      `toml:"exec_start_pre,omitempty"`
+	ExecStart    string       `toml:"exec_start"`
+	Args         string       `toml:"args"`
+	EnvVars      []EnvVar     `toml:"env"`
+	Etc          []PathOption `toml:"etc,omitempty"`
+	Opt          []string     `toml:"opt_files,omitempty"`
+	Port         *uint16      `toml:"port,omitempty"`
 }
 
 type SystemdOptionMerged struct {
-	Name           string       `toml:"name"`
-	Description    string       `toml:"description,omitempty"`
-	ExecuteCommand string       `toml:"execute_command"`
-	Args           string       `toml:"args"`
-	EnvVars        []EnvVar     `toml:"env"`
-	Etc            []PathOption `toml:"etc,omitempty"`
-	Opt            []string     `toml:"opt_files,omitempty"`
-	Port           *uint16      `toml:"port,omitempty"`
+	Name         string       `toml:"name"`
+	Description  string       `toml:"description,omitempty"`
+	ExecStartPre *string      `toml:"exec_start_pre,omitempty"`
+	ExecStart    string       `toml:"exec_start"`
+	Args         string       `toml:"args"`
+	EnvVars      []EnvVar     `toml:"env"`
+	Etc          []PathOption `toml:"etc,omitempty"`
+	Opt          []string     `toml:"opt_files,omitempty"`
+	Port         *uint16      `toml:"port,omitempty"`
 }
 
 type PathOption struct {
