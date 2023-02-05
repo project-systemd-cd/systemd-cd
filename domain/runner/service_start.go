@@ -11,7 +11,7 @@ var pipelines []pipeline.IPipeline
 
 func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Info("START - Start pipeline runner")
+	logger.Logger().Info("START - Pipeline runner")
 	if manifests != nil {
 		for i, sml := range *manifests {
 			logger.Logger().Debugf("> localManifest[%d].Name = %v", i, sml.Name)
@@ -29,9 +29,9 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Info("END   - Start pipeline runner")
+			logger.Logger().Info("END   - Pipeline runner")
 		} else {
-			logger.Logger().Error("FAILED - Start pipeline runner")
+			logger.Logger().Error("FAILED - Pipeline runner")
 			logger.Logger().Error(err)
 		}
 		logger.Logger().Debug("-----------------------------------------------------------")
