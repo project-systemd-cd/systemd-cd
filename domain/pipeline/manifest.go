@@ -3,7 +3,7 @@ package pipeline
 type ServiceManifestLocal struct {
 	GitRemoteUrl    string  `toml:"git_remote_url"`
 	GitTargetBranch string  `toml:"git_target_branch"`
-	GitTagRegex     *string `toml:"git_taget_regex"`
+	GitTagRegex     *string `toml:"git_tag_regex"`
 	GitManifestFile *string `toml:"git_manifest_file,omitempty"`
 
 	Name           string          `toml:"name"`
@@ -24,7 +24,7 @@ type ServiceManifestRemote struct {
 type ServiceManifestMerged struct {
 	Name            string                `toml:"name"`
 	GitTargetBranch string                `toml:"git_target_branch"`
-	GitTagRegex     *string               `toml:"git_taget_regex"`
+	GitTagRegex     *string               `toml:"git_tag_regex"`
 	TestCommands    *[]string             `toml:"test_commands"`
 	BuildCommands   *[]string             `toml:"build_commands"`
 	Binaries        *[]string             `toml:"binaries"`

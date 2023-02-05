@@ -20,7 +20,7 @@ You can specify multiple manifest files.
 name = "prometheus_sh_exporter"
 git_remote_url = "https://github.com/tingtt/prometheus_sh_exporter.git"
 git_target_branch = "main"
-git_taget_regex = "v*" # e.g. "v1.0.0"
+git_tag_regex = "v*" # e.g. "v1.0.0"
 build_commands = ["/usr/bin/go build"]
 binaries = ["prometheus_sh_exporter"]
 
@@ -53,7 +53,7 @@ name = "tingtt_web_site"
 
 git_remote_url = "https://github.com/tingtt/tingtt.git"
 git_target_branch = "main"
-git_taget_regex = "v*"
+git_tag_regex = "v*"
 
 build_commands = ["/usr/local/bin/yarn install && /usr/local/bin/yarn build"]
 
