@@ -49,20 +49,19 @@ with `/usr/local/lib/systemd/system/prometheus_sh_exporter.service`
 ### Sample `Next.js`
 
 ```toml
-name = "tingtt_web_site"
+name = "nextjs-workspace"
 
-git_remote_url = "https://github.com/tingtt/tingtt.git"
+git_remote_url = "https://github.com/tingtt/workspace-nextjs.git"
 git_target_branch = "main"
-git_tag_regex = "v*"
-
-build_commands = ["/usr/local/bin/yarn install && /usr/local/bin/yarn build"]
+build_commands = ["/root/.local/share/pnpm/pnpm install", "/root/.local/share/pnpm/pnpm build"]
 
 [[systemd]]
-name = "tingtt_web_site"
-description = "tingtt's portfolio with Next.js"
-exec_start = "/usr/local/bin/yarn start"
+name = "nextjs-workspace"
+description = "Next.js sample"
+exec_start_pre = "/root/.local/share/pnpm/pnpm install next"
+exec_start = "/root/.local/share/pnpm/pnpm start"
 args = "--port 3000"
-opt_files = [".next/", "node_modules/", "package.json", "public/"]
+opt_files = [".next/", "package.json", "public/"]
 port = 3000
 ```
 
@@ -72,4 +71,4 @@ It runs like this
 /usr/local/bin/yarn start --port 3000
 ```
 
-with `/usr/local/lib/systemd/system/tingtt_web_site.service`
+with `/usr/local/lib/systemd/system/nextjs-workspace.service`
