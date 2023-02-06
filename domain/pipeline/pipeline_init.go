@@ -64,7 +64,7 @@ func (p *pipeline) Init() (err error) {
 
 	for _, us := range services {
 		// Execute over systemd
-		err = us.Start()
+		err = us.Enable(true)
 		if err != nil {
 			return err
 		}
