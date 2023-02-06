@@ -9,6 +9,7 @@ func (s systemctl) Enable(service string, startNow bool) error {
 	if startNow {
 		command = append(command, "--now")
 	}
+	command = append(command, service)
 	_, _, _, err := unix.Execute(unix.ExecuteOption{}, "systemctl", command...)
 	if err != nil {
 		return err
