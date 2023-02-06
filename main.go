@@ -31,8 +31,9 @@ var (
 	systemdUnitEnvFileDestDir = pflag.String("dir.systemd-unit-env-file", "/usr/local/systemd-cd/etc/default/", "Path to systemd env files")
 	backupDestDir             = pflag.String("dir.backup", "/var/backups/systemd-cd/", "Path to service backup files")
 
-	manifestPaths    = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
-	pipelineInterval = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
+	manifestPaths        = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
+	manifestPathRecursie = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
+	pipelineInterval     = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
 )
 
 func convertLogLevel(str string) (ok bool, lv logger.Level) {
@@ -131,18 +132,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	manifests := []pipeline.ServiceManifestLocal{}
-
-	for _, path := range *manifestPaths {
-		sml, err := loadManifest(path)
-		if err != nil {
-			logger.Logger().Fatal(err)
-			os.Exit(1)
-		}
-		manifests = append(manifests, sml)
+	manifests, err := loadManifests(*manifestPaths, *manifestPathRecursie)
+	if err != nil {
+		logger.Logger().Fatal(err)
+		os.Exit(1)
 	}
 
-	err = runner.Start(&manifests)
+	err = runner.Start(manifests)
 	if err != nil {
 		logger.Logger().Fatal(err)
 		os.Exit(1)
