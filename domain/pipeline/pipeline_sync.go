@@ -100,10 +100,17 @@ func (p *pipeline) Sync() (err error) {
 
 	// Backup
 	if oldStatus != StatusError {
-		for _, s := range p.ManifestMerged.SystemdOptions {
-			// TODO: stop systemd service before backup
+		// Stop systemd service before backup
+		var systemdServices []systemd.UnitService
+		systemdServices, err = p.getSystemdServices()
+		for _, s := range systemdServices {
 			logger.Logger().Infof("Stop systemd unit service \"%v\"", s.Name)
+			err = s.Disable(true)
+			if err != nil {
+				return err
+			}
 		}
+
 		_, err = p.findBackupByCommitId(p.RepositoryLocal.RefCommitId)
 		var ErrNotFound *errors.ErrNotFound
 		notFound := errorss.As(err, &ErrNotFound)

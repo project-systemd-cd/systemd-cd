@@ -16,6 +16,7 @@ type IService interface {
 	// Generate unit-file.
 	// If unit-file already exists, replace it.
 	NewService(name string, uf UnitFileService, env map[string]string) (UnitService, error)
+	GetService(name string) (UnitService, error)
 	DeleteService(u UnitService) error
 
 	loadUnitFileSerivce(path string) (u UnitFileService, isGeneratedBySystemdCd bool, err error)
