@@ -22,6 +22,7 @@ type IPipeline interface {
 	install() ([]systemd.UnitService, error)
 
 	generateSystemdServiceUnits() []systemdUnit
+	getSystemdServices() ([]systemd.UnitService, error)
 
 	// Restore latest backup.
 	// If `CommitId` specified, restore backup of specified version.
