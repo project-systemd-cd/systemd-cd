@@ -3,6 +3,7 @@ package pipeline
 import (
 	errorss "errors"
 	"systemd-cd/domain/errors"
+	"systemd-cd/domain/git"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 	"time"
@@ -131,9 +132,16 @@ func (p *pipeline) Sync() (err error) {
 			return err
 		}
 		// Pull
-		_, err = p.RepositoryLocal.Pull(false)
-		if err != nil {
+		_, err = p.RepositoryLocal.Pull()
+		isFastForward := err == nil || !errorss.Is(err, git.ErrNonFastForwardUpdate)
+		if err != nil && isFastForward {
 			return err
+		}
+		if !isFastForward {
+			_, err = p.RepositoryLocal.Reset(git.OptionReset{Mode: git.HardReset}, p.ManifestMerged.GitTargetBranch)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
