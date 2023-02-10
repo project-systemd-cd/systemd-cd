@@ -66,6 +66,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 
 		// Change directories temporary
 		//* NOTE: this asignment only effect once to execute this func
+		// TODO: move files and restart service
 		s.PathSrcDir = mp.Service.PathSrcDir
 		s.PathBinDir = mp.Service.PathBinDir
 		s.PathEtcDir = mp.Service.PathEtcDir
