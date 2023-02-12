@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var pipelines []pipeline.IPipeline
-
 func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Info("START - Pipeline runner")
@@ -64,20 +62,26 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 				if err != nil {
 					return err
 				}
-				pipelines = append(pipelines, i)
+				_, err = s.repository.AddPipeline(i)
+				if err != nil {
+					return err
+				}
 				foundPipelines = append(foundPipelines, m.Name)
 				manifestFileSpecified = true
 				break
 			}
 		}
 		if !manifestFileSpecified {
-			var ip pipeline.IPipeline
-			ip, err = s.pipelineService.NewPipeline(m.ManifestLocal)
+			var p pipeline.IPipeline
+			p, err = s.pipelineService.NewPipeline(m.ManifestLocal)
 			if err != nil {
 				return err
 			}
 			// TODO: Don't sync pipelines that don't have specified manifest files periodically
-			pipelines = append(pipelines, ip)
+			_, err = s.repository.AddPipeline(p)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	for _, m := range *manifests {
@@ -90,18 +94,25 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 		}
 		if !found {
 			logger.Logger().Infof("Initialize pipeline \"%v\"", m.Name)
-			var pipeline pipeline.IPipeline
-			pipeline, err = s.pipelineService.NewPipeline(m)
+			var p pipeline.IPipeline
+			p, err = s.pipelineService.NewPipeline(m)
 			if err != nil {
 				return err
 			}
-			pipelines = append(pipelines, pipeline)
+			_, err = s.repository.AddPipeline(p)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	time.Sleep(s.option.PollingInterval)
 
 	for {
+		pipelines, err := s.repository.FindPipelines()
+		if err != nil {
+			return err
+		}
 		for _, p := range pipelines {
 			err = p.Sync()
 			if err != nil {

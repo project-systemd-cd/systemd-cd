@@ -6,6 +6,8 @@ import (
 )
 
 type IPipeline interface {
+	GetName() string
+
 	// Execute test, execute build, and install.
 	Init() error
 	// If update exists, pull src and manifest, execute test, execute build, backup old files and install new version.
@@ -14,6 +16,7 @@ type IPipeline interface {
 
 	GetStatus() Status
 	GetCommitRef() string
+	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
 }
 
 type Path = string
@@ -35,4 +38,9 @@ type pipeline struct {
 	Status          Status
 
 	service *pipelineService
+}
+
+type SystemdServiceWithStatus struct {
+	systemd.UnitService
+	Status systemd.Status
 }

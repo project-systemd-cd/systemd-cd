@@ -8,9 +8,11 @@ import (
 	"systemd-cd/domain/pipeline"
 	"systemd-cd/domain/runner"
 	"systemd-cd/domain/systemd"
+	"systemd-cd/infrastructure/datasource/inmemory"
 	"systemd-cd/infrastructure/datasource/toml"
 	"systemd-cd/infrastructure/externalapi/git_command"
 	"systemd-cd/infrastructure/externalapi/systemctl"
+	"systemd-cd/presentation/echo"
 	"time"
 
 	logruss "github.com/sirupsen/logrus"
@@ -42,6 +44,8 @@ var (
 	manifestPaths        = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
 	manifestPathRecursie = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
 	pipelineInterval     = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
+
+	port = pflag.Uint("port", 1323, "Port to publish http web api server")
 )
 
 func convertLogLevel(str string) (ok bool, lv logger.Level) {
@@ -134,7 +138,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	runner, err := runner.NewService(p, runner.Option{PollingInterval: time.Duration(*pipelineInterval) * time.Second})
+	repoInmemory := inmemory.NewRepositoryPipelineInmemory()
+
+	go echo.Start(*port, echo.Args{
+		Repository: repoInmemory,
+	})
+
+	runner, err := runner.NewService(
+		p, repoInmemory,
+		runner.Option{
+			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
+		},
+	)
 	if err != nil {
 		logger.Logger().Fatal(err)
 		os.Exit(1)

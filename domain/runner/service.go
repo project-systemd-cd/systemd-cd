@@ -21,7 +21,7 @@ func (o Option) validate() error {
 	return nil
 }
 
-func NewService(p pipeline.IPipelineService, o Option) (service IRunnerService, err error) {
+func NewService(p pipeline.IPipelineService, repo IRepositoryInmemory, o Option) (service IRunnerService, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate pipeline service")
 	logger.Logger().Debugf("< option = %+v", o)
@@ -42,12 +42,13 @@ func NewService(p pipeline.IPipelineService, o Option) (service IRunnerService, 
 		return &runnerService{}, err
 	}
 
-	service = &runnerService{p, o}
+	service = &runnerService{p, o, repo}
 	return service, err
 }
 
 type runnerService struct {
 	pipelineService pipeline.IPipelineService
 
-	option Option
+	option     Option
+	repository IRepositoryInmemory
 }
