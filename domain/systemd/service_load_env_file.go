@@ -42,8 +42,6 @@ func (s Systemd) loadEnvFile(path string) (e map[string]string, isGeneratedBySys
 	}
 
 	// Decode
-	// TODO: toml format で問題ないか検証
-	logger.Logger().Warn("Unchecked code: no problem to systemd service environment file with TOML format.")
 	err = toml.Decode(b, &e)
 	if err != nil {
 		return
