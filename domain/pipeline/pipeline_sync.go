@@ -28,7 +28,7 @@ func (p *pipeline) Sync() (err error) {
 
 	defer func() {
 		if err != nil {
-			p.Status = StatusError
+			p.Status = StatusFailed
 		}
 	}()
 
@@ -74,7 +74,7 @@ func (p *pipeline) Sync() (err error) {
 	p.Status = StatusSyncing
 
 	// Backup
-	if oldStatus != StatusError {
+	if oldStatus != StatusFailed {
 		// Stop systemd service before backup
 		var systemdServices []systemd.UnitService
 		systemdServices, err = p.getSystemdServices()

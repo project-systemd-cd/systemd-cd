@@ -26,7 +26,7 @@ func (p *pipeline) Init() (err error) {
 
 	defer func() {
 		if err != nil {
-			p.Status = StatusError
+			p.Status = StatusFailed
 		}
 	}()
 

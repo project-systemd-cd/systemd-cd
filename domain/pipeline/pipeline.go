@@ -14,7 +14,7 @@ type IPipeline interface {
 	// If fail to execute over systemd, restore from backup.
 	Sync() error
 
-	GetStatus() Status
+	GetStatus() status
 	GetCommitRef() string
 	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
 }
@@ -35,7 +35,7 @@ type pipeline struct {
 	ManifestLocal   ServiceManifestLocal
 	ManifestMerged  ServiceManifestMerged
 	RepositoryLocal *git.RepositoryLocal
-	Status          Status
+	Status          status
 
 	service *pipelineService
 }
