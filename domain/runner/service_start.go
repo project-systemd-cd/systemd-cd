@@ -52,23 +52,32 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 		return err
 	}
 	for _, m := range metadatas {
-		var ip pipeline.IPipeline
-		ip, err = s.pipelineService.NewPipeline(m.ManifestLocal)
-		if err != nil {
-			return err
-		}
-
+		manifestFileSpecified := false
 		for _, sml := range *manifests {
 			if sml.Name == m.Name {
-				logger.Logger().Infof("Pipeline loaded \"%v\"", m.Name)
-				err = ip.Sync()
+				var i pipeline.IPipeline
+				i, err = s.pipelineService.NewPipeline(sml)
 				if err != nil {
 					return err
 				}
-				pipelines = append(pipelines, ip)
+				err = i.Sync()
+				if err != nil {
+					return err
+				}
+				pipelines = append(pipelines, i)
 				foundPipelines = append(foundPipelines, m.Name)
+				manifestFileSpecified = true
 				break
 			}
+		}
+		if !manifestFileSpecified {
+			var ip pipeline.IPipeline
+			ip, err = s.pipelineService.NewPipeline(m.ManifestLocal)
+			if err != nil {
+				return err
+			}
+			// TODO: Don't sync pipelines that don't have specified manifest files periodically
+			pipelines = append(pipelines, ip)
 		}
 	}
 	for _, m := range *manifests {
