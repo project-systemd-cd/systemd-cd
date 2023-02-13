@@ -52,35 +52,9 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Check updates
-	err = p.RepositoryLocal.Fetch()
+	updateExists, targetCommitId, err := p.updateExists()
 	if err != nil {
 		return err
-	}
-	updateExists := false
-	var checkoutCommitId *string
-	if p.ManifestMerged.GitTagRegex != nil {
-		hash, err := p.RepositoryLocal.FindHashByTagRegex(*p.ManifestLocal.GitTagRegex)
-		if err != nil {
-			var ErrNotFound *errors.ErrNotFound
-			if !errorss.As(err, &ErrNotFound) {
-				return err
-			}
-		} else {
-			if hash != p.RepositoryLocal.RefCommitId {
-				updateExists = true
-				checkoutCommitId = &hash
-			}
-		}
-	} else {
-		// Check update
-		// Check update
-		latest, err := p.RepositoryLocal.HeadIsLatesetOfBranch(p.ManifestMerged.GitTargetBranch)
-		if err != nil {
-			return err
-		}
-		if !latest {
-			updateExists = true
-		}
 	}
 	if !updateExists {
 		// Already synced
@@ -94,6 +68,7 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Update exists
+
 	oldStatus := p.Status
 	oldCommitId := p.GetCommitRef()
 	p.Status = StatusSyncing
@@ -126,9 +101,9 @@ func (p *pipeline) Sync() (err error) {
 		}
 	}
 
-	if checkoutCommitId != nil {
+	if targetCommitId != nil {
 		// Checkout
-		err = p.RepositoryLocal.Checkout(*checkoutCommitId)
+		err = p.RepositoryLocal.Checkout(*targetCommitId)
 		if err != nil {
 			return err
 		}

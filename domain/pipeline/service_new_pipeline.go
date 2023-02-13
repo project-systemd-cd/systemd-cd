@@ -53,7 +53,11 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 			return &pipeline{}, err
 		}
 	} else {
-		if !reflect.DeepEqual(m, mp.ManifestLocal) {
+		if reflect.DeepEqual(m, mp.ManifestLocal) {
+			logger.Logger().Infof("Pipeline \"%v\" loaded", m.Name)
+		} else {
+			logger.Logger().Infof("Pipeline \"%s\" configured", m.Name)
+
 			// if manifests are different, replace them
 			mp.ManifestLocal = m
 
