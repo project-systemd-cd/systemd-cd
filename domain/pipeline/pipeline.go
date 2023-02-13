@@ -14,22 +14,6 @@ type IPipeline interface {
 
 	GetStatus() Status
 	GetCommitRef() string
-
-	getRemoteManifest() (ServiceManifestRemote, error)
-	test() error
-	build() error
-	backupInstalled() error
-	install() ([]systemd.UnitService, error)
-
-	generateSystemdServiceUnits() []systemdUnit
-	getSystemdServices() ([]systemd.UnitService, error)
-
-	// Restore latest backup.
-	// If `CommitId` specified, restore backup of specified version.
-	restoreBackup(restoreBackupOptions) error
-
-	findBackupByCommitId(commitId string) (Path, error)
-	findBackupLatest() (Path, error)
 }
 
 type Path = string
