@@ -8,7 +8,7 @@ import (
 	"systemd-cd/domain/unix"
 )
 
-func (p pipeline) newJobInstall(pipelineId string) (job *jobInstance, err error) {
+func (p pipeline) newJobInstall(groupId string) (job *jobInstance, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Register job for install")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
@@ -29,7 +29,7 @@ func (p pipeline) newJobInstall(pipelineId string) (job *jobInstance, err error)
 
 	job = &jobInstance{
 		Job: Job{
-			PipeineId:    pipelineId,
+			GroupId:      groupId,
 			Id:           UUID(),
 			PipelineName: p.ManifestMerged.Name,
 			CommitId:     p.GetCommitRef(),

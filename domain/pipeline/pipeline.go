@@ -18,6 +18,7 @@ type IPipeline interface {
 	GetCommitRef() string
 	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
 
+	GetJob(groupId string) ([]Job, error)
 	GetJobs(QueryParamJob) ([][]Job, error)
 }
 

@@ -6,7 +6,7 @@ import (
 	"systemd-cd/domain/unix"
 )
 
-func (p pipeline) newJobBuild(pipelineId string) (job *jobInstance, err error) {
+func (p pipeline) newJobBuild(groupId string) (job *jobInstance, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Register job for build")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
@@ -32,7 +32,7 @@ func (p pipeline) newJobBuild(pipelineId string) (job *jobInstance, err error) {
 	if p.ManifestMerged.BuildCommands != nil {
 		job = &jobInstance{
 			Job: Job{
-				PipeineId:    pipelineId,
+				GroupId:      groupId,
 				Id:           UUID(),
 				PipelineName: p.ManifestMerged.Name,
 				CommitId:     p.GetCommitRef(),

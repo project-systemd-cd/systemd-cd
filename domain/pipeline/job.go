@@ -5,19 +5,19 @@ import (
 )
 
 type Job struct {
-	PipeineId string
+	GroupId string `json:"group_id"`
 
-	Id string
+	Id string `json:"id"`
 
-	PipelineName string
-	CommitId     string
-	Type         jobType
+	PipelineName string  `json:"pipeline_name"`
+	CommitId     string  `json:"commit_id"`
+	Type         jobType `json:"type"`
 
-	Status statusJob
+	Status statusJob `json:"status"`
 
-	Timestamp unixTime
-	Duration  *int64
-	Logs      []jobLog
+	Timestamp unixTime `json:"timestamp"`
+	Duration  *int64   `json:"duration"`
+	Logs      []jobLog `json:"logs"`
 }
 
 type jobType string
@@ -41,8 +41,8 @@ const (
 type unixTime int64
 
 type jobLog struct {
-	Commmand string
-	Output   string
+	Commmand string `json:"command"`
+	Output   string `json:"output"`
 }
 
 type UpdateParamJob struct {

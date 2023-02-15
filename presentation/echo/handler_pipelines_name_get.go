@@ -15,9 +15,7 @@ import (
 
 type QueryParamPipelineGet struct {
 	Embed []string `query:"embed"`
-	From  *string  `query:"from"`
-	To    *string  `query:"to"`
-	Asc   bool     `query:"asc"`
+	QueryParamPipelineJobsGet
 }
 
 type ResPipelineGet struct {

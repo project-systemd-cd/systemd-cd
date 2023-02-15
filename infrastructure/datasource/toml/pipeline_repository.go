@@ -63,7 +63,7 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 			}
 			timestamp := time.Unix(int64(j.Timestamp), 0)
 
-			if len(jobs2) != 0 && jobs2[0].PipeineId != j.PipeineId {
+			if len(jobs2) != 0 && jobs2[0].GroupId != j.GroupId {
 				jobs = append(jobs, jobs2)
 				jobs2 = []pipeline.Job{}
 			}
@@ -84,12 +84,12 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 }
 
 // FindJob implements pipeline.IRepository
-func (r *rPipeline) FindJob(pipelineId string) ([]pipeline.Job, error) {
+func (r *rPipeline) FindJob(groupId string) ([]pipeline.Job, error) {
 	wd := r.basePath + "jobs/"
 	s, err := unix.Ls(
 		unix.ExecuteOption{WorkingDirectory: &wd},
 		unix.LsOption{ReverceOrder: true, SortByDescendingTime: true, DirTrailiingSlash: true},
-		pipelineId+"_*.toml",
+		groupId+"_*.toml",
 	)
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (r *rPipeline) SaveJob(job pipeline.Job) error {
 	}
 
 	// Write to file
-	err = unix.WriteFile(r.basePath+"jobs/"+job.PipeineId+"_"+job.Id+"_"+job.PipelineName+".toml", b.Bytes())
+	err = unix.WriteFile(r.basePath+"jobs/"+job.GroupId+"_"+job.Id+"_"+job.PipelineName+".toml", b.Bytes())
 	if err != nil {
 		return err
 	}

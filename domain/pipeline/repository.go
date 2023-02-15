@@ -10,7 +10,7 @@ type IRepository interface {
 	FindPipelines() ([]PipelineMetadata, error)
 
 	SaveJob(job Job) error
-	FindJob(pipelineId string) ([]Job, error)
+	FindJob(groupId string) ([]Job, error)
 	FindJobs(pipelineName string, query QueryParamJob) ([][]Job, error)
 }
 
