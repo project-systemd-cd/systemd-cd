@@ -44,24 +44,35 @@ func (p *pipeline) Init() (err error) {
 	}
 	p.ManifestMerged = mm
 
-	// Test
-	err = p.test()
+	// Register jobs
+	pipelineId := UUID()
+	jobTest, err := p.newJobTest(pipelineId)
+	if err != nil {
+		return err
+	}
+	jobBuild, err := p.newJobBuild(pipelineId)
+	if err != nil {
+		return err
+	}
+	jobInstall, err := p.newJobInstall(pipelineId)
 	if err != nil {
 		return err
 	}
 
-	// Build
-	err = p.build()
+	// Run jobs
+	for _, job := range []*jobInstance{jobTest, jobBuild, jobInstall} {
+		if job != nil {
+			err = job.Run(p.service.repo)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	services, err := p.getSystemdServices()
 	if err != nil {
 		return err
 	}
-
-	// Install
-	services, err := p.install()
-	if err != nil {
-		return err
-	}
-
 	for _, us := range services {
 		// Execute over systemd
 		err = us.Enable(true)

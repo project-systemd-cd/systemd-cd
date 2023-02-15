@@ -138,25 +138,36 @@ func (p *pipeline) Sync() (err error) {
 	}
 	p.ManifestMerged = mm2
 
-	// Test
-	err = p.test()
+	// Register jobs
+	pipelineId := UUID()
+	jobTest, err := p.newJobTest(pipelineId)
+	if err != nil {
+		return err
+	}
+	jobBuild, err := p.newJobBuild(pipelineId)
+	if err != nil {
+		return err
+	}
+	jobInstall, err := p.newJobInstall(pipelineId)
 	if err != nil {
 		return err
 	}
 
-	// Build
-	err = p.build()
-	if err != nil {
-		return err
-	}
-
-	// Install
-	services, err := p.install()
-	if err != nil {
-		return err
+	// Run jobs
+	for _, job := range []*jobInstance{jobTest, jobBuild, jobInstall} {
+		if job != nil {
+			err = job.Run(p.service.repo)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	// Execute over systemd
+	services, err := p.getSystemdServices()
+	if err != nil {
+		return err
+	}
 	if services != nil || len(services) != 0 {
 		failedToExecuteOverSystemd := false
 		for _, s := range services {

@@ -17,6 +17,8 @@ type IPipeline interface {
 	GetStatus() status
 	GetCommitRef() string
 	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
+
+	GetJobs(QueryParamJob) ([][]Job, error)
 }
 
 type Path = string
