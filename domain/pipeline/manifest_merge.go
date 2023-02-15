@@ -23,13 +23,13 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 	}()
 
 	// Merge to local manifest
-	var manifestRemoteSystemdOptions []SystemdOptionMerged = nil
+	var manifestRemoteSystemdOptions []SystemdServiceOptionMerged = nil
 	for _, s := range remote.SystemdOptions {
 		description := remoteUrl
 		if s.Description != nil && *s.Description != "" {
 			description = *s.Description
 		}
-		manifestRemoteSystemdOptions = append(manifestRemoteSystemdOptions, SystemdOptionMerged{
+		manifestRemoteSystemdOptions = append(manifestRemoteSystemdOptions, SystemdServiceOptionMerged{
 			Name:         s.Name,
 			Description:  description,
 			ExecStartPre: s.ExecStartPre,
@@ -42,13 +42,13 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 		})
 	}
 	m = ServiceManifestMerged{
-		Name:            remote.Name,
-		GitTargetBranch: local.GitTargetBranch,
-		GitTagRegex:     local.GitTagRegex,
-		TestCommands:    remote.TestCommands,
-		BuildCommands:   remote.BuildCommands,
-		Binaries:        remote.Binaries,
-		SystemdOptions:  manifestRemoteSystemdOptions,
+		Name:                  remote.Name,
+		GitTargetBranch:       local.GitTargetBranch,
+		GitTagRegex:           local.GitTagRegex,
+		TestCommands:          remote.TestCommands,
+		BuildCommands:         remote.BuildCommands,
+		Binaries:              remote.Binaries,
+		SystemdServiceOptions: manifestRemoteSystemdOptions,
 	}
 	m.Name = local.Name
 	if local.TestCommands != nil {
@@ -60,13 +60,13 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 	if local.Binaries != nil {
 		m.Binaries = local.Binaries
 	}
-	var systemdOptions []SystemdOptionMerged = nil
+	var systemdOptions []SystemdServiceOptionMerged = nil
 	for _, s := range local.SystemdOptions {
 		description := remoteUrl
 		if s.Description != nil && *s.Description != "" {
 			description = *s.Description
 		}
-		systemdOptions = append(systemdOptions, SystemdOptionMerged{
+		systemdOptions = append(systemdOptions, SystemdServiceOptionMerged{
 			Name:         s.Name,
 			Description:  description,
 			ExecStartPre: s.ExecStartPre,
@@ -79,7 +79,7 @@ func (remote ServiceManifestRemote) merge(remoteUrl string, local ServiceManifes
 		})
 	}
 	if systemdOptions != nil {
-		m.SystemdOptions = systemdOptions
+		m.SystemdServiceOptions = systemdOptions
 	}
 
 	// Validate manifest

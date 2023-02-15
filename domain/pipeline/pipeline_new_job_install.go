@@ -80,8 +80,8 @@ func (p pipeline) newJobInstall(groupId string) (job *jobInstance, err error) {
 			}
 		}
 
-		if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
-			for _, service := range p.ManifestMerged.SystemdOptions {
+		if p.ManifestMerged.SystemdServiceOptions != nil && len(p.ManifestMerged.SystemdServiceOptions) != 0 {
+			for _, service := range p.ManifestMerged.SystemdServiceOptions {
 				logger.Logger().Infof("Install files for \"%s\" as systemd unit", service.Name)
 				if service.Etc != nil {
 					logger.Logger().Info(" Install etc files")

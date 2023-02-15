@@ -6,7 +6,7 @@ import (
 	"systemd-cd/domain/systemd"
 )
 
-func (service SystemdOptionMerged) generateSystemdServiceUnit(p *pipeline) (u systemdUnit) {
+func (service SystemdServiceOptionMerged) generateSystemdServiceUnit(p *pipeline) (u systemdUnit) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Generate systemd service unit")
 	logger.Logger().Debugf("> pipeline.Name = %v", p.ManifestMerged.Name)

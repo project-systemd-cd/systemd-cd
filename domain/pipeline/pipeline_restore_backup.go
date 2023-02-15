@@ -47,7 +47,7 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 		}
 	}
 
-	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
+	if p.ManifestMerged.SystemdServiceOptions != nil && len(p.ManifestMerged.SystemdServiceOptions) != 0 {
 		// Restore systemd unit file
 		err = unix.Cp(
 			unix.ExecuteOption{},
@@ -70,7 +70,7 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			return err
 		}
 
-		for _, s := range p.ManifestMerged.SystemdOptions {
+		for _, s := range p.ManifestMerged.SystemdServiceOptions {
 			if len(s.Etc) != 0 {
 				// Restore etc files
 				err = unix.Cp(
@@ -86,7 +86,7 @@ func (p pipeline) restoreBackup(o restoreBackupOptions) (err error) {
 			}
 		}
 
-		for _, s := range p.ManifestMerged.SystemdOptions {
+		for _, s := range p.ManifestMerged.SystemdServiceOptions {
 			if len(s.Opt) != 0 {
 				// Restore opt files
 				err = unix.Cp(

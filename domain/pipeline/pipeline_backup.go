@@ -34,12 +34,12 @@ func (p pipeline) backupInstalled() (err error) {
 		return err
 	}
 
-	if p.ManifestMerged.SystemdOptions != nil && len(p.ManifestMerged.SystemdOptions) != 0 {
+	if p.ManifestMerged.SystemdServiceOptions != nil && len(p.ManifestMerged.SystemdServiceOptions) != 0 {
 		err = unix.MkdirIfNotExist(backupPath+"systemd/", backupPath+"env/")
 		if err != nil {
 			return err
 		}
-		for _, s := range p.ManifestMerged.SystemdOptions {
+		for _, s := range p.ManifestMerged.SystemdServiceOptions {
 			// Backup systemd unit file
 			// e.g.
 			// `cp /usr/local/lib/systemd/system/<unit_name>.service /var/backups/systemd-cd/<name>/<unix-time>_<commit-id>/systemd/<unit_name>.service`

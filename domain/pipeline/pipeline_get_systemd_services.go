@@ -25,7 +25,7 @@ func (p *pipeline) getSystemdServices() (systemdServices []systemd.UnitService, 
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
-	for _, service := range p.ManifestMerged.SystemdOptions {
+	for _, service := range p.ManifestMerged.SystemdServiceOptions {
 		var s systemd.UnitService
 		s, err = p.service.Systemd.GetService(service.Name)
 		if err != nil {
