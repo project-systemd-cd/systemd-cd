@@ -92,7 +92,9 @@ func (r *rPipeline) FindJob(groupId string) ([]pipeline.Job, error) {
 		groupId+"_*.toml",
 	)
 	if err != nil {
-		return nil, err
+		if !strings.Contains(err.Error(), "No such file or directory") {
+			return nil, err
+		}
 	}
 
 	jobs := []pipeline.Job{}
