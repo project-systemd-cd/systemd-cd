@@ -17,9 +17,10 @@ type (
 
 const (
 	// Systemd service status
-	StatusStopped Status = "stopped"
-	StatusRunning Status = "running"
-	StatusFailed  Status = "failed"
+	StatusStopped  Status = "stopped"
+	StatusRunning  Status = "running"
+	StatusFailed   Status = "failed"
+	StatusNotFound Status = "not found"
 )
 
 var (

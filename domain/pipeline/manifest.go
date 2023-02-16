@@ -11,7 +11,7 @@ type ServiceManifestLocal struct {
 	TestCommands   *[]string       `toml:"test_commands"`
 	BuildCommands  *[]string       `toml:"build_commands"`
 	Binaries       *[]string       `toml:"binaries"`
-	SystemdOptions []SystemdOption `toml:"systemd"`
+	SystemdOptions []SystemdOption `toml:"systemd_services"`
 }
 
 type ServiceManifestRemote struct {
@@ -19,17 +19,17 @@ type ServiceManifestRemote struct {
 	TestCommands   *[]string       `toml:"test_commands"`
 	BuildCommands  *[]string       `toml:"build_commands"`
 	Binaries       *[]string       `toml:"binaries"`
-	SystemdOptions []SystemdOption `toml:"systemd"`
+	SystemdOptions []SystemdOption `toml:"systemd_services"`
 }
 
 type ServiceManifestMerged struct {
-	Name            string                `toml:"name"`
-	GitTargetBranch string                `toml:"git_target_branch"`
-	GitTagRegex     *string               `toml:"git_tag_regex"`
-	TestCommands    *[]string             `toml:"test_commands"`
-	BuildCommands   *[]string             `toml:"build_commands"`
-	Binaries        *[]string             `toml:"binaries"`
-	SystemdOptions  []SystemdOptionMerged `toml:"systemd"`
+	Name                  string                       `toml:"name"`
+	GitTargetBranch       string                       `toml:"git_target_branch"`
+	GitTagRegex           *string                      `toml:"git_tag_regex"`
+	TestCommands          *[]string                    `toml:"test_commands"`
+	BuildCommands         *[]string                    `toml:"build_commands"`
+	Binaries              *[]string                    `toml:"binaries"`
+	SystemdServiceOptions []SystemdServiceOptionMerged `toml:"systemd_services"`
 }
 
 type SystemdOption struct {
@@ -44,7 +44,7 @@ type SystemdOption struct {
 	Port         *uint16      `toml:"port,omitempty"`
 }
 
-type SystemdOptionMerged struct {
+type SystemdServiceOptionMerged struct {
 	Name         string       `toml:"name"`
 	Description  string       `toml:"description,omitempty"`
 	ExecStartPre *string      `toml:"exec_start_pre,omitempty"`

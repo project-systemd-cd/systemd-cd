@@ -9,7 +9,11 @@ go build .
 ## Usage
 
 ```bash
-./systemd-cd -f <manifest>.toml
+./systemd-cd \
+  -f <manifest>.toml \
+  --webapi.jwt.secret "your jwt secret" \
+  --webapi.username "web api username" # default is "admin" \
+  --webapi.password "web api password"
 ```
 
 You can specify multiple manifest files.
@@ -30,14 +34,14 @@ git_tag_regex = "v*" # e.g. "v1.0.0"
 build_commands = ["/usr/bin/go build"]
 binaries = ["prometheus_sh_exporter"]
 
-[[systemd]]
+[[systemd_services]]
 name = "prometheus_sh_exporter"
 description = "The shell exporter allows probing with shell scripts."
 exec_start = "./prometheus_sh_exporter"
 args = "--port 9923"
 port = 9923
 
-[[systemd.etc]]
+[[systemd_services.etc]]
 target = "prometheus_sh_exporter.yml"
 content = """
 """
@@ -63,7 +67,7 @@ git_remote_url = "https://github.com/tingtt/workspace-nextjs.git"
 git_target_branch = "main"
 build_commands = ["/root/.local/share/pnpm/pnpm install", "/root/.local/share/pnpm/pnpm build"]
 
-[[systemd]]
+[[systemd_services]]
 name = "nextjs-workspace"
 description = "Next.js sample"
 exec_start_pre = "/root/.local/share/pnpm/pnpm install next"

@@ -16,7 +16,7 @@ git_tag_regex = "v*"
 build_commands = ["/usr/bin/go build"]
 binaries = ["systemd-cd"]
 
-[[systemd]]
+[[systemd_services]]
 name = "systemd-cd"
 description = "systemd-cd"
 exec_start_pre = "/usr/bin/go version"

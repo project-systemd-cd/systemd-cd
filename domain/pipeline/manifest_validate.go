@@ -52,7 +52,7 @@ func (m *ServiceManifestMerged) Validate() (err error) {
 			}
 		}
 	}
-	for i, s := range m.SystemdOptions {
+	for i, s := range m.SystemdServiceOptions {
 		// TODO: validate name duplication
 		if s.Name == "" {
 			err = &errors.ErrValidationMsg{Msg: fmt.Sprintf("failed to validate manifest: 'systemd[%d].name' cannot be empty text", i)}

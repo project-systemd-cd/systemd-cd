@@ -26,6 +26,12 @@ func Ls(o ExecuteOption, o1 LsOption, target string) ([]string, error) {
 		return nil, err
 	}
 
-	res := strings.Split(stdout.String(), "\n")
+	res := []string{}
+	for _, v := range strings.Split(stdout.String(), "\n") {
+		if v != "" {
+			res = append(res, v)
+		}
+	}
+
 	return res, nil
 }

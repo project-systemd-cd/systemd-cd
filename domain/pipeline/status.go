@@ -3,12 +3,12 @@ package pipeline
 type (
 	// Status of latest pipeline.
 	// (Synced, Syncing, OutOfSync, Error)
-	Status string
+	status string
 )
 
 const (
-	StatusSynced    Status = "synced"
-	StatusSyncing   Status = "syncing"
-	StatusOutOfSync Status = "out of sync"
-	StatusError     Status = "error"
+	StatusSynced    status = "synced"
+	StatusSyncing   status = "syncing"
+	StatusOutOfSync status = "out of sync"
+	StatusFailed    status = "failed"
 )
