@@ -16,7 +16,7 @@ paths:
     post:
       summary: sign in
       requestBody:
-        $ref: "#/components/requestBodies/LoginBody"
+        $ref: "#/components/requestBodies/LoginRequestBody"
       responses:
         200:
           description: Success
@@ -273,7 +273,7 @@ components:
           example: ""
 
   requestBodies:
-    LoginBody:
+    LoginRequestBody:
       content:
         application/json:
           schema:
