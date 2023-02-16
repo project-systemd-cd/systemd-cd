@@ -37,11 +37,18 @@ func pipelinesNameJobsIdGet(c echo.Context) (err error) {
 		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
+	_, err = CheckJWT(c)
+	if err != nil {
+		err = c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
+		return err
+	}
+
 	p, err := repository.FindPipeline(name)
 	if err != nil {
 		var ErrNotFound *errors.ErrNotFound
 		if errorss.As(err, &ErrNotFound) {
-			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+			err = c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+			return err
 		}
 		return err
 	}

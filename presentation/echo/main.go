@@ -10,10 +10,36 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-var repository runner.IRepositoryInmemory
+var (
+	repository runner.IRepositoryInmemory
+	jwtIssuer  *string
+	jwtSecret  *string
+	username   *string
+	password   *string
+)
 
 type Args struct {
 	Repository runner.IRepositoryInmemory
+	JwtIssuer  string
+	JwtSecret  string
+	Username   string
+	Password   string
+}
+
+func (args Args) validate() error {
+	if args.Repository == nil {
+		return errors.New("Args.Repository cannot be nil")
+	}
+	if args.JwtSecret == "" {
+		return errors.New("Args.JwtSecret cannot be empty")
+	}
+	if args.Username == "" {
+		return errors.New("Args.Username cannot be empty")
+	}
+	if args.Password == "" {
+		return errors.New("Args.Password cannot be empty")
+	}
+	return nil
 }
 
 func Start(port uint, args Args) (err error) {
@@ -32,16 +58,20 @@ func Start(port uint, args Args) (err error) {
 		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
-	if args.Repository == nil {
-		return errors.New("Args.Repository cannot be nil")
+	if err = args.validate(); err != nil {
+		return err
 	}
 	repository = args.Repository
+	jwtIssuer = &args.JwtIssuer
+	jwtSecret = &args.JwtSecret
+	username = &args.Username
+	password = &args.Password
 
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.HideBanner = true
 	e.HidePort = true
-	registerHandler(e)
+	registerHandler(e, *jwtIssuer, *jwtSecret)
 
 	err = e.Start(fmt.Sprintf(":%d", port))
 	return err

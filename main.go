@@ -45,7 +45,11 @@ var (
 	manifestPathRecursie = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
 	pipelineInterval     = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
 
-	port = pflag.Uint("port", 1323, "Port to publish http web api server")
+	port      = pflag.Uint("webapi.port", 1323, "Port to publish http web api server")
+	JwtIssuer = pflag.String("webapi.jwt.issuer", "systemd-cd", "JWT Issuer")
+	JwtSecret = pflag.String("webapi.jwt.secret", "", "JWT Secret")
+	Username  = pflag.String("webapi.username", "admin", "username to authenticate web API")
+	Password  = pflag.String("webapi.password", "", "password to authenticate web API")
 )
 
 func convertLogLevel(str string) (ok bool, lv logger.Level) {
@@ -89,7 +93,7 @@ func main() {
 	logger.Logger().SetLevel(lv)
 
 	logger.Logger().Trace("-----------------------------------------------------------")
-	logger.Logger().Trace("Analize cli options")
+	logger.Logger().Trace("Cli options")
 	logger.Logger().Trace("-----------------------------------------------------------")
 	logger.Logger().Infof("Log level is %s", *logLevel)
 	logger.Logger().Tracef("< --log.level = %v", *logLevel)
@@ -105,7 +109,21 @@ func main() {
 	logger.Logger().Tracef("< --dir.backup = %v", *backupDestDir)
 	logger.Logger().Tracef("< --file.manifest = %v", *manifestPaths)
 	logger.Logger().Tracef("< --pipeline.interval = %v", *pipelineInterval)
+	logger.Logger().Tracef("< --webapi.port = %v", *port)
+	logger.Logger().Tracef("< --webapi.jwt.issuer = %v", *JwtIssuer)
+	logger.Logger().Tracef("< --webapi.jwt.secret = %v", *JwtSecret)
+	logger.Logger().Tracef("< --webapi.username = %v", *Username)
+	logger.Logger().Tracef("< --webapi.password = %v", *Password)
 	logger.Logger().Trace("-----------------------------------------------------------")
+	if *JwtSecret == "" {
+		logger.Logger().Fatalf("--webapi.jwt.secret required")
+	}
+	if *Username == "" {
+		logger.Logger().Fatalf("--webapi.username cannot be empty")
+	}
+	if *Password == "" {
+		logger.Logger().Fatalf("--webapi.password required")
+	}
 
 	s, err := systemd.New(systemctl.New(), *systemdUnitFileDestDir)
 	if err != nil {
@@ -140,9 +158,18 @@ func main() {
 
 	repoInmemory := inmemory.NewRepositoryPipelineInmemory()
 
-	go echo.Start(*port, echo.Args{
-		Repository: repoInmemory,
-	})
+	go func() {
+		err = echo.Start(*port, echo.Args{
+			Repository: repoInmemory,
+			JwtIssuer:  *JwtIssuer,
+			JwtSecret:  *JwtSecret,
+			Username:   *Username,
+			Password:   *Password,
+		})
+		if err != nil {
+			logger.Logger().Fatal(err.Error())
+		}
+	}()
 
 	runner, err := runner.NewService(
 		p, repoInmemory,

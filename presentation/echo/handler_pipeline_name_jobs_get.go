@@ -44,6 +44,12 @@ func pipelinesNameJobsGet(c echo.Context) (err error) {
 		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
+	_, err = CheckJWT(c)
+	if err != nil {
+		err = c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
+		return err
+	}
+
 	query := QueryParamPipelineJobsGet{}
 	if err = c.Bind(&query); err != nil {
 		return err
@@ -53,7 +59,8 @@ func pipelinesNameJobsGet(c echo.Context) (err error) {
 	if err != nil {
 		var ErrNotFound *errors.ErrNotFound
 		if errorss.As(err, &ErrNotFound) {
-			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+			err = c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+			return err
 		}
 		return err
 	}
@@ -63,7 +70,8 @@ func pipelinesNameJobsGet(c echo.Context) (err error) {
 		var from time.Time
 		from, err = parseTime(*query.From)
 		if err != nil {
-			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+			err = c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+			return err
 		}
 		query2.From = &from
 	}
@@ -71,7 +79,8 @@ func pipelinesNameJobsGet(c echo.Context) (err error) {
 		var to time.Time
 		to, err = parseTime(*query.To)
 		if err != nil {
-			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+			err = c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+			return err
 		}
 		query2.To = &to
 	}

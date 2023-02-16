@@ -28,6 +28,12 @@ func pipelinesGet(c echo.Context) (err error) {
 		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
+	_, err = CheckJWT(c)
+	if err != nil {
+		err = c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
+		return err
+	}
+
 	var res ResPipelinesGet = nil
 
 	pp, err := repository.FindPipelines()

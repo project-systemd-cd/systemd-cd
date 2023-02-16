@@ -27,12 +27,14 @@ func (p *pipeline) getSystemdServices() (systemdServices []systemd.UnitService, 
 
 	for _, service := range p.ManifestMerged.SystemdServiceOptions {
 		var s systemd.UnitService
-		s, err = p.service.Systemd.GetService(service.Name)
-		if err != nil {
-			return nil, err
+		s, err2 := p.service.Systemd.GetService(service.Name)
+		if err2 == nil {
+			systemdServices = append(systemdServices, s)
+		} else {
+			err = err2
+			systemdServices = append(systemdServices, systemd.UnitService{Name: service.Name})
 		}
-		systemdServices = append(systemdServices, s)
 	}
 
-	return systemdServices, nil
+	return systemdServices, err
 }

@@ -1,6 +1,8 @@
 package pipeline
 
 import (
+	errorss "errors"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 )
@@ -27,15 +29,20 @@ func (p *pipeline) GetStatusSystemdServices() (ss []SystemdServiceWithStatus, er
 	}()
 
 	systemdServices, err := p.getSystemdServices()
-	if err != nil {
+	var ErrNotFound *errors.ErrNotFound
+	if err != nil && !errorss.As(err, &ErrNotFound) {
 		return nil, err
 	}
 
 	for _, s := range systemdServices {
 		var status systemd.Status
-		status, err = s.GetStatus()
-		if err != nil {
-			return nil, err
+		if s.Path == "" {
+			status = systemd.StatusNotFound
+		} else {
+			status, err = s.GetStatus()
+			if err != nil {
+				return nil, err
+			}
 		}
 		ss = append(ss, SystemdServiceWithStatus{s, status})
 	}
