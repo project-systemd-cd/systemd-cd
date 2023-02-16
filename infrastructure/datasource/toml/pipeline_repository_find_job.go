@@ -13,7 +13,7 @@ func (r *rPipeline) FindJob(groupId string) ([]pipeline.Job, error) {
 	wd := r.basePath + "jobs/"
 	s, err := unix.Ls(
 		unix.ExecuteOption{WorkingDirectory: &wd},
-		unix.LsOption{ReverceOrder: true, SortByDescendingTime: true, DirTrailiingSlash: true},
+		unix.LsOption{ReverceOrder: false, SortByDescendingTime: true, DirTrailiingSlash: true},
 		groupId+"_*.toml",
 	)
 	if err != nil {

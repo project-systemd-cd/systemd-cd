@@ -11,9 +11,9 @@ import (
 
 // FindJobs implements pipeline.IRepository
 func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) ([][]pipeline.Job, error) {
-	lsOption := unix.LsOption{ReverceOrder: true, SortByDescendingTime: true, DirTrailiingSlash: true}
+	lsOption := unix.LsOption{SortByDescendingTime: true, DirTrailiingSlash: true}
 	if query.Asc {
-		lsOption.ReverceOrder = false
+		lsOption.ReverceOrder = true
 	}
 	s, err := unix.Ls(unix.ExecuteOption{}, lsOption, r.basePath+"jobs/")
 	if err != nil {
@@ -22,6 +22,7 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 
 	jobs := [][]pipeline.Job{}
 	jobs2 := []pipeline.Job{}
+	add := false
 	for _, v := range s {
 		if strings.HasSuffix(v, "_"+pipelineName+".toml") {
 			// Read file
@@ -40,20 +41,26 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 			timestamp := time.Unix(int64(j.Timestamp), 0)
 
 			if len(jobs2) != 0 && jobs2[0].GroupId != j.GroupId {
-				jobs = append(jobs, jobs2)
+				if add {
+					jobs = append(jobs, jobs2)
+				}
 				jobs2 = []pipeline.Job{}
+				add = false
 			}
+			jobs2 = append(jobs2, j)
 			if query.From == nil && query.To == nil {
-				jobs2 = append(jobs2, j)
-			} else if query.From != nil && !query.From.Before(timestamp) {
-				jobs2 = append(jobs2, j)
-			} else if query.To != nil && !query.To.After(timestamp) {
-				jobs2 = append(jobs2, j)
+				add = true
+			} else if query.From != nil && !timestamp.Before(*query.From) {
+				add = true
+			} else if query.To != nil && !timestamp.After(*query.To) {
+				add = true
 			}
 		}
 	}
 	if len(jobs2) != 0 {
-		jobs = append(jobs, jobs2)
+		if add {
+			jobs = append(jobs, jobs2)
+		}
 	}
 
 	return jobs, nil

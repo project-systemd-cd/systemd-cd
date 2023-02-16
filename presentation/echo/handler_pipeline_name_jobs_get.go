@@ -61,7 +61,7 @@ func pipelinesNameJobsGet(c echo.Context) (err error) {
 	query2 := pipeline.QueryParamJob{}
 	if query.From != nil {
 		var from time.Time
-		from, err = time.Parse(time.RFC3339, *query.From)
+		from, err = parseTime(*query.From)
 		if err != nil {
 			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
 		}
@@ -69,7 +69,7 @@ func pipelinesNameJobsGet(c echo.Context) (err error) {
 	}
 	if query.To != nil {
 		var to time.Time
-		to, err = time.Parse(time.RFC3339, *query.To)
+		to, err = parseTime(*query.To)
 		if err != nil {
 			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
 		}
