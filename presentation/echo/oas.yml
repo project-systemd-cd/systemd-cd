@@ -126,21 +126,6 @@ paths:
 
 components:
   schemas:
-    LoginBody:
-      type: object
-      properties:
-        username:
-          type: string
-          format: username
-          example: "admin"
-        password:
-          type: string
-          format: password
-          example: "password"
-      required:
-        - email
-        - password
-
     TokenBody:
       type: object
       properties:
@@ -277,7 +262,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/LoginBody"
+            type: object
+            properties:
+              username:
+                type: string
+                format: username
+                example: "admin"
+              password:
+                type: string
+                format: password
+                example: "password"
+            required:
+              - email
+              - password
 
   parameters:
     pipeline_name:
