@@ -45,11 +45,12 @@ var (
 	manifestPathRecursie = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
 	pipelineInterval     = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
 
-	port      = pflag.Uint("webapi.port", 1323, "Port to publish http web api server")
-	JwtIssuer = pflag.String("webapi.jwt.issuer", "systemd-cd", "JWT Issuer")
-	JwtSecret = pflag.String("webapi.jwt.secret", "", "JWT Secret")
-	Username  = pflag.String("webapi.username", "admin", "username to authenticate web API")
-	Password  = pflag.String("webapi.password", "", "password to authenticate web API")
+	port         = pflag.Uint("webapi.port", 1323, "Port to publish http web api server")
+	JwtIssuer    = pflag.String("webapi.jwt.issuer", "systemd-cd", "JWT Issuer")
+	JwtSecret    = pflag.String("webapi.jwt.secret", "", "JWT Secret")
+	Username     = pflag.String("webapi.username", "admin", "username to authenticate web API")
+	Password     = pflag.String("webapi.password", "", "password to authenticate web API")
+	AllowOrigins = pflag.StringSlice("webapi.allow-origin", nil, "CORS allow origins of web API")
 )
 
 func convertLogLevel(str string) (ok bool, lv logger.Level) {
@@ -160,11 +161,12 @@ func main() {
 
 	go func() {
 		err = echo.Start(*port, echo.Args{
-			Repository: repoInmemory,
-			JwtIssuer:  *JwtIssuer,
-			JwtSecret:  *JwtSecret,
-			Username:   *Username,
-			Password:   *Password,
+			Repository:   repoInmemory,
+			JwtIssuer:    *JwtIssuer,
+			JwtSecret:    *JwtSecret,
+			Username:     *Username,
+			Password:     *Password,
+			AllowOrigins: *AllowOrigins,
 		})
 		if err != nil {
 			logger.Logger().Fatal(err.Error())
