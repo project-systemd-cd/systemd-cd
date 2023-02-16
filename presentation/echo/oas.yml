@@ -1,0 +1,321 @@
+openapi: 3.0.0
+servers:
+  - description: local
+    url: http://localhost:1323
+info:
+  description: systemd-cd API
+  version: "1.0.0"
+  title: systemd-cd API
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags: []
+
+paths:
+  /users/sign_in:
+    post:
+      summary: sign in
+      requestBody:
+        $ref: "#/components/requestBodies/LoginBody"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenBody"
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+
+  /pipelines:
+    get:
+      summary: get pipeline list
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PipelineList"
+        204:
+          description: No content
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+
+  /pipelines/{pipeline_name}:
+    get:
+      summary: get pipeline
+      parameters:
+        - $ref: "#/components/parameters/pipeline_name"
+        - $ref: "#/components/parameters/embed"
+        - $ref: "#/components/parameters/from"
+        - $ref: "#/components/parameters/to"
+        - $ref: "#/components/parameters/asc"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PipelineWithEmbedJobs"
+                  - $ref: "#/components/schemas/Pipeline"
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        404:
+          description: Not found
+        500:
+          description: Internal server error
+
+  /pipelines/{pipeline_name}/jobs:
+    get:
+      summary: get pipeline job list
+      parameters:
+        - $ref: "#/components/parameters/pipeline_name"
+        - $ref: "#/components/parameters/from"
+        - $ref: "#/components/parameters/to"
+        - $ref: "#/components/parameters/asc"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobList"
+        204:
+          description: No content
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        404:
+          description: Not found
+        500:
+          description: Internal server error
+
+  /pipelines/{pipeline_name}/jobs/{job_id}:
+    get:
+      summary: get pipeline job
+      parameters:
+        - $ref: "#/components/parameters/pipeline_name"
+        - $ref: "#/components/parameters/job_id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        404:
+          description: Not found
+        500:
+          description: Internal server error
+
+components:
+  schemas:
+    LoginBody:
+      type: object
+      properties:
+        username:
+          type: string
+          format: username
+          example: "admin"
+        password:
+          type: string
+          format: password
+          example: "password"
+      required:
+        - email
+        - password
+
+    TokenBody:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+      required:
+        - token
+        
+    PipelineList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Pipeline"
+        
+    Pipeline:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "pipeline-1"
+        status:
+          type: string
+          enum:
+            - "synced"
+            - "syncing"
+            - "out of sync"
+            - "failed"
+        commit_ref:
+          type: string
+          example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        systemd_services:
+          type: array
+          items:
+            $ref: "#/components/schemas/SystemdService"
+        
+    PipelineWithEmbedJobs:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "pipeline-1"
+        status:
+          type: string
+          enum:
+            - "synced"
+            - "syncing"
+            - "out of sync"
+            - "failed"
+        commit_ref:
+          type: string
+          example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        systemd_services:
+          type: array
+          items:
+            $ref: "#/components/schemas/SystemdService"
+        jobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+
+    SystemdService:
+      type: object
+      properties:
+        name:
+          type: string
+          example: systemd-service-1
+        status:
+          type: string
+          enum:
+            - "running"
+            - "stopped"
+            - "failed"
+            - "not found"
+        
+    JobList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Job"
+
+    Job:
+      type: object
+      properties:
+        group_id:
+          type: string
+          example: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        id:
+          type: string
+          example: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        pipeline_name:
+          type: string
+          example: "pipeline-1"
+        commit_id:
+          type: string
+          example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        type:
+          type: string
+          enum:
+            - "test"
+            - "build"
+            - "install"
+        status:
+          type: string
+          enum:
+            - "pending"
+            - "done"
+            - "in progress"
+            - "failed"
+            - "canceled"
+        timestamp:
+          type: integer
+          minimum: 0
+          description: unix time
+        duration:
+          type: integer
+          minimum: 0
+          description: unix time
+        logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobLog"
+
+    JobLog:
+      type: object
+      properties:
+        command:
+          type: string
+          example: "/usr/bin/go build"
+        output:
+          type: string
+          example: ""
+
+  requestBodies:
+    LoginBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/LoginBody"
+
+  parameters:
+    pipeline_name:
+      name: pipeline_name
+      in: path
+      required: true
+      schema:
+        type: string
+    job_id:
+      name: job_id
+      in: path
+      required: true
+      schema:
+        type: string
+    embed:
+      name: embed
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - "jobs"
+    from:
+      name: from
+      in: query
+      schema:
+        type: string
+        format: "date-time"
+    to:
+      name: to
+      in: query
+      schema:
+        type: string
+        format: "date-time"
+    asc:
+      name: asc
+      in: query
+      schema:
+        type: boolean
+        default: false
