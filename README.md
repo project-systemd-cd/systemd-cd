@@ -9,7 +9,11 @@ go build .
 ## Usage
 
 ```bash
-./systemd-cd -f <manifest>.toml
+./systemd-cd \
+  -f <manifest>.toml \
+  --webapi.jwt.secret "your jwt secret" \
+  --webapi.username "web api username" # default is "admin" \
+  --webapi.password "web api password"
 ```
 
 You can specify multiple manifest files.
