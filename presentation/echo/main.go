@@ -19,11 +19,12 @@ var (
 )
 
 type Args struct {
-	Repository runner.IRepositoryInmemory
-	JwtIssuer  string
-	JwtSecret  string
-	Username   string
-	Password   string
+	Repository   runner.IRepositoryInmemory
+	JwtIssuer    string
+	JwtSecret    string
+	Username     string
+	Password     string
+	AllowOrigins []string
 }
 
 func (args Args) validate() error {
@@ -69,6 +70,9 @@ func Start(port uint, args Args) (err error) {
 
 	e := echo.New()
 	e.Use(middleware.Gzip())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: args.AllowOrigins,
+	}))
 	e.HideBanner = true
 	e.HidePort = true
 	registerHandler(e, *jwtIssuer, *jwtSecret)
