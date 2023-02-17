@@ -160,6 +160,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SystemdService"
+      required: 
+        - name
+        - status
+        - commit_ref
         
     PipelineWithEmbedJobs:
       type: object
@@ -185,6 +189,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Job"
+      required: 
+        - name
+        - status
+        - commit_ref
 
     SystemdService:
       type: object
@@ -199,6 +207,9 @@ components:
             - "stopped"
             - "failed"
             - "not found"
+      required: 
+        - name
+        - status
         
     JobList:
       type: array
@@ -246,6 +257,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/JobLog"
+      required:
+        - group_id
+        - id
+        - pipeline_name
+        - commit_id
+        - type
+        - status
+        - timestamp
+        - logs
 
     JobLog:
       type: object
@@ -256,6 +276,9 @@ components:
         output:
           type: string
           example: ""
+      required:
+        - command
+        - output
 
   requestBodies:
     LoginRequestBody:
