@@ -1,7 +1,9 @@
 package pipeline
 
 import (
+	errorss "errors"
 	"fmt"
+	"systemd-cd/domain/git"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 	"time"
@@ -31,6 +33,36 @@ func (p *pipeline) Init() (err error) {
 	}()
 
 	p.Status = StatusSyncing
+
+	_, targetCommitId, err := p.updateExists()
+	if err != nil {
+		return err
+	}
+	if targetCommitId != nil {
+		// Checkout
+		err = p.RepositoryLocal.Checkout(*targetCommitId)
+		if err != nil {
+			return err
+		}
+	} else {
+		// Checkout branch
+		err = p.RepositoryLocal.CheckoutBranch("refs/heads/" + p.ManifestLocal.GitTargetBranch)
+		if err != nil {
+			return err
+		}
+		// Pull
+		_, err = p.RepositoryLocal.Pull()
+		isFastForward := err == nil || !errorss.Is(err, git.ErrNonFastForwardUpdate)
+		if err != nil && isFastForward {
+			return err
+		}
+		if !isFastForward {
+			_, err = p.RepositoryLocal.Reset(git.OptionReset{Mode: git.HardReset}, p.ManifestLocal.GitTargetBranch)
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	// Get manifest and merge local manifest
 	logger.Logger().Info("Get manifest in git repository and merge to local manifest")
@@ -62,11 +94,22 @@ func (p *pipeline) Init() (err error) {
 	// Run jobs
 	for _, job := range []*jobInstance{jobTest, jobBuild, jobInstall} {
 		if job != nil {
-			err = job.Run(p.service.repo)
-			if err != nil {
-				return err
+			if err == nil {
+				err2 := job.Run(p.service.repo)
+				if err2 != nil {
+					err = err2
+				}
+			} else {
+				// if job failed, cancel reaming jobs
+				err2 := job.Cancel(p.service.repo)
+				if err2 != nil {
+					err = err2
+				}
 			}
 		}
+	}
+	if err != nil {
+		return err
 	}
 
 	services, err := p.getSystemdServices()

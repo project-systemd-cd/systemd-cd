@@ -250,7 +250,7 @@ components:
         duration:
           type: integer
           minimum: 0
-          description: unix time
+          description: seconds
         logs:
           type: array
           items:

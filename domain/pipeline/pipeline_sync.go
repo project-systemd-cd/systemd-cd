@@ -156,11 +156,22 @@ func (p *pipeline) Sync() (err error) {
 	// Run jobs
 	for _, job := range []*jobInstance{jobTest, jobBuild, jobInstall} {
 		if job != nil {
-			err = job.Run(p.service.repo)
-			if err != nil {
-				return err
+			if err == nil {
+				err2 := job.Run(p.service.repo)
+				if err2 != nil {
+					err = err2
+				}
+			} else {
+				// if job failed, cancel reaming jobs
+				err2 := job.Cancel(p.service.repo)
+				if err2 != nil {
+					err = err2
+				}
 			}
 		}
+	}
+	if err != nil {
+		return err
 	}
 
 	// Execute over systemd

@@ -28,6 +28,8 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 
 	//* NOTE: Receiver must not a pointer
 
+	// TODO: validate local manifest
+
 	// Find pipeline from repository
 	mp, err := s.repo.FindPipelineByName(m.Name)
 	ErrNotFound := &errors.ErrNotFound{}

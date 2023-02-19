@@ -38,7 +38,6 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 			if err != nil {
 				return nil, err
 			}
-			timestamp := time.Unix(int64(j.Timestamp), 0)
 
 			if len(jobs2) != 0 && jobs2[0].GroupId != j.GroupId {
 				if add {
@@ -47,14 +46,30 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 				jobs2 = []pipeline.Job{}
 				add = false
 			}
-			jobs2 = append(jobs2, j)
+
+			var timestamp *time.Time
+			if j.Timestamp != nil {
+				t := time.Unix(int64(*j.Timestamp), 0)
+				timestamp = &t
+			}
 			if query.From == nil && query.To == nil {
 				add = true
-			} else if query.From != nil && !timestamp.Before(*query.From) {
-				add = true
-			} else if query.To != nil && !timestamp.After(*query.To) {
-				add = true
+			} else if timestamp != nil {
+				if query.From != nil && query.To != nil {
+					if !timestamp.Before(*query.From) && !timestamp.After(*query.To) {
+						add = true
+					}
+				} else if query.From != nil {
+					if !timestamp.Before(*query.From) {
+						add = true
+					}
+				} else if query.To != nil {
+					if !timestamp.After(*query.To) {
+						add = true
+					}
+				}
 			}
+			jobs2 = append(jobs2, j)
 		}
 	}
 	if len(jobs2) != 0 {

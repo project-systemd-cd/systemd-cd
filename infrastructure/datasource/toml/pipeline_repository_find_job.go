@@ -3,6 +3,7 @@ package toml
 import (
 	"bytes"
 	"strings"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/pipeline"
 	"systemd-cd/domain/toml"
 	"systemd-cd/domain/unix"
@@ -20,6 +21,12 @@ func (r *rPipeline) FindJob(groupId string) ([]pipeline.Job, error) {
 		if !strings.Contains(err.Error(), "No such file or directory") {
 			return nil, err
 		}
+		err = &errors.ErrNotFound{
+			Object: "PipelineJobGroup",
+			IdName: "groupId",
+			Id:     groupId,
+		}
+		return nil, err
 	}
 
 	jobs := []pipeline.Job{}
