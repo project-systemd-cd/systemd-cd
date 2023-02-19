@@ -55,6 +55,11 @@ func pipelinesNameJobsIdGet(c echo.Context) (err error) {
 
 	res, err := p.GetJob(groupId)
 	if err != nil {
+		var ErrNotFound *errors.ErrNotFound
+		if errorss.As(err, &ErrNotFound) {
+			err = c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+			return err
+		}
 		return err
 	}
 
