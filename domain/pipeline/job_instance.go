@@ -29,8 +29,9 @@ func (j jobInstance) Run(repo IRepository) (err error) {
 	d := int64(time.Now().Unix() - int64(t))
 	j.Duration = &d
 	j.Logs = logs
-	err = repo.SaveJob(j.Job)
-	if err != nil {
+	err2 := repo.SaveJob(j.Job)
+	if err2 != nil {
+		err = err2
 		return err
 	}
 
