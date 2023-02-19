@@ -64,7 +64,7 @@ func pipelinesGet(c echo.Context) (err error) {
 		res = append(res, resItem)
 	}
 
-	if res == nil {
+	if len(res) == 0 {
 		err = c.NoContent(http.StatusNoContent)
 		return err
 	}

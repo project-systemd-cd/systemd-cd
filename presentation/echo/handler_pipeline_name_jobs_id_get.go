@@ -58,7 +58,7 @@ func pipelinesNameJobsIdGet(c echo.Context) (err error) {
 		return err
 	}
 
-	if res == nil {
+	if len(res) == 0 {
 		err = c.NoContent(http.StatusNoContent)
 		return err
 	}
