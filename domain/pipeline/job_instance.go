@@ -26,7 +26,7 @@ func (j jobInstance) Run(repo IRepository) (err error) {
 	if err != nil {
 		j.Status = StatusJobFailed
 	}
-	d := int64(time.Since(startAt))
+	d := int64(time.Now().Unix() - int64(t))
 	j.Duration = &d
 	j.Logs = logs
 	err = repo.SaveJob(j.Job)
