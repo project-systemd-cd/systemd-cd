@@ -36,3 +36,10 @@ func (j jobInstance) Run(repo IRepository) (err error) {
 
 	return err
 }
+
+func (j jobInstance) Cancel(repo IRepository) (err error) {
+	// Update job state
+	j.Status = StatusJobCanceled
+	err = repo.SaveJob(j.Job)
+	return err
+}
