@@ -90,7 +90,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JobList"
+                $ref: "#/components/schemas/JobGroupList"
         204:
           description: No content
         400:
@@ -147,12 +147,7 @@ components:
           type: string
           example: "pipeline-1"
         status:
-          type: string
-          enum:
-            - "synced"
-            - "syncing"
-            - "out of sync"
-            - "failed"
+          $ref: "#/components/schemas/StatusPipeline"
         commit_ref:
           type: string
           example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -172,12 +167,7 @@ components:
           type: string
           example: "pipeline-1"
         status:
-          type: string
-          enum:
-            - "synced"
-            - "syncing"
-            - "out of sync"
-            - "failed"
+          $ref: "#/components/schemas/StatusPipeline"
         commit_ref:
           type: string
           example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -186,13 +176,19 @@ components:
           items:
             $ref: "#/components/schemas/SystemdService"
         jobs:
-          type: array
-          items:
-            $ref: "#/components/schemas/Job"
+          $ref: "#/components/schemas/JobGroupList"
       required: 
         - name
         - status
         - commit_ref
+
+    StatusPipeline:
+      type: string
+      enum:
+        - "synced"
+        - "syncing"
+        - "out of sync"
+        - "failed"
 
     SystemdService:
       type: object
@@ -201,17 +197,25 @@ components:
           type: string
           example: systemd-service-1
         status:
-          type: string
-          enum:
-            - "running"
-            - "stopped"
-            - "failed"
-            - "not found"
+          $ref: "#/components/schemas/StatusSystemdService"
       required: 
         - name
         - status
+
+    StatusSystemdService:
+      type: string
+      enum:
+        - "running"
+        - "stopped"
+        - "failed"
+        - "not found"
         
-    JobList:
+    JobGroupList:
+      type: array
+      items:
+        $ref: "#/components/schemas/JobGroup"
+        
+    JobGroup:
       type: array
       items:
         $ref: "#/components/schemas/Job"
@@ -238,13 +242,7 @@ components:
             - "build"
             - "install"
         status:
-          type: string
-          enum:
-            - "pending"
-            - "done"
-            - "in progress"
-            - "failed"
-            - "canceled"
+          $ref: "#/components/schemas/StatusPipelineJob"
         timestamp:
           type: integer
           minimum: 0
@@ -264,8 +262,16 @@ components:
         - commit_id
         - type
         - status
-        - timestamp
         - logs
+
+    StatusPipelineJob:
+      type: string
+      enum:
+        - "pending"
+        - "done"
+        - "in progress"
+        - "failed"
+        - "canceled"
 
     JobLog:
       type: object
