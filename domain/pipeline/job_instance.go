@@ -10,7 +10,8 @@ type jobInstance struct {
 func (j jobInstance) Run(repo IRepository) (err error) {
 	// Update job state
 	startAt := time.Now()
-	j.Timestamp = unixTime(startAt.Unix())
+	t := unixTime(startAt.Unix())
+	j.Timestamp = &t
 	j.Status = StatusJobInProgress
 	err = repo.SaveJob(j.Job)
 	if err != nil {

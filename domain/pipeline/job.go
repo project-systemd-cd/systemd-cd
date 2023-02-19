@@ -15,9 +15,9 @@ type Job struct {
 
 	Status statusJob `json:"status"`
 
-	Timestamp unixTime `json:"timestamp"`
-	Duration  *int64   `json:"duration"`
-	Logs      []jobLog `json:"logs"`
+	Timestamp *unixTime `json:"timestamp,omitempty"`
+	Duration  *int64    `json:"duration"`
+	Logs      []jobLog  `json:"logs"`
 }
 
 type jobType string
