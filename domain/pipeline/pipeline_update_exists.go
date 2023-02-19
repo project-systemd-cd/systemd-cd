@@ -34,7 +34,7 @@ func (p *pipeline) updateExists() (exists bool, targetCommitId *string, err erro
 		return
 	}
 
-	if p.ManifestMerged.GitTagRegex != nil {
+	if p.ManifestLocal.GitTagRegex != nil {
 		var hash string
 		hash, err = p.RepositoryLocal.FindHashByTagRegex(*p.ManifestLocal.GitTagRegex)
 		if err != nil {
@@ -50,7 +50,7 @@ func (p *pipeline) updateExists() (exists bool, targetCommitId *string, err erro
 		}
 	} else {
 		var latest bool
-		latest, err = p.RepositoryLocal.HeadIsLatesetOfBranch(p.ManifestMerged.GitTargetBranch)
+		latest, err = p.RepositoryLocal.HeadIsLatesetOfBranch(p.ManifestLocal.GitTargetBranch)
 		if err != nil {
 			return
 		}
