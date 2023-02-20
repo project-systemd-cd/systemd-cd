@@ -15,6 +15,9 @@ type IPipeline interface {
 	Sync() error
 
 	GetStatus() status
+	GetGitRemoteUrl() string
+	GetGitTargetBranch() string
+	GetGitTargetTagRegex() *string
 	GetCommitRef() string
 	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
 
