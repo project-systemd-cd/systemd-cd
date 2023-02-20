@@ -42,17 +42,17 @@ func pipelinesGet(c echo.Context) (err error) {
 	}
 	for _, p := range pp {
 		name := p.GetName()
-		status := p.GetStatus()
-		commitRef := p.GetCommitRef()
-		remoteUrl := p.GetGitRemoteUrl()
 
-		systemdServices := &[]SystemdServiceGet{}
+		var ss []SystemdServiceGet = nil
+		var systemdServices *[]SystemdServiceGet = &ss
 		resItem := ResPipelineGet{
-			Name:            name,
-			GitRemoteUrl:    remoteUrl,
-			Status:          string(status),
-			CommitRef:       commitRef,
-			SystemdServices: systemdServices,
+			Name:              p.GetName(),
+			GitRemoteUrl:      p.GetGitRemoteUrl(),
+			GitTargetBranch:   p.GetGitTargetBranch(),
+			GitTargetTagRegex: p.GetGitTargetTagRegex(),
+			Status:            string(p.GetStatus()),
+			CommitRef:         p.GetCommitRef(),
+			SystemdServices:   systemdServices,
 		}
 
 		services, err := p.GetStatusSystemdServices()

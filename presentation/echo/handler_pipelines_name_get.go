@@ -19,11 +19,13 @@ type QueryParamPipelineGet struct {
 }
 
 type ResPipelineGet struct {
-	Name            string               `json:"name"`
-	GitRemoteUrl    string               `json:"git_remote_url"`
-	Status          string               `json:"status"`
-	CommitRef       string               `json:"commit_ref"`
-	SystemdServices *[]SystemdServiceGet `json:"systemd_services,omitempty"`
+	Name              string               `json:"name"`
+	GitRemoteUrl      string               `json:"git_remote_url"`
+	GitTargetBranch   string               `json:"git_target_branch"`
+	GitTargetTagRegex *string              `json:"git_target_tag_regex,omitempty"`
+	Status            string               `json:"status"`
+	CommitRef         string               `json:"commit_ref"`
+	SystemdServices   *[]SystemdServiceGet `json:"systemd_services,omitempty"`
 }
 
 type ResPipelineGetJobsEmbed struct {
@@ -84,17 +86,17 @@ func pipelinesNameGet(c echo.Context) (err error) {
 		}
 		return err
 	}
-	status := p.GetStatus()
-	commitRef := p.GetCommitRef()
-	remoteUrl := p.GetGitRemoteUrl()
 
-	systemdServices := &[]SystemdServiceGet{}
+	var ss []SystemdServiceGet = nil
+	var systemdServices *[]SystemdServiceGet = &ss
 	res := ResPipelineGet{
-		Name:            name,
-		GitRemoteUrl:    remoteUrl,
-		Status:          string(status),
-		CommitRef:       commitRef,
-		SystemdServices: systemdServices,
+		Name:              p.GetName(),
+		GitRemoteUrl:      p.GetGitRemoteUrl(),
+		GitTargetBranch:   p.GetGitTargetBranch(),
+		GitTargetTagRegex: p.GetGitTargetTagRegex(),
+		Status:            string(p.GetStatus()),
+		CommitRef:         p.GetCommitRef(),
+		SystemdServices:   systemdServices,
 	}
 
 	services, err := p.GetStatusSystemdServices()

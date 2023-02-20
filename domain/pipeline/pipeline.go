@@ -16,6 +16,8 @@ type IPipeline interface {
 
 	GetStatus() status
 	GetGitRemoteUrl() string
+	GetGitTargetBranch() string
+	GetGitTargetTagRegex() *string
 	GetCommitRef() string
 	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
 

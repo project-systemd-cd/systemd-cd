@@ -149,6 +149,12 @@ components:
         git_remote_url:
           type: string
           example: "https://github.com/tingtt/systemd-cd.git"
+        git_target_branch:
+          type: string
+          example: "main"
+        git_target_tag_regex:
+          type: string
+          example: "v*"
         status:
           $ref: "#/components/schemas/StatusPipeline"
         commit_ref:
@@ -161,6 +167,7 @@ components:
       required: 
         - name
         - git_remote_url
+        - git_target_branch
         - status
         - commit_ref
         
@@ -173,6 +180,12 @@ components:
         git_remote_url:
           type: string
           example: "https://github.com/tingtt/systemd-cd.git"
+        git_target_branch:
+          type: string
+          example: "main"
+        git_target_tag_regex:
+          type: string
+          example: "v*"
         status:
           $ref: "#/components/schemas/StatusPipeline"
         commit_ref:
@@ -187,6 +200,7 @@ components:
       required: 
         - name
         - git_remote_url
+        - git_target_branch
         - status
         - commit_ref
 
