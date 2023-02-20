@@ -9,6 +9,8 @@ import (
 )
 
 type IPipelineService interface {
+	// Resgister pipeline.
+	// If pipeline with same name already exists, replace it.
 	NewPipeline(ServiceManifestLocal) (IPipeline, error)
 
 	FindPipelines() ([]PipelineMetadata, error)
