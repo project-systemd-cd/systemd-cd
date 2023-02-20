@@ -49,20 +49,16 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 	if err != nil {
 		return err
 	}
-	for _, m := range metadatas {
+	for _, savedManifest := range metadatas {
 		manifestSpecified := false
-		for _, sml := range *manifests {
-			if sml.Name == m.Name {
-				var p pipeline.IPipeline
-				p, err = s.pipelineService.NewPipeline(sml)
+		for _, m := range *manifests {
+			if m.Name == savedManifest.Name {
+				var p Pipeline
+				p, err = s.NewPipeline(m, OptionAddPipeline{AutoSync: true})
 				if err != nil {
 					return err
 				}
 				err = p.Sync()
-				if err != nil {
-					return err
-				}
-				_, err = s.repository.AddPipeline(Pipeline{p, true})
 				if err != nil {
 					return err
 				}
@@ -72,12 +68,10 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 			}
 		}
 		if !manifestSpecified {
-			var p pipeline.IPipeline
-			p, err = s.pipelineService.NewPipeline(m.ManifestLocal)
-			if err != nil {
-				return err
-			}
-			_, err = s.repository.AddPipeline(Pipeline{p, false})
+			_, err = s.NewPipeline(
+				savedManifest.ManifestLocal,
+				OptionAddPipeline{AutoSync: false},
+			)
 			if err != nil {
 				return err
 			}
@@ -93,12 +87,7 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 		}
 		if !found {
 			logger.Logger().Infof("Initialize pipeline \"%v\"", m.Name)
-			var p pipeline.IPipeline
-			p, err = s.pipelineService.NewPipeline(m)
-			if err != nil {
-				return err
-			}
-			_, err = s.repository.AddPipeline(Pipeline{p, true})
+			_, err = s.NewPipeline(m, OptionAddPipeline{AutoSync: true})
 			if err != nil {
 				return err
 			}
@@ -108,7 +97,8 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 	time.Sleep(s.option.PollingInterval)
 
 	for {
-		pipelines, err := s.repository.FindPipelines()
+		var pipelines []Pipeline
+		pipelines, err = s.repository.FindPipelines()
 		if err != nil {
 			return err
 		}

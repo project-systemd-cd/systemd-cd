@@ -9,6 +9,8 @@ type iRepositoryInmemory interface {
 
 	FindPipeline(name string) (Pipeline, error)
 	FindPipelines() ([]Pipeline, error)
+
+	RemovePipeline(name string) error
 }
 
 func inmemoryRepository() iRepositoryInmemory {
@@ -36,4 +38,20 @@ func (r *rPipeline) FindPipeline(name string) (Pipeline, error) {
 
 func (r *rPipeline) FindPipelines() ([]Pipeline, error) {
 	return *r.pipelines, nil
+}
+
+func (r *rPipeline) RemovePipeline(name string) error {
+	var err error = &errors.ErrNotFound{Object: "pipeline", IdName: "name", Id: name}
+	newPipelines := &[]Pipeline{}
+	for _, p := range *r.pipelines {
+		if p.GetName() == name {
+			err = nil
+		} else {
+			(*newPipelines) = append((*newPipelines), p)
+		}
+	}
+	if err == nil {
+		r.pipelines = newPipelines
+	}
+	return err
 }

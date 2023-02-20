@@ -9,8 +9,16 @@ import (
 type IRunnerService interface {
 	Start(*[]pipeline.ServiceManifestLocal) error
 
+	// Resgister pipeline.
+	// If pipeline with same name already exists, replace it.
+	NewPipeline(pipeline.ServiceManifestLocal, OptionAddPipeline) (Pipeline, error)
+
 	FindPipeline(name string) (Pipeline, error)
 	FindPipelines() ([]Pipeline, error)
+}
+
+type OptionAddPipeline struct {
+	AutoSync bool
 }
 
 func NewService(p pipeline.IPipelineService, o Option) (service IRunnerService, err error) {
