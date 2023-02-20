@@ -9,9 +9,12 @@ type Job struct {
 
 	Id string `json:"id"`
 
-	PipelineName string  `json:"pipeline_name"`
-	CommitId     string  `json:"commit_id"`
-	Type         jobType `json:"type"`
+	PipelineName      string  `json:"pipeline_name"`
+	GitTargetBranch   string  `json:"git_target_branch"`
+	GitTargetTagRegex *string `json:"git_target_tag_regex,omitempty"`
+
+	CommitId string  `json:"commit_id"`
+	Type     jobType `json:"type"`
 
 	Status statusJob `json:"status"`
 

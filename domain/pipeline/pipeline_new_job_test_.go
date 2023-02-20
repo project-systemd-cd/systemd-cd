@@ -32,12 +32,14 @@ func (p pipeline) newJobTest(groupId string) (job *jobInstance, err error) {
 	if p.ManifestMerged.TestCommands != nil {
 		job = &jobInstance{
 			Job: Job{
-				GroupId:      groupId,
-				Id:           UUID(),
-				PipelineName: p.ManifestMerged.Name,
-				CommitId:     p.GetCommitRef(),
-				Type:         JobTypeTest,
-				Status:       StatusJobPending,
+				GroupId:           groupId,
+				Id:                UUID(),
+				PipelineName:      p.ManifestMerged.Name,
+				GitTargetBranch:   p.ManifestMerged.GitTargetBranch,
+				GitTargetTagRegex: p.ManifestMerged.GitTagRegex,
+				CommitId:          p.GetCommitRef(),
+				Type:              JobTypeTest,
+				Status:            StatusJobPending,
 			},
 		}
 

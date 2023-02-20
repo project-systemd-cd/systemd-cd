@@ -29,12 +29,14 @@ func (p pipeline) newJobInstall(groupId string) (job *jobInstance, err error) {
 
 	job = &jobInstance{
 		Job: Job{
-			GroupId:      groupId,
-			Id:           UUID(),
-			PipelineName: p.ManifestMerged.Name,
-			CommitId:     p.GetCommitRef(),
-			Type:         JobTypeInstall,
-			Status:       StatusJobPending,
+			GroupId:           groupId,
+			Id:                UUID(),
+			PipelineName:      p.ManifestMerged.Name,
+			GitTargetBranch:   p.ManifestMerged.GitTargetBranch,
+			GitTargetTagRegex: p.ManifestMerged.GitTagRegex,
+			CommitId:          p.GetCommitRef(),
+			Type:              JobTypeInstall,
+			Status:            StatusJobPending,
 		},
 	}
 
