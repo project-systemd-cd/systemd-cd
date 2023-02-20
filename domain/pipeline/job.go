@@ -14,6 +14,7 @@ type Job struct {
 	GitTargetTagRegex *string `json:"git_target_tag_regex,omitempty"`
 
 	CommitId      string  `json:"commit_id"`
+	CommitAuthor  string  `json:"commit_author"`
 	CommitMessage string  `json:"commit_message"`
 	Type          jobType `json:"type"`
 
