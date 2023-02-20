@@ -105,6 +105,26 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 		}
 	}
 
+	// Check updates
+	updateExists, _, _, err := p1.updateExists()
+	if err != nil {
+		return &pipeline{}, err
+	}
+	if !updateExists {
+		p1.Status = StatusSynced
+	}
+
+	// Get manifest and merge local manifest
+	m2, err := p1.getRemoteManifest()
+	if err != nil {
+		return &pipeline{}, err
+	}
+	mm2, err := m2.merge(p1.RepositoryLocal.RemoteUrl, p1.ManifestLocal)
+	if err != nil {
+		return &pipeline{}, err
+	}
+	p1.ManifestMerged = mm2
+
 	p = p1
 	return p, err
 }
