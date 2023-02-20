@@ -13,8 +13,9 @@ type Job struct {
 	GitTargetBranch   string  `json:"git_target_branch"`
 	GitTargetTagRegex *string `json:"git_target_tag_regex,omitempty"`
 
-	CommitId string  `json:"commit_id"`
-	Type     jobType `json:"type"`
+	CommitId      string  `json:"commit_id"`
+	CommitMessage string  `json:"commit_message"`
+	Type          jobType `json:"type"`
 
 	Status statusJob `json:"status"`
 

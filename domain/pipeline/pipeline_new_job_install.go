@@ -27,6 +27,11 @@ func (p pipeline) newJobInstall(groupId string) (job *jobInstance, err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	var commitMsg string
+	commitMsg, err = p.GetCommitMessage()
+	if err != nil {
+		return nil, err
+	}
 	job = &jobInstance{
 		Job: Job{
 			GroupId:           groupId,
@@ -35,6 +40,7 @@ func (p pipeline) newJobInstall(groupId string) (job *jobInstance, err error) {
 			GitTargetBranch:   p.ManifestMerged.GitTargetBranch,
 			GitTargetTagRegex: p.ManifestMerged.GitTagRegex,
 			CommitId:          p.GetCommitRef(),
+			CommitMessage:     commitMsg,
 			Type:              JobTypeInstall,
 			Status:            StatusJobPending,
 		},
