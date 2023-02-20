@@ -19,6 +19,7 @@ type IPipeline interface {
 	GetGitTargetBranch() string
 	GetGitTargetTagRegex() *string
 	GetCommitRef() string
+	GetCommitMessage() (string, error)
 	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
 
 	GetJob(groupId string) ([]Job, error)
