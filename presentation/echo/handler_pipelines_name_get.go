@@ -24,6 +24,7 @@ type ResPipelineGet struct {
 	GitTargetBranch   string               `json:"git_target_branch"`
 	GitTargetTagRegex *string              `json:"git_target_tag_regex,omitempty"`
 	Status            string               `json:"status"`
+	AutoSyncEnabled   bool                 `json:"auto_sync"`
 	CommitRef         string               `json:"commit_ref"`
 	SystemdServices   *[]SystemdServiceGet `json:"systemd_services,omitempty"`
 }
@@ -95,6 +96,7 @@ func pipelinesNameGet(c echo.Context) (err error) {
 		GitTargetBranch:   p.GetGitTargetBranch(),
 		GitTargetTagRegex: p.GetGitTargetTagRegex(),
 		Status:            string(p.GetStatus()),
+		AutoSyncEnabled:   p.AutoSyncEnabled(),
 		CommitRef:         p.GetCommitRef(),
 		SystemdServices:   systemdServices,
 	}

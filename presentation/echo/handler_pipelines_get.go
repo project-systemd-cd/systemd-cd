@@ -51,6 +51,7 @@ func pipelinesGet(c echo.Context) (err error) {
 			GitTargetBranch:   p.GetGitTargetBranch(),
 			GitTargetTagRegex: p.GetGitTargetTagRegex(),
 			Status:            string(p.GetStatus()),
+			AutoSyncEnabled:   p.AutoSyncEnabled(),
 			CommitRef:         p.GetCommitRef(),
 			SystemdServices:   systemdServices,
 		}

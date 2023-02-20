@@ -50,35 +50,34 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 		return err
 	}
 	for _, m := range metadatas {
-		manifestFileSpecified := false
+		manifestSpecified := false
 		for _, sml := range *manifests {
 			if sml.Name == m.Name {
-				var i pipeline.IPipeline
-				i, err = s.pipelineService.NewPipeline(sml)
+				var p pipeline.IPipeline
+				p, err = s.pipelineService.NewPipeline(sml)
 				if err != nil {
 					return err
 				}
-				err = i.Sync()
+				err = p.Sync()
 				if err != nil {
 					return err
 				}
-				_, err = s.repository.AddPipeline(i)
+				_, err = s.repository.AddPipeline(Pipeline{p, true})
 				if err != nil {
 					return err
 				}
 				foundPipelines = append(foundPipelines, m.Name)
-				manifestFileSpecified = true
+				manifestSpecified = true
 				break
 			}
 		}
-		if !manifestFileSpecified {
+		if !manifestSpecified {
 			var p pipeline.IPipeline
 			p, err = s.pipelineService.NewPipeline(m.ManifestLocal)
 			if err != nil {
 				return err
 			}
-			// TODO: Don't sync pipelines that don't have specified manifest files periodically
-			_, err = s.repository.AddPipeline(p)
+			_, err = s.repository.AddPipeline(Pipeline{p, false})
 			if err != nil {
 				return err
 			}
@@ -99,7 +98,7 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 			if err != nil {
 				return err
 			}
-			_, err = s.repository.AddPipeline(p)
+			_, err = s.repository.AddPipeline(Pipeline{p, true})
 			if err != nil {
 				return err
 			}
@@ -114,9 +113,11 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 			return err
 		}
 		for _, p := range pipelines {
-			err = p.Sync()
-			if err != nil {
-				return err
+			if p.AutoSyncEnabled() {
+				err = p.Sync()
+				if err != nil {
+					return err
+				}
 			}
 		}
 

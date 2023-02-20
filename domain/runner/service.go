@@ -9,19 +9,8 @@ import (
 type IRunnerService interface {
 	Start(*[]pipeline.ServiceManifestLocal) error
 
-	FindPipeline(name string) (pipeline.IPipeline, error)
-	FindPipelines() ([]pipeline.IPipeline, error)
-}
-
-type Option struct {
-	PollingInterval time.Duration
-}
-
-func (o Option) validate() error {
-	if o.PollingInterval < 3*time.Minute {
-		// return errors.New("polling interval must be at least 3 minutes")
-	}
-	return nil
+	FindPipeline(name string) (Pipeline, error)
+	FindPipelines() ([]Pipeline, error)
 }
 
 func NewService(p pipeline.IPipelineService, o Option) (service IRunnerService, err error) {
@@ -47,6 +36,17 @@ func NewService(p pipeline.IPipelineService, o Option) (service IRunnerService, 
 
 	service = &runnerService{p, o, inmemoryRepository()}
 	return service, err
+}
+
+type Option struct {
+	PollingInterval time.Duration
+}
+
+func (o Option) validate() error {
+	if o.PollingInterval < 3*time.Minute {
+		// return errors.New("polling interval must be at least 3 minutes")
+	}
+	return nil
 }
 
 type runnerService struct {
