@@ -30,6 +30,11 @@ func (p pipeline) newJobTest(groupId string) (job *jobInstance, err error) {
 	}()
 
 	if p.ManifestMerged.TestCommands != nil {
+		var commitAuthor string
+		commitAuthor, err = p.GetCommitAuthor()
+		if err != nil {
+			return nil, err
+		}
 		var commitMsg string
 		commitMsg, err = p.GetCommitMessage()
 		if err != nil {
@@ -43,6 +48,7 @@ func (p pipeline) newJobTest(groupId string) (job *jobInstance, err error) {
 				GitTargetBranch:   p.ManifestMerged.GitTargetBranch,
 				GitTargetTagRegex: p.ManifestMerged.GitTagRegex,
 				CommitId:          p.GetCommitRef(),
+				CommitAuthor:      commitAuthor,
 				CommitMessage:     commitMsg,
 				Type:              JobTypeTest,
 				Status:            StatusJobPending,

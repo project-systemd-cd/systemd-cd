@@ -24,6 +24,7 @@ type GitCommand interface {
 	CheckoutBranch(workingDir Path, branch string) error
 	CheckoutHash(workingDir Path, hash string) error
 	GetCommitMessage(workingDir Path, hash string) (string, error)
+	GetCommitAuthor(workingDir Path, hash string) (string, error)
 	GetRemoteUrl(workingDir Path, remoteName string) (string, error)
 	SetRemoteUrl(workingDir Path, remoteName string, url string) error
 }

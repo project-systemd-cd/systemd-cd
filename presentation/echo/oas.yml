@@ -263,6 +263,9 @@ components:
         commit_id:
           type: string
           example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        commit_author:
+          type: string
+          example: "tingtt"
         commit_message:
           type: string
           example: "feat: add some feature"
@@ -292,6 +295,7 @@ components:
         - pipeline_name
         - git_target_branch
         - commit_id
+        - commit_author
         - commit_message
         - type
         - status
