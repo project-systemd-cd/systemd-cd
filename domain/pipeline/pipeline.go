@@ -15,6 +15,7 @@ type IPipeline interface {
 	Sync() error
 
 	GetStatus() status
+	GetGitRemoteUrl() string
 	GetCommitRef() string
 	GetStatusSystemdServices() ([]SystemdServiceWithStatus, error)
 

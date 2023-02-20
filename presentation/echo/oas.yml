@@ -146,6 +146,9 @@ components:
         name:
           type: string
           example: "pipeline-1"
+        git_remote_url:
+          type: string
+          example: "https://github.com/tingtt/systemd-cd.git"
         status:
           $ref: "#/components/schemas/StatusPipeline"
         commit_ref:
@@ -157,6 +160,7 @@ components:
             $ref: "#/components/schemas/SystemdService"
       required: 
         - name
+        - git_remote_url
         - status
         - commit_ref
         
@@ -166,6 +170,9 @@ components:
         name:
           type: string
           example: "pipeline-1"
+        git_remote_url:
+          type: string
+          example: "https://github.com/tingtt/systemd-cd.git"
         status:
           $ref: "#/components/schemas/StatusPipeline"
         commit_ref:
@@ -179,6 +186,7 @@ components:
           $ref: "#/components/schemas/JobGroupList"
       required: 
         - name
+        - git_remote_url
         - status
         - commit_ref
 

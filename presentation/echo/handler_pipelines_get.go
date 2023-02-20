@@ -44,10 +44,12 @@ func pipelinesGet(c echo.Context) (err error) {
 		name := p.GetName()
 		status := p.GetStatus()
 		commitRef := p.GetCommitRef()
+		remoteUrl := p.GetGitRemoteUrl()
 
 		systemdServices := &[]SystemdServiceGet{}
 		resItem := ResPipelineGet{
 			Name:            name,
+			GitRemoteUrl:    remoteUrl,
 			Status:          string(status),
 			CommitRef:       commitRef,
 			SystemdServices: systemdServices,

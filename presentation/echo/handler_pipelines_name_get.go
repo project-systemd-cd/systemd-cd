@@ -20,6 +20,7 @@ type QueryParamPipelineGet struct {
 
 type ResPipelineGet struct {
 	Name            string               `json:"name"`
+	GitRemoteUrl    string               `json:"git_remote_url"`
 	Status          string               `json:"status"`
 	CommitRef       string               `json:"commit_ref"`
 	SystemdServices *[]SystemdServiceGet `json:"systemd_services,omitempty"`
@@ -85,10 +86,12 @@ func pipelinesNameGet(c echo.Context) (err error) {
 	}
 	status := p.GetStatus()
 	commitRef := p.GetCommitRef()
+	remoteUrl := p.GetGitRemoteUrl()
 
 	systemdServices := &[]SystemdServiceGet{}
 	res := ResPipelineGet{
 		Name:            name,
+		GitRemoteUrl:    remoteUrl,
 		Status:          string(status),
 		CommitRef:       commitRef,
 		SystemdServices: systemdServices,
