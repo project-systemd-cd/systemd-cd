@@ -34,7 +34,7 @@ func (p *pipeline) Init() (err error) {
 
 	p.Status = StatusSyncing
 
-	_, targetCommitId, err := p.updateExists()
+	_, targetCommitId, targetTagName, err := p.updateExists()
 	if err != nil {
 		return err
 	}
@@ -78,15 +78,15 @@ func (p *pipeline) Init() (err error) {
 
 	// Register jobs
 	pipelineId := UUID()
-	jobTest, err := p.newJobTest(pipelineId)
+	jobTest, err := p.newJobTest(pipelineId, targetTagName)
 	if err != nil {
 		return err
 	}
-	jobBuild, err := p.newJobBuild(pipelineId)
+	jobBuild, err := p.newJobBuild(pipelineId, targetTagName)
 	if err != nil {
 		return err
 	}
-	jobInstall, err := p.newJobInstall(pipelineId)
+	jobInstall, err := p.newJobInstall(pipelineId, targetTagName)
 	if err != nil {
 		return err
 	}

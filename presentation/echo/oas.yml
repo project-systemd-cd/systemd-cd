@@ -254,12 +254,12 @@ components:
         pipeline_name:
           type: string
           example: "pipeline-1"
-        git_target_branch:
+        branch:
           type: string
           example: "main"
-        git_target_tag_regex:
+        tag:
           type: string
-          example: "v*"
+          example: "v1.0.0"
         commit_id:
           type: string
           example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -293,7 +293,7 @@ components:
         - group_id
         - id
         - pipeline_name
-        - git_target_branch
+        - branch
         - commit_id
         - commit_author
         - commit_message

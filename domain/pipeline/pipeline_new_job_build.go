@@ -6,7 +6,7 @@ import (
 	"systemd-cd/domain/unix"
 )
 
-func (p pipeline) newJobBuild(groupId string) (job *jobInstance, err error) {
+func (p pipeline) newJobBuild(groupId string, tag *string) (job *jobInstance, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Register job for build")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
@@ -42,16 +42,16 @@ func (p pipeline) newJobBuild(groupId string) (job *jobInstance, err error) {
 		}
 		job = &jobInstance{
 			Job: Job{
-				GroupId:           groupId,
-				Id:                UUID(),
-				PipelineName:      p.ManifestMerged.Name,
-				GitTargetBranch:   p.ManifestMerged.GitTargetBranch,
-				GitTargetTagRegex: p.ManifestMerged.GitTagRegex,
-				CommitId:          p.GetCommitRef(),
-				CommitAuthor:      commitAuthor,
-				CommitMessage:     commitMsg,
-				Type:              JobTypeBuild,
-				Status:            StatusJobPending,
+				GroupId:       groupId,
+				Id:            UUID(),
+				PipelineName:  p.ManifestMerged.Name,
+				Branch:        p.ManifestMerged.GitTargetBranch,
+				Tag:           tag,
+				CommitId:      p.GetCommitRef(),
+				CommitAuthor:  commitAuthor,
+				CommitMessage: commitMsg,
+				Type:          JobTypeBuild,
+				Status:        StatusJobPending,
 			},
 		}
 

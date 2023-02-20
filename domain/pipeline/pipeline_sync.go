@@ -52,7 +52,7 @@ func (p *pipeline) Sync() (err error) {
 	}
 
 	// Check updates
-	updateExists, targetCommitId, err := p.updateExists()
+	updateExists, targetCommitId, targetTagName, err := p.updateExists()
 	if err != nil {
 		return err
 	}
@@ -140,15 +140,15 @@ func (p *pipeline) Sync() (err error) {
 
 	// Register jobs
 	pipelineId := UUID()
-	jobTest, err := p.newJobTest(pipelineId)
+	jobTest, err := p.newJobTest(pipelineId, targetTagName)
 	if err != nil {
 		return err
 	}
-	jobBuild, err := p.newJobBuild(pipelineId)
+	jobBuild, err := p.newJobBuild(pipelineId, targetTagName)
 	if err != nil {
 		return err
 	}
-	jobInstall, err := p.newJobInstall(pipelineId)
+	jobInstall, err := p.newJobInstall(pipelineId, targetTagName)
 	if err != nil {
 		return err
 	}

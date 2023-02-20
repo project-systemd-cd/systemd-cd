@@ -8,16 +8,16 @@ import (
 	"systemd-cd/domain/unix"
 )
 
-func (*GitCommand) FindHashByTagRegex(workingDir git.Path, regex string) (hash string, err error) {
+func (*GitCommand) FindHashByTagRegex(workingDir git.Path, regex string) (hash string, name string, err error) {
 	r, err := open(workingDir)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	var wd string = string(workingDir)
 	_, b, _, err := unix.Execute(unix.ExecuteOption{WorkingDirectory: &wd}, "git", "tag")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	found := false
 	tags := strings.Split(b.String(), "\n")
@@ -35,8 +35,9 @@ func (*GitCommand) FindHashByTagRegex(workingDir git.Path, regex string) (hash s
 		if matched {
 			r2, err := r.Tag(v)
 			if err != nil {
-				return "", err
+				return "", "", err
 			}
+			name = r2.Name().Short()
 			hash = r2.Hash().String()
 			found = true
 			break
@@ -45,8 +46,8 @@ func (*GitCommand) FindHashByTagRegex(workingDir git.Path, regex string) (hash s
 
 	if !found {
 		err := &errors.ErrNotFound{Object: "Tag", IdName: "name", Id: regex}
-		return "", err
+		return "", "", err
 	}
 
-	return hash, nil
+	return hash, name, nil
 }
