@@ -6,7 +6,7 @@ import (
 	"systemd-cd/domain/logger"
 )
 
-func (r *RepositoryLocal) FindHashByTagRegex(regex string) (hash string, err error) {
+func (r *RepositoryLocal) FindHashByTagRegex(regex string) (hash string, name string, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Find git commit hash by regex of git tag")
 	logger.Logger().Debugf("< regex = %v", regex)
@@ -24,6 +24,6 @@ func (r *RepositoryLocal) FindHashByTagRegex(regex string) (hash string, err err
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
-	hash, err = r.git.command.FindHashByTagRegex(r.Path, regex)
-	return hash, err
+	hash, name, err = r.git.command.FindHashByTagRegex(r.Path, regex)
+	return hash, name, err
 }

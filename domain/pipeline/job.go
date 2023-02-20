@@ -9,10 +9,10 @@ type Job struct {
 
 	Id string `json:"id"`
 
-	PipelineName      string  `json:"pipeline_name"`
-	GitTargetBranch   string  `json:"git_target_branch"`
-	GitTargetTagRegex *string `json:"git_target_tag_regex,omitempty"`
+	PipelineName string `json:"pipeline_name"`
 
+	Branch        string  `json:"branch"`
+	Tag           *string `json:"tag,omitempty"`
 	CommitId      string  `json:"commit_id"`
 	CommitAuthor  string  `json:"commit_author"`
 	CommitMessage string  `json:"commit_message"`

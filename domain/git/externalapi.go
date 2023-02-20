@@ -20,7 +20,7 @@ type GitCommand interface {
 	IsGitDirectory(workingDir Path) (bool, error)
 	RefCommitId(workingDir Path) (string, error)
 	RefBranchName(workingDir Path) (string, error)
-	FindHashByTagRegex(workingDir Path, regex string) (hash string, err error)
+	FindHashByTagRegex(workingDir Path, regex string) (hash string, name string, err error)
 	CheckoutBranch(workingDir Path, branch string) error
 	CheckoutHash(workingDir Path, hash string) error
 	GetCommitMessage(workingDir Path, hash string) (string, error)

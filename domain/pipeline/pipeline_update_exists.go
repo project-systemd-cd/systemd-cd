@@ -6,7 +6,7 @@ import (
 	"systemd-cd/domain/logger"
 )
 
-func (p *pipeline) updateExists() (exists bool, targetCommitId *string, err error) {
+func (p *pipeline) updateExists() (exists bool, targetCommitId *string, targetTagName *string, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Check update")
 	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestLocal.Name)
@@ -36,7 +36,8 @@ func (p *pipeline) updateExists() (exists bool, targetCommitId *string, err erro
 
 	if p.ManifestLocal.GitTagRegex != nil {
 		var hash string
-		hash, err = p.RepositoryLocal.FindHashByTagRegex(*p.ManifestLocal.GitTagRegex)
+		var name string
+		hash, name, err = p.RepositoryLocal.FindHashByTagRegex(*p.ManifestLocal.GitTagRegex)
 		if err != nil {
 			var ErrNotFound *errors.ErrNotFound
 			if !errorss.As(err, &ErrNotFound) {
@@ -46,6 +47,7 @@ func (p *pipeline) updateExists() (exists bool, targetCommitId *string, err erro
 			if hash != p.RepositoryLocal.RefCommitId {
 				exists = true
 				targetCommitId = &hash
+				targetTagName = &name
 			}
 		}
 	} else {
