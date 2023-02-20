@@ -43,7 +43,7 @@ func pipelinesNameJobsIdGet(c echo.Context) (err error) {
 		return err
 	}
 
-	p, err := repository.FindPipeline(name)
+	p, err := service.FindPipeline(name)
 	if err != nil {
 		var ErrNotFound *errors.ErrNotFound
 		if errorss.As(err, &ErrNotFound) {

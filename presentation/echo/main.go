@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	repository runner.IRepositoryInmemory
-	jwtIssuer  *string
-	jwtSecret  *string
-	username   *string
-	password   *string
+	service   runner.IRunnerService
+	jwtIssuer *string
+	jwtSecret *string
+	username  *string
+	password  *string
 )
 
 type Args struct {
-	Repository   runner.IRepositoryInmemory
+	Service      runner.IRunnerService
 	JwtIssuer    string
 	JwtSecret    string
 	Username     string
@@ -28,7 +28,7 @@ type Args struct {
 }
 
 func (args Args) validate() error {
-	if args.Repository == nil {
+	if args.Service == nil {
 		return errors.New("Args.Repository cannot be nil")
 	}
 	if args.JwtSecret == "" {
@@ -62,7 +62,7 @@ func Start(port uint, args Args) (err error) {
 	if err = args.validate(); err != nil {
 		return err
 	}
-	repository = args.Repository
+	service = args.Service
 	jwtIssuer = &args.JwtIssuer
 	jwtSecret = &args.JwtSecret
 	username = &args.Username

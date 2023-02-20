@@ -36,7 +36,7 @@ func pipelinesGet(c echo.Context) (err error) {
 
 	var res ResPipelinesGet = nil
 
-	pp, err := repository.FindPipelines()
+	pp, err := service.FindPipelines()
 	if err != nil {
 		return err
 	}

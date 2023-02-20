@@ -8,6 +8,9 @@ import (
 
 type IRunnerService interface {
 	Start(*[]pipeline.ServiceManifestLocal) error
+
+	FindPipeline(name string) (pipeline.IPipeline, error)
+	FindPipelines() ([]pipeline.IPipeline, error)
 }
 
 type Option struct {

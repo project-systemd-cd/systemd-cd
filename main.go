@@ -157,11 +157,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	repoInmemory := inmemory.NewRepositoryPipelineInmemory()
+	runner, err := runner.NewService(
+		p, inmemory.NewRepositoryPipelineInmemory(),
+		runner.Option{
+			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
+		},
+	)
+	if err != nil {
+		logger.Logger().Fatal(err)
+		os.Exit(1)
+	}
 
 	go func() {
 		err = echo.Start(*port, echo.Args{
-			Repository:   repoInmemory,
+			Service:      runner,
 			JwtIssuer:    *JwtIssuer,
 			JwtSecret:    *JwtSecret,
 			Username:     *Username,
@@ -172,17 +181,6 @@ func main() {
 			logger.Logger().Fatal(err.Error())
 		}
 	}()
-
-	runner, err := runner.NewService(
-		p, repoInmemory,
-		runner.Option{
-			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
-		},
-	)
-	if err != nil {
-		logger.Logger().Fatal(err)
-		os.Exit(1)
-	}
 
 	manifests, err := loadManifests(*manifestPaths, *manifestPathRecursie)
 	if err != nil {
