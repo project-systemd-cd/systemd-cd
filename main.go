@@ -8,7 +8,6 @@ import (
 	"systemd-cd/domain/pipeline"
 	"systemd-cd/domain/runner"
 	"systemd-cd/domain/systemd"
-	"systemd-cd/infrastructure/datasource/inmemory"
 	"systemd-cd/infrastructure/datasource/toml"
 	"systemd-cd/infrastructure/externalapi/git_command"
 	"systemd-cd/infrastructure/externalapi/systemctl"
@@ -158,7 +157,7 @@ func main() {
 	}
 
 	runner, err := runner.NewService(
-		p, inmemory.NewRepositoryPipelineInmemory(),
+		p,
 		runner.Option{
 			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
 		},
