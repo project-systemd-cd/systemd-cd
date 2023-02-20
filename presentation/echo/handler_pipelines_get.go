@@ -46,7 +46,7 @@ func pipelinesGet(c echo.Context) (err error) {
 		var ss []SystemdServiceGet = nil
 		var systemdServices *[]SystemdServiceGet = &ss
 		resItem := ResPipelineGet{
-			Name:              p.GetName(),
+			Name:              name,
 			GitRemoteUrl:      p.GetGitRemoteUrl(),
 			GitTargetBranch:   p.GetGitTargetBranch(),
 			GitTargetTagRegex: p.GetGitTargetTagRegex(),
