@@ -290,7 +290,9 @@ components:
         - group_id
         - id
         - pipeline_name
+        - git_target_branch
         - commit_id
+        - commit_message
         - type
         - status
         - logs
