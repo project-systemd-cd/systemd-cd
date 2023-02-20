@@ -254,9 +254,18 @@ components:
         pipeline_name:
           type: string
           example: "pipeline-1"
+        git_target_branch:
+          type: string
+          example: "main"
+        git_target_tag_regex:
+          type: string
+          example: "v*"
         commit_id:
           type: string
           example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        commit_message:
+          type: string
+          example: "feat: add some feature"
         type:
           type: string
           enum:
