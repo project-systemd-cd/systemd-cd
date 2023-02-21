@@ -19,16 +19,16 @@ var (
 )
 
 type Args struct {
-	Service      runner.IRunnerService
-	JwtIssuer    string
-	JwtSecret    string
-	Username     string
-	Password     string
-	AllowOrigins []string
+	RunnerService runner.IRunnerService
+	JwtIssuer     string
+	JwtSecret     string
+	Username      string
+	Password      string
+	AllowOrigins  []string
 }
 
 func (args Args) validate() error {
-	if args.Service == nil {
+	if args.RunnerService == nil {
 		return errors.New("Args.Repository cannot be nil")
 	}
 	if args.JwtSecret == "" {
@@ -62,7 +62,7 @@ func Start(port uint, args Args) (err error) {
 	if err = args.validate(); err != nil {
 		return err
 	}
-	service = args.Service
+	service = args.RunnerService
 	jwtIssuer = &args.JwtIssuer
 	jwtSecret = &args.JwtSecret
 	username = &args.Username

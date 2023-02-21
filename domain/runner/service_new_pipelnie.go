@@ -2,7 +2,7 @@ package runner
 
 import "systemd-cd/domain/pipeline"
 
-func (s *runnerService) NewPipeline(m pipeline.ServiceManifestLocal, o OptionAddPipeline) (Pipeline, error) {
+func (s *service) NewPipeline(m pipeline.ServiceManifestLocal, o OptionAddPipeline) (Pipeline, error) {
 	if _, err := s.FindPipeline(m.Name); err == nil {
 		// Remove pipeline if exist
 		err := s.repository.RemovePipeline(m.Name)

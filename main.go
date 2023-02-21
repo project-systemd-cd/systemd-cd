@@ -156,25 +156,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	runner, err := runner.NewService(
-		p,
-		runner.Option{
-			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
-		},
-	)
-	if err != nil {
-		logger.Logger().Fatal(err)
-		os.Exit(1)
-	}
+	runnerService := runner.NewService(p)
 
 	go func() {
 		err = echo.Start(*port, echo.Args{
-			Service:      runner,
-			JwtIssuer:    *JwtIssuer,
-			JwtSecret:    *JwtSecret,
-			Username:     *Username,
-			Password:     *Password,
-			AllowOrigins: *AllowOrigins,
+			RunnerService: runnerService,
+			JwtIssuer:     *JwtIssuer,
+			JwtSecret:     *JwtSecret,
+			Username:      *Username,
+			Password:      *Password,
+			AllowOrigins:  *AllowOrigins,
 		})
 		if err != nil {
 			logger.Logger().Fatal(err.Error())
@@ -187,7 +178,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = runner.Start(manifests)
+	err = runnerService.Start(manifests, runner.Option{
+		PollingInterval: time.Duration(*pipelineInterval) * time.Second,
+	})
 	if err != nil {
 		logger.Logger().Fatal(err)
 		os.Exit(1)

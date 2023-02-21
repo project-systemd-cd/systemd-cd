@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err error) {
+func (s *service) Start(manifests *[]pipeline.ServiceManifestLocal, option Option) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Info("START - Pipeline runner")
 	if manifests != nil {
@@ -94,7 +94,7 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 		}
 	}
 
-	time.Sleep(s.option.PollingInterval)
+	time.Sleep(option.PollingInterval)
 
 	for {
 		var pipelines []Pipeline
@@ -111,6 +111,6 @@ func (s *runnerService) Start(manifests *[]pipeline.ServiceManifestLocal) (err e
 			}
 		}
 
-		time.Sleep(s.option.PollingInterval)
+		time.Sleep(option.PollingInterval)
 	}
 }
