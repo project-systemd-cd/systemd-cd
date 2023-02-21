@@ -7,7 +7,7 @@ import (
 )
 
 type IRunnerService interface {
-	Start(*[]pipeline.ServiceManifestLocal, Option) error
+	Start([]pipeline.ServiceManifestLocal, Option) error
 
 	// Resgister pipeline.
 	// If pipeline with same name already exists, replace it.
@@ -27,11 +27,11 @@ type OptionAddPipeline struct {
 
 func NewService(ps pipeline.IPipelineService) (s IRunnerService) {
 	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - Instantiate pipeline service")
+	logger.Logger().Debug("START - Instantiate runner service")
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		logger.Logger().Debug("END   - Instantiate pipeline service")
+		logger.Logger().Debug("END   - Instantiate runner service")
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
