@@ -1,11 +1,5 @@
 package systemd
 
-import "errors"
-
-var (
-	ErrUnitStatusCannotUnmarshal = errors.New("cannot unmarshal stdout of `systemctl is-active`")
-)
-
 type Systemctl interface {
 	DaemonReload() error
 	Enable(service string, startNow bool) error
