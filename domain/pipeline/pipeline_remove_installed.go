@@ -22,6 +22,18 @@ func (p pipeline) removeInstalled() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	// Remove src files
+	// e.g.
+	// `rm /usr/local/systemd-cd/src/<name>/`
+	_, _, _, err = unix.Execute(
+		unix.ExecuteOption{WantExitCodes: []int{1}},
+		"rm", "-r",
+		string(p.RepositoryLocal.Path),
+	)
+	if err != nil {
+		return err
+	}
+
 	if p.ManifestMerged.SystemdServiceOptions != nil && len(p.ManifestMerged.SystemdServiceOptions) != 0 {
 		for _, s := range p.ManifestMerged.SystemdServiceOptions {
 			// Remove systemd unit file and env file
