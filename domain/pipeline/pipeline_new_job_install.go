@@ -53,20 +53,20 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 	}
 
 	job.f = func() (logs []jobLog, err2 error) {
-		logger.Logger().Info("-----------------------------------------------------------")
-		logger.Logger().Info("START - Install pipeline files")
-		logger.Logger().Infof("* pipeline.Name = %v", p.ManifestMerged.Name)
+		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Debug("START - Install pipeline files")
+		logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
 		logger.Logger().Tracef("* pipeline = %+v", p)
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 		defer func() {
-			logger.Logger().Info("-----------------------------------------------------------")
+			logger.Logger().Debug("-----------------------------------------------------------")
 			if err2 == nil {
-				logger.Logger().Info("END   - Install pipeline files")
+				logger.Logger().Debug("END   - Install pipeline files")
 			} else {
 				logger.Logger().Error("FAILED - Install pipeline files")
 				logger.Logger().Error(err2)
 			}
-			logger.Logger().Info("-----------------------------------------------------------")
+			logger.Logger().Debug("-----------------------------------------------------------")
 		}()
 
 		if p.ManifestMerged.Binaries != nil && len(*p.ManifestMerged.Binaries) != 0 {

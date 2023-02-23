@@ -48,7 +48,7 @@ func pipelinesNameGet(c echo.Context) (err error) {
 	logger.Logger().Tracef("< RemoteAddr = %s", c.Request().RemoteAddr)
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 		var ErrNotFound *errors.ErrNotFound
 		notFound := errorss.As(err, &ErrNotFound)
 		if err == nil || notFound {
@@ -57,13 +57,13 @@ func pipelinesNameGet(c echo.Context) (err error) {
 			}
 			logger.Logger().Debugf("> Status = %d", c.Response().Status)
 			logger.Logger().Tracef("> ContentLength = %d", c.Response().Size)
-			logger.Logger().Infof("END    - GET /pipelines/:name %d", c.Response().Status)
+			logger.Logger().Debugf("END    - GET /pipelines/:name %d", c.Response().Status)
 		} else {
 			logger.Logger().Error("FAILED - GET /pipelines/:name")
 			logger.Logger().Error(err)
 			err = c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	_, err = CheckJWT(c)

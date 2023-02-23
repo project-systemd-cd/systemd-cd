@@ -54,17 +54,17 @@ func usersSigninPost(c echo.Context) (err error) {
 	logger.Logger().Tracef("< RemoteAddr = %s", c.Request().RemoteAddr)
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Debugf("> Status = %d", c.Response().Status)
 			logger.Logger().Tracef("> ContentLength = %d", c.Response().Size)
-			logger.Logger().Infof("END    - POST /usrs/sign_in %d", c.Response().Status)
+			logger.Logger().Debugf("END    - POST /usrs/sign_in %d", c.Response().Status)
 		} else {
 			logger.Logger().Error("FAILED - POST /usrs/sign_in")
 			logger.Logger().Error(err)
 			err = c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	body := new(BodyUsersSignin)

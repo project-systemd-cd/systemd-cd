@@ -7,7 +7,7 @@ import (
 )
 
 func (s *service) Start(manifests []pipeline.ServiceManifestLocal, option Option) (err error) {
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Info("-----------------------------------------------------------")
 	logger.Logger().Info("START - Pipeline runner")
 	for i, sml := range manifests {
 		logger.Logger().Debugf("< localManifest[%d].Name = %v", i, sml.Name)
@@ -20,16 +20,16 @@ func (s *service) Start(manifests []pipeline.ServiceManifestLocal, option Option
 		}
 		logger.Logger().Tracef("< localManifest[%d] = %+v", i, sml)
 	}
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Info("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Info("END   - Pipeline runner")
 		} else {
 			logger.Logger().Error("FAILED - Pipeline runner")
 			logger.Logger().Error(err)
 		}
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
 	logger.Logger().Info("Get pipelines from repository")
