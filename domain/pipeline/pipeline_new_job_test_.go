@@ -73,8 +73,9 @@ func (p pipeline) newJobTest(groupId string, tag *string) (job *jobInstance, err
 				logger.Logger().Debug("-----------------------------------------------------------")
 			}()
 
+			logger.Logger().Infof("Test pipeline \"%s\" (version: \"%s\")", p.ManifestMerged.Name, p.GetCommitRef())
+
 			for _, cmd := range *p.ManifestMerged.TestCommands {
-				logger.Logger().Infof("Execute command \"%v\" (workingDir: \"%v\")", cmd, p.RepositoryLocal.Path)
 				log := jobLog{Commmand: cmd}
 
 				var stdout bytes.Buffer

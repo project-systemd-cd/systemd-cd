@@ -65,7 +65,6 @@ func (p *pipeline) Init() (err error) {
 	}
 
 	// Get manifest and merge local manifest
-	logger.Logger().Info("Get manifest in git repository and merge to local manifest")
 	m, err := p.getRemoteManifest()
 	if err != nil {
 		return err
