@@ -8,6 +8,7 @@ import (
 
 type IRunnerService interface {
 	Start([]pipeline.ServiceManifestLocal, Option) error
+	IsLoading() bool
 
 	// Resgister pipeline.
 	// If pipeline with same name already exists, replace it.
@@ -37,11 +38,12 @@ func NewService(ps pipeline.IPipelineService) (s IRunnerService) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
-	return &service{ps, inmemoryRepository()}
+	return &service{ps, true, inmemoryRepository()}
 }
 
 type service struct {
 	pipelineService pipeline.IPipelineService
 
+	loading    bool
 	repository iRepositoryInmemory
 }

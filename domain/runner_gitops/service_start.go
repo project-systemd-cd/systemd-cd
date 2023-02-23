@@ -30,8 +30,11 @@ func (s *service) Start(option runner.Option) (err error) {
 		option1.RemovePipelineManifestFileNotSpecified = false
 		c <- s.runner.Start(nil, option1)
 	}()
-	time.Sleep(option.PollingInterval)
-	// TODO: wait runner initialization
+
+	for s.runner.IsLoading() {
+		// Wait runner initialization
+		time.Sleep(time.Second)
+	}
 
 	var prevManifests []pipeline.ServiceManifestLocal
 	pipelines, err := s.runner.FindPipelines()

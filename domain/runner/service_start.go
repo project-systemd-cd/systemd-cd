@@ -88,6 +88,8 @@ func (s *service) Start(manifests []pipeline.ServiceManifestLocal, option Option
 		}
 	}
 
+	s.loading = false
+
 	time.Sleep(option.PollingInterval)
 
 	for {
