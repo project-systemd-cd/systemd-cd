@@ -69,6 +69,9 @@ func (u unitService) Enable(startNow bool) (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Enable(u.Name, startNow)
 	return err
 }
@@ -90,6 +93,9 @@ func (u unitService) Disable(stopNow bool) (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Disable(u.Name, stopNow)
 	return err
 }
@@ -110,6 +116,9 @@ func (u unitService) Start() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	return u.systemctl.Start(u.Name)
 }
 
@@ -129,6 +138,9 @@ func (u unitService) Stop() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Stop(u.Name)
 	return err
 }
@@ -149,6 +161,9 @@ func (u unitService) Restart() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Restart(u.Name)
 	return err
 }
