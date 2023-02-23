@@ -2,11 +2,13 @@ package main
 
 import (
 	"os"
+	"strings"
 	"systemd-cd/domain/git"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/logrus"
 	"systemd-cd/domain/pipeline"
 	"systemd-cd/domain/runner"
+	"systemd-cd/domain/runner_gitops"
 	"systemd-cd/domain/systemd"
 	"systemd-cd/infrastructure/datasource/toml"
 	"systemd-cd/infrastructure/externalapi/git_command"
@@ -39,6 +41,9 @@ var (
 	systemdUnitFileDestDir    = func() *string { s := "/usr/local/lib/systemd/system/"; return &s }()
 	systemdUnitEnvFileDestDir = func() *string { s := "/usr/local/systemd-cd/etc/default/"; return &s }()
 	backupDestDir             = func() *string { s := "/var/backups/systemd-cd/"; return &s }()
+
+	gitopsRepositoryRemote = pflag.String("ops.git-remote", "", "Git repository url for manifest files")
+	gitopsRepositoryBranch = pflag.String("ops.git-branch", "main", "Git branch for `ops.git-remote`")
 
 	manifestPaths        = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
 	manifestPathRecursie = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
@@ -172,17 +177,41 @@ func main() {
 		}
 	}()
 
-	manifests, err := loadManifests(*manifestPaths, *manifestPathRecursie)
-	if err != nil {
-		logger.Logger().Fatal(err)
-		os.Exit(1)
-	}
-
-	err = runnerService.Start(manifests, runner.Option{
-		PollingInterval: time.Duration(*pipelineInterval) * time.Second,
-	})
-	if err != nil {
-		logger.Logger().Fatal(err)
-		os.Exit(1)
+	if *gitopsRepositoryRemote == "" {
+		manifests, err := loadManifests(*manifestPaths, *manifestPathRecursie)
+		if err != nil {
+			logger.Logger().Fatal(err)
+			os.Exit(1)
+		}
+		err = runnerService.Start(manifests, runner.Option{
+			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
+		})
+		if err != nil {
+			logger.Logger().Fatal(err)
+			os.Exit(1)
+		}
+	} else {
+		if !strings.HasSuffix(*optDestDir, "/") {
+			*optDestDir += "/"
+		}
+		s, err := runner_gitops.NewService(
+			runnerService, g,
+			runner_gitops.Directory{Src: *optDestDir + ".gitops/"},
+			runner_gitops.Repository{
+				RemoteUrl: *gitopsRepositoryRemote,
+				Branch:    *gitopsRepositoryBranch,
+			},
+		)
+		if err != nil {
+			logger.Logger().Fatal(err)
+			os.Exit(1)
+		}
+		err = s.Start(runner.Option{
+			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
+		})
+		if err != nil {
+			logger.Logger().Fatal(err)
+			os.Exit(1)
+		}
 	}
 }
