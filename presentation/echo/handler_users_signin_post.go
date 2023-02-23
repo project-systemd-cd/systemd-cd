@@ -49,22 +49,22 @@ type ResUsersSigninPost struct {
 }
 
 func usersSigninPost(c echo.Context) (err error) {
-	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - POST /usrs/sign_in")
+	logger.Logger().Trace("-----------------------------------------------------------")
+	logger.Logger().Trace("START - POST /usrs/sign_in")
 	logger.Logger().Tracef("< RemoteAddr = %s", c.Request().RemoteAddr)
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Trace("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Debugf("> Status = %d", c.Response().Status)
+			logger.Logger().Tracef("> Status = %d", c.Response().Status)
 			logger.Logger().Tracef("> ContentLength = %d", c.Response().Size)
-			logger.Logger().Debugf("END    - POST /usrs/sign_in %d", c.Response().Status)
+			logger.Logger().Tracef("END    - POST /usrs/sign_in %d", c.Response().Status)
 		} else {
 			logger.Logger().Error("FAILED - POST /usrs/sign_in")
 			logger.Logger().Error(err)
 			err = c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 	}()
 
 	body := new(BodyUsersSignin)

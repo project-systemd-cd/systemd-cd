@@ -20,28 +20,28 @@ type QueryParamPipelineJobsGet struct {
 func pipelinesNameJobsGet(c echo.Context) (err error) {
 	name := c.Param("name")
 
-	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - GET /pipelines/:name/jobs")
+	logger.Logger().Trace("-----------------------------------------------------------")
+	logger.Logger().Trace("START - GET /pipelines/:name/jobs")
 	logger.Logger().Tracef("< :name = %s", name)
 	logger.Logger().Tracef("< RemoteAddr = %s", c.Request().RemoteAddr)
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Trace("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 		var ErrNotFound *errors.ErrNotFound
 		notFound := errorss.As(err, &ErrNotFound)
 		if err == nil || notFound {
 			if notFound {
 				err = c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
 			}
-			logger.Logger().Debugf("> Status = %d", c.Response().Status)
+			logger.Logger().Tracef("> Status = %d", c.Response().Status)
 			logger.Logger().Tracef("> ContentLength = %d", c.Response().Size)
-			logger.Logger().Debugf("END    - GET /pipelines/:name/jobs %d", c.Response().Status)
+			logger.Logger().Tracef("END    - GET /pipelines/:name/jobs %d", c.Response().Status)
 		} else {
 			logger.Logger().Error("FAILED - GET /pipelines/:name/jobs")
 			logger.Logger().Error(err)
 			err = c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		logger.Logger().Debug("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 	}()
 
 	_, err = CheckJWT(c)
