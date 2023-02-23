@@ -4,6 +4,7 @@ import (
 	errorss "errors"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
+	"time"
 )
 
 func (p *pipeline) Uninstall() (err error) {
@@ -22,6 +23,11 @@ func (p *pipeline) Uninstall() (err error) {
 		}
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
+
+	for p.Status == StatusSyncing {
+		// Wait jobs
+		time.Sleep(time.Second)
+	}
 
 	logger.Logger().Infof("Uninstall pipeline \"%s\"", p.ManifestMerged.Name)
 
