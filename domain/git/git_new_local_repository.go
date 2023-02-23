@@ -40,17 +40,24 @@ func (git gitService) NewLocalRepository(path Path, remoteUrl string, branch str
 			return
 		}
 		// Check remote url
-		var s string
-		s, err = git.command.GetRemoteUrl(path, DefaultRemoteName)
+		var currentRemote string
+		currentRemote, err = git.command.GetRemoteUrl(path, DefaultRemoteName)
 		if err != nil {
 			return
 		}
-		if s != remoteUrl {
+		if currentRemote != remoteUrl {
 			// if remote url is different, set remote url
 			err = git.command.SetRemoteUrl(path, DefaultRemoteName, remoteUrl)
 			if err != nil {
 				return
 			}
+		}
+		// Check branch
+		var currentBranch string
+		currentBranch, err = git.command.RefBranchName(path)
+		if currentBranch != branch {
+			// if branch is different, checkout branch
+			git.command.CheckoutBranch(path, branch)
 		}
 		repo = &RepositoryLocal{
 			git:          &git,
