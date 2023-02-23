@@ -6,7 +6,7 @@ import (
 )
 
 // DeleteService implements iSystemdService
-func (s Systemd) DeleteService(u UnitService) (err error) {
+func (s Systemd) DeleteService(u unitService) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Delete systemd service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)

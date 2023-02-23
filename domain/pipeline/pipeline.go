@@ -51,6 +51,6 @@ type pipeline struct {
 }
 
 type SystemdServiceWithStatus struct {
-	systemd.UnitService
+	systemd.IUnitService
 	Status systemd.Status
 }

@@ -180,12 +180,12 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 
 					u := service.generateSystemdServiceUnit(&p)
 
-					var s systemd.UnitService
+					var s systemd.IUnitService
 					s, err2 = p.service.Systemd.NewService(u.Name, u.UnitFile, u.Env)
 
 					var b []byte
 					b, _ = systemd.MarshalUnitFile(u.UnitFile)
-					log := jobLog{Commmand: fmt.Sprintf("cat << EOF > %s\n%s\nEOF", s.Path, string(b))}
+					log := jobLog{Commmand: fmt.Sprintf("cat << EOF > %s\n%s\nEOF", s.GetUnitFilePath(), string(b))}
 
 					if err2 != nil {
 						log.Output = err2.Error()

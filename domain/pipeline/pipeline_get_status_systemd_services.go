@@ -16,7 +16,7 @@ func (p *pipeline) GetStatusSystemdServices() (ss []SystemdServiceWithStatus, er
 		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			for _, s := range ss {
-				logger.Logger().Debugf("> service.Name = %s", s.Name)
+				logger.Logger().Debugf("> service.Name = %s", s.GetName())
 				logger.Logger().Debugf("> service.Status = %v", s.Status)
 				logger.Logger().Tracef("> service = %+v", s)
 			}
@@ -36,13 +36,9 @@ func (p *pipeline) GetStatusSystemdServices() (ss []SystemdServiceWithStatus, er
 
 	for _, s := range systemdServices {
 		var status systemd.Status
-		if s.Path == "" {
-			status = systemd.StatusNotFound
-		} else {
-			status, err = s.GetStatus()
-			if err != nil {
-				return nil, err
-			}
+		status, err = s.GetStatus()
+		if err != nil {
+			return nil, err
 		}
 		ss = append(ss, SystemdServiceWithStatus{s, status})
 	}

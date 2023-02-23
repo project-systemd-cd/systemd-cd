@@ -8,7 +8,7 @@ import (
 )
 
 // NewService implements iSystemdService
-func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (us UnitService, err error) {
+func (s Systemd) NewService(name string, uf UnitFileService, env map[string]string) (us unitService, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate systemd unit service")
 	logger.Logger().Debugf("< name = %v", name)
@@ -35,7 +35,7 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 	loaded, isGeneratedBySystemdCd, err := s.loadUnitFileSerivce(path)
 	if err != nil && !os.IsNotExist(err) {
 		// fail
-		return UnitService{}, err
+		return unitService{}, err
 	}
 
 	if os.IsNotExist(err) {
@@ -57,7 +57,7 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 	}
 	if err != nil {
 		// fail
-		return UnitService{}, err
+		return unitService{}, err
 	}
 
 	if uf.Service.EnvironmentFile != nil {
@@ -68,7 +68,7 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 		loaded, isGeneratedBySystemdCd, err = s.loadEnvFile(envPath)
 		if err != nil && !os.IsNotExist(err) {
 			// fail
-			return UnitService{}, err
+			return unitService{}, err
 		}
 
 		if os.IsNotExist(err) {
@@ -90,16 +90,16 @@ func (s Systemd) NewService(name string, uf UnitFileService, env map[string]stri
 		}
 		if err != nil {
 			// fail
-			return UnitService{}, err
+			return unitService{}, err
 		}
 	}
 
 	// daemon-reload
 	err = s.systemctl.DaemonReload()
 	if err != nil {
-		return UnitService{}, err
+		return unitService{}, err
 	}
 
-	us = UnitService{s.systemctl, name, uf, path, env}
+	us = unitService{s.systemctl, name, uf, path, env}
 	return us, nil
 }

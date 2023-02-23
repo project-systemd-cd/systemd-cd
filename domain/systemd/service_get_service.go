@@ -9,7 +9,7 @@ import (
 )
 
 // GetService implements IService
-func (s Systemd) GetService(name string) (us UnitService, err error) {
+func (s Systemd) GetService(name string) (us unitService, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Instantiate systemd unit service")
 	logger.Logger().Debugf("< name = %v", name)
@@ -29,6 +29,9 @@ func (s Systemd) GetService(name string) (us UnitService, err error) {
 		}
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
+
+	us.systemctl = s.systemctl
+	us.Name = name
 
 	// load unit file
 	path := strings.Join([]string{s.unitFileDir, name, ".service"}, "")
@@ -68,6 +71,8 @@ func (s Systemd) GetService(name string) (us UnitService, err error) {
 		}
 	}
 
-	us = UnitService{s.systemctl, name, uf, path, env}
+	us.unitFile = uf
+	us.Path = path
+	us.EnvironmentFileValues = env
 	return us, nil
 }

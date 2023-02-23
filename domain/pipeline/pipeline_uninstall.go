@@ -4,7 +4,6 @@ import (
 	errorss "errors"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
-	"systemd-cd/domain/systemd"
 )
 
 func (p *pipeline) Uninstall() (err error) {
@@ -24,11 +23,12 @@ func (p *pipeline) Uninstall() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	logger.Logger().Infof("Uninstall pipeline \"%s\"", p.ManifestMerged.Name)
+
 	// Stop systemd service before backup
-	var systemdServices []systemd.UnitService
-	systemdServices, err = p.getSystemdServices()
+	systemdServices, err := p.getSystemdServices()
 	for _, s := range systemdServices {
-		logger.Logger().Debug("Stop systemd unit service \"%v\"", s.Name)
+		logger.Logger().Debug("Stop systemd unit service \"%v\"", s.GetName())
 		err = s.Disable(true)
 		if err != nil {
 			return err

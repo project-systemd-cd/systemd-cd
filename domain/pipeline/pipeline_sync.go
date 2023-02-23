@@ -76,10 +76,10 @@ func (p *pipeline) Sync() (err error) {
 	// Backup
 	if oldStatus != StatusFailed {
 		// Stop systemd service before backup
-		var systemdServices []systemd.UnitService
+		var systemdServices []systemd.IUnitService
 		systemdServices, err = p.getSystemdServices()
 		for _, s := range systemdServices {
-			logger.Logger().Debugf("Stop systemd unit service \"%v\"", s.Name)
+			logger.Logger().Debugf("Stop systemd unit service \"%v\"", s.GetName())
 			err = s.Disable(true)
 			if err != nil {
 				return err

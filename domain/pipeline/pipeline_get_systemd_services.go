@@ -5,7 +5,7 @@ import (
 	"systemd-cd/domain/systemd"
 )
 
-func (p *pipeline) getSystemdServices() (systemdServices []systemd.UnitService, err error) {
+func (p *pipeline) getSystemdServices() (systemdServices []systemd.IUnitService, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Get systemd unit services on pipeline")
 	logger.Logger().Tracef("* pipeline = %+v", *p)
@@ -14,7 +14,7 @@ func (p *pipeline) getSystemdServices() (systemdServices []systemd.UnitService, 
 		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			for _, s := range systemdServices {
-				logger.Logger().Debugf("> service.Name = %s", s.Name)
+				logger.Logger().Debugf("> service.Name = %s", s.GetName())
 				logger.Logger().Tracef("> service = %+v", s)
 			}
 			logger.Logger().Debug("END   - Get systemd unit services on pipeline")
@@ -26,13 +26,13 @@ func (p *pipeline) getSystemdServices() (systemdServices []systemd.UnitService, 
 	}()
 
 	for _, service := range p.ManifestMerged.SystemdServiceOptions {
-		var s systemd.UnitService
+		var s systemd.IUnitService
 		s, err2 := p.service.Systemd.GetService(service.Name)
 		if err2 == nil {
 			systemdServices = append(systemdServices, s)
 		} else {
 			err = err2
-			systemdServices = append(systemdServices, systemd.UnitService{Name: service.Name})
+			systemdServices = append(systemdServices, s)
 		}
 	}
 
