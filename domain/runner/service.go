@@ -15,10 +15,12 @@ type IRunnerService interface {
 
 	FindPipeline(name string) (Pipeline, error)
 	FindPipelines() ([]Pipeline, error)
+	RemovePipeline(name string) error
 }
 
 type Option struct {
-	PollingInterval time.Duration
+	PollingInterval                        time.Duration
+	RemovePipelineManifestFileNotSpecified bool
 }
 
 type OptionAddPipeline struct {

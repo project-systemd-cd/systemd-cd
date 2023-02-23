@@ -32,8 +32,6 @@ func (s *service) Start(manifests []pipeline.ServiceManifestLocal, option Option
 		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
-	logger.Logger().Info("Get pipelines from repository")
-
 	foundPipelines := []string{}
 	metadatas, err := s.pipelineService.FindPipelines()
 	if err != nil {
@@ -64,6 +62,12 @@ func (s *service) Start(manifests []pipeline.ServiceManifestLocal, option Option
 			)
 			if err != nil {
 				return err
+			}
+			if option.RemovePipelineManifestFileNotSpecified {
+				err = s.RemovePipeline(savedManifest.ManifestLocal.Name)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

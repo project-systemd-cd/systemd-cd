@@ -45,9 +45,10 @@ var (
 	gitopsRepositoryRemote = pflag.String("ops.git-remote", "", "Git repository url for manifest files")
 	gitopsRepositoryBranch = pflag.String("ops.git-branch", "main", "Git branch for `ops.git-remote`")
 
-	manifestPaths        = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
-	manifestPathRecursie = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
-	pipelineInterval     = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
+	manifestPaths                          = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
+	manifestPathRecursie                   = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
+	pipelineInterval                       = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
+	removePipelineManifestFileNotSpecified = pflag.Bool("pipeline.remove-unspecified", false, "Remove pipelines manifest file not specified")
 
 	port         = pflag.Uint("webapi.port", 1323, "Port to publish http web api server")
 	JwtIssuer    = pflag.String("webapi.jwt.issuer", "systemd-cd", "JWT Issuer")
@@ -184,7 +185,8 @@ func main() {
 			os.Exit(1)
 		}
 		err = runnerService.Start(manifests, runner.Option{
-			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
+			PollingInterval:                        time.Duration(*pipelineInterval) * time.Second,
+			RemovePipelineManifestFileNotSpecified: *removePipelineManifestFileNotSpecified,
 		})
 		if err != nil {
 			logger.Logger().Fatal(err)
@@ -207,7 +209,8 @@ func main() {
 			os.Exit(1)
 		}
 		err = s.Start(runner.Option{
-			PollingInterval: time.Duration(*pipelineInterval) * time.Second,
+			PollingInterval:                        time.Duration(*pipelineInterval) * time.Second,
+			RemovePipelineManifestFileNotSpecified: *removePipelineManifestFileNotSpecified,
 		})
 		if err != nil {
 			logger.Logger().Fatal(err)

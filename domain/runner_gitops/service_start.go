@@ -26,7 +26,9 @@ func (s *service) Start(option runner.Option) (err error) {
 
 	c := make(chan error)
 	go func() {
-		c <- s.runner.Start(nil, option)
+		option1 := option
+		option1.RemovePipelineManifestFileNotSpecified = false
+		c <- s.runner.Start(nil, option1)
 	}()
 	time.Sleep(option.PollingInterval)
 	// TODO: wait runner initialization
@@ -84,7 +86,6 @@ func (s *service) Start(option runner.Option) (err error) {
 				if err != nil {
 					return err
 				}
-
 			}
 		}
 		// Disable auto sync from pipeline manifest file deleted
@@ -98,10 +99,18 @@ func (s *service) Start(option runner.Option) (err error) {
 			}
 			if !found {
 				logger.Logger().Infof("Manifest file removed (name: %s)", prev.Name)
-				// Update pipeline
-				_, err = s.runner.NewPipeline(prev, runner.OptionAddPipeline{AutoSync: false})
-				if err != nil {
-					return err
+				if option.RemovePipelineManifestFileNotSpecified {
+					// Remove pipeline
+					err = s.runner.RemovePipeline(prev.Name)
+					if err != nil {
+						return err
+					}
+				} else {
+					// Update pipeline
+					_, err = s.runner.NewPipeline(prev, runner.OptionAddPipeline{AutoSync: false})
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
