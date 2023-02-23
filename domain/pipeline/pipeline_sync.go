@@ -10,20 +10,20 @@ import (
 )
 
 func (p *pipeline) Sync() (err error) {
-	logger.Logger().Info("-----------------------------------------------------------")
-	logger.Logger().Info("START - Sync pipeline")
-	logger.Logger().Infof("* pipeline.Name = %v", p.ManifestLocal.Name)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Sync pipeline")
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestLocal.Name)
 	logger.Logger().Tracef("* pipeline = %+v", *p)
-	logger.Logger().Info("-----------------------------------------------------------")
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Info("END   - Sync pipeline")
+			logger.Logger().Debug("END   - Sync pipeline")
 		} else {
 			logger.Logger().Error("FAILED - Sync pipeline")
 			logger.Logger().Error(err)
 		}
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	defer func() {
@@ -33,7 +33,7 @@ func (p *pipeline) Sync() (err error) {
 	}()
 
 	if p.Status == StatusSyncing {
-		logger.Logger().Infof("Skip to sync pipeline \"%v\", because state is syncing", p.ManifestLocal.Name)
+		logger.Logger().Debugf("Skip to sync pipeline \"%v\", because state is syncing", p.ManifestLocal.Name)
 		return nil
 	}
 
@@ -59,16 +59,16 @@ func (p *pipeline) Sync() (err error) {
 	if !updateExists {
 		// Already synced
 		if p.ManifestMerged.GitTagRegex == nil {
-			logger.Logger().Infof("Pipeline \"%v\" has no updates (branch: %v)", p.ManifestMerged.Name, p.ManifestMerged.GitTargetBranch)
+			logger.Logger().Debugf("Pipeline \"%v\" has no updates (branch: %v)", p.ManifestMerged.Name, p.ManifestMerged.GitTargetBranch)
 		} else {
-			logger.Logger().Infof("Pipeline \"%v\" has no updates (tag: %v)", p.ManifestMerged.Name, *p.ManifestMerged.GitTagRegex)
+			logger.Logger().Debugf("Pipeline \"%v\" has no updates (tag: %v)", p.ManifestMerged.Name, *p.ManifestMerged.GitTagRegex)
 		}
 		p.Status = StatusSynced
 		return nil
 	}
 
 	// Update exists
-
+	logger.Logger().Infof("Pipeline \"%v\" is syncing", p.ManifestMerged.Name)
 	oldStatus := p.Status
 	oldCommitId := p.GetCommitRef()
 	p.Status = StatusSyncing
@@ -76,10 +76,10 @@ func (p *pipeline) Sync() (err error) {
 	// Backup
 	if oldStatus != StatusFailed {
 		// Stop systemd service before backup
-		var systemdServices []systemd.UnitService
+		var systemdServices []systemd.IUnitService
 		systemdServices, err = p.getSystemdServices()
 		for _, s := range systemdServices {
-			logger.Logger().Infof("Stop systemd unit service \"%v\"", s.Name)
+			logger.Logger().Debugf("Stop systemd unit service \"%v\"", s.GetName())
 			err = s.Disable(true)
 			if err != nil {
 				return err

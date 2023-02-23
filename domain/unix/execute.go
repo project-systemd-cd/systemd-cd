@@ -10,6 +10,7 @@ import (
 
 type ExecuteOption struct {
 	WorkingDirectory *string
+	WantExitCodes    []int
 }
 
 func Execute(o ExecuteOption, name string, arg ...string) (exitCode int, stdout bytes.Buffer, stderr bytes.Buffer, err error) {
@@ -22,6 +23,7 @@ func Execute(o ExecuteOption, name string, arg ...string) (exitCode int, stdout 
 		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
 			logger.Logger().Tracef("> stdout = %+v", stdout.String())
+			logger.Logger().Tracef("> exit code = %+v", exitCode)
 			logger.Logger().Debug("END   - Execute command")
 		} else {
 			logger.Logger().Error("FAILED - Execute command")
@@ -56,6 +58,12 @@ func Execute(o ExecuteOption, name string, arg ...string) (exitCode int, stdout 
 	err = cmd.Run()
 	exitCode = cmd.ProcessState.ExitCode()
 	if err != nil {
+		for _, code := range o.WantExitCodes {
+			if exitCode == code {
+				err = nil
+				return
+			}
+		}
 		if strings.HasPrefix(err.Error(), "exit status") {
 			err = errors.New(stderr.String())
 		}

@@ -157,6 +157,8 @@ components:
           example: "v*"
         status:
           $ref: "#/components/schemas/StatusPipeline"
+        auto_sync:
+          type: boolean
         commit_ref:
           type: string
           example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -169,6 +171,7 @@ components:
         - git_remote_url
         - git_target_branch
         - status
+        - auto_sync
         - commit_ref
         
     PipelineWithEmbedJobs:
@@ -188,6 +191,8 @@ components:
           example: "v*"
         status:
           $ref: "#/components/schemas/StatusPipeline"
+        auto_sync:
+          type: boolean
         commit_ref:
           type: string
           example: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -202,6 +207,7 @@ components:
         - git_remote_url
         - git_target_branch
         - status
+        - auto_sync
         - commit_ref
 
     StatusPipeline:

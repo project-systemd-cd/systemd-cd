@@ -7,48 +7,43 @@ import (
 )
 
 type IRunnerService interface {
-	Start(*[]pipeline.ServiceManifestLocal) error
+	Start([]pipeline.ServiceManifestLocal, Option) error
+	IsLoading() bool
+
+	// Resgister pipeline.
+	// If pipeline with same name already exists, replace it.
+	NewPipeline(pipeline.ServiceManifestLocal, OptionAddPipeline) (Pipeline, error)
+
+	FindPipeline(name string) (Pipeline, error)
+	FindPipelines() ([]Pipeline, error)
+	RemovePipeline(name string) error
 }
 
 type Option struct {
-	PollingInterval time.Duration
+	PollingInterval                        time.Duration
+	RemovePipelineManifestFileNotSpecified bool
 }
 
-func (o Option) validate() error {
-	if o.PollingInterval < 3*time.Minute {
-		// return errors.New("polling interval must be at least 3 minutes")
-	}
-	return nil
+type OptionAddPipeline struct {
+	AutoSync bool
 }
 
-func NewService(p pipeline.IPipelineService, repo IRepositoryInmemory, o Option) (service IRunnerService, err error) {
+func NewService(ps pipeline.IPipelineService) (s IRunnerService) {
 	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - Instantiate pipeline service")
-	logger.Logger().Debugf("< option = %+v", o)
+	logger.Logger().Debug("START - Instantiate runner service")
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
-			logger.Logger().Debug("END   - Instantiate pipeline service")
-		} else {
-			logger.Logger().Error("FAILED - Instantiate pipeline service")
-			logger.Logger().Error(err)
-		}
+		logger.Logger().Debug("END   - Instantiate runner service")
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
-	err = o.validate()
-	if err != nil {
-		return &runnerService{}, err
-	}
-
-	service = &runnerService{p, o, repo}
-	return service, err
+	return &service{ps, true, inmemoryRepository()}
 }
 
-type runnerService struct {
+type service struct {
 	pipelineService pipeline.IPipelineService
 
-	option     Option
-	repository IRepositoryInmemory
+	loading    bool
+	repository iRepositoryInmemory
 }

@@ -31,6 +31,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 	// TODO: validate local manifest
 
 	// Find pipeline from repository
+	manifestConfigured := false
 	mp, err := s.repo.FindPipelineByName(m.Name)
 	ErrNotFound := &errors.ErrNotFound{}
 	notFound := errorss.As(err, &ErrNotFound)
@@ -59,6 +60,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 			logger.Logger().Infof("Pipeline \"%v\" loaded", m.Name)
 		} else {
 			logger.Logger().Infof("Pipeline \"%s\" configured", m.Name)
+			manifestConfigured = true
 
 			// if manifests are different, replace them
 			mp.ManifestLocal = m
@@ -98,10 +100,39 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 		return &pipeline{}, err
 	}
 
-	if cloned {
+	// Get manifest and merge local manifest
+	m2, err := p1.getRemoteManifest()
+	if err != nil {
+		return &pipeline{}, err
+	}
+	mm2, err := m2.merge(p1.RepositoryLocal.RemoteUrl, p1.ManifestLocal)
+	if err != nil {
+		return &pipeline{}, err
+	}
+	p1.ManifestMerged = mm2
+
+	if manifestConfigured {
+		err = p1.Uninstall()
+		if err != nil {
+			return &pipeline{}, err
+		}
+	}
+	if cloned || manifestConfigured {
 		err = p1.Init()
 		if err != nil {
-			// TODO: uninstall
+			err = p1.Uninstall()
+			if err != nil {
+				return &pipeline{}, err
+			}
+		}
+	} else {
+		// Check updates
+		updateExists, _, _, err := p1.updateExists()
+		if err != nil {
+			return &pipeline{}, err
+		}
+		if !updateExists {
+			p1.Status = StatusSynced
 		}
 	}
 

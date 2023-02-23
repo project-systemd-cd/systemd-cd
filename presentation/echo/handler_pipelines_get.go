@@ -10,22 +10,22 @@ import (
 type ResPipelinesGet []ResPipelineGet
 
 func pipelinesGet(c echo.Context) (err error) {
-	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - GET /pipelines")
+	logger.Logger().Trace("-----------------------------------------------------------")
+	logger.Logger().Trace("START - GET /pipelines")
 	logger.Logger().Tracef("< RemoteAddr = %s", c.Request().RemoteAddr)
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Trace("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Debugf("> Status = %d", c.Response().Status)
+			logger.Logger().Tracef("> Status = %d", c.Response().Status)
 			logger.Logger().Tracef("> ContentLength = %d", c.Response().Size)
-			logger.Logger().Infof("END    - GET /pipelines %d", c.Response().Status)
+			logger.Logger().Tracef("END    - GET /pipelines %d", c.Response().Status)
 		} else {
 			logger.Logger().Error("FAILED - GET /pipelines")
 			logger.Logger().Error(err)
 			err = c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 	}()
 
 	_, err = CheckJWT(c)
@@ -36,7 +36,7 @@ func pipelinesGet(c echo.Context) (err error) {
 
 	var res ResPipelinesGet = nil
 
-	pp, err := repository.FindPipelines()
+	pp, err := service.FindPipelines()
 	if err != nil {
 		return err
 	}
@@ -51,6 +51,7 @@ func pipelinesGet(c echo.Context) (err error) {
 			GitTargetBranch:   p.GetGitTargetBranch(),
 			GitTargetTagRegex: p.GetGitTargetTagRegex(),
 			Status:            string(p.GetStatus()),
+			AutoSyncEnabled:   p.AutoSyncEnabled(),
 			CommitRef:         p.GetCommitRef(),
 			SystemdServices:   systemdServices,
 		}

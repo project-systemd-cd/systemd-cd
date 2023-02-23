@@ -10,20 +10,20 @@ import (
 )
 
 func (p *pipeline) Init() (err error) {
-	logger.Logger().Info("-----------------------------------------------------------")
-	logger.Logger().Info("START - Initialize pipeline")
-	logger.Logger().Infof("* pipeline.Name = %v", p.ManifestLocal.Name)
+	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Debug("START - Initialize pipeline")
+	logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestLocal.Name)
 	logger.Logger().Tracef("* pipeline = %+v", *p)
-	logger.Logger().Info("-----------------------------------------------------------")
+	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 		if err == nil {
-			logger.Logger().Info("END   - Initialize pipeline")
+			logger.Logger().Debug("END   - Initialize pipeline")
 		} else {
 			logger.Logger().Error("FAILED - Initialize pipeline")
 			logger.Logger().Error(err)
 		}
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
 	defer func() {
@@ -65,7 +65,6 @@ func (p *pipeline) Init() (err error) {
 	}
 
 	// Get manifest and merge local manifest
-	logger.Logger().Info("Get manifest in git repository and merge to local manifest")
 	m, err := p.getRemoteManifest()
 	if err != nil {
 		return err

@@ -12,7 +12,7 @@ go build .
 ./systemd-cd \
   -f <manifest>.toml \
   --webapi.jwt.secret "your jwt secret" \
-  --webapi.username "web api username" # default is "admin" \
+  --webapi.username "web api username" \ # default is "admin"
   --webapi.password "web api password"
 ```
 
@@ -20,6 +20,19 @@ You can specify multiple manifest files.
 
 ```bash
 ./systemd-cd -f <manifest>.toml -f <manifest>.toml
+```
+
+### GitOps
+
+Configure a GitOps CD system by specifying a repository containing manifest files.
+
+```bash
+./systemd-cd \
+  -f <manifest>.toml \
+  --ops.git-remote "your git-ops repository url" \
+  --webapi.jwt.secret "your jwt secret" \
+  --webapi.username "web api username" \ # default is "admin"
+  --webapi.password "web api password"
 ```
 
 ### Configuration

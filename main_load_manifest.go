@@ -10,7 +10,7 @@ import (
 	"systemd-cd/domain/unix"
 )
 
-func loadManifests(paths []string, recursive bool) (manifests *[]pipeline.ServiceManifestLocal, err error) {
+func loadManifests(paths []string, recursive bool) (manifests []pipeline.ServiceManifestLocal, err error) {
 	logger.Logger().Info("-----------------------------------------------------------")
 	logger.Logger().Info("START - Load manifests")
 	logger.Logger().Infof("< paths = %+v", paths)
@@ -18,7 +18,7 @@ func loadManifests(paths []string, recursive bool) (manifests *[]pipeline.Servic
 	defer func() {
 		logger.Logger().Info("-----------------------------------------------------------")
 		if err == nil {
-			for i, sml := range *manifests {
+			for i, sml := range manifests {
 				logger.Logger().Infof("> manifests[%d].Name = %v", i, sml.Name)
 				logger.Logger().Tracef("> manifests[%d] = %+v", i, sml)
 			}
@@ -30,7 +30,6 @@ func loadManifests(paths []string, recursive bool) (manifests *[]pipeline.Servic
 		logger.Logger().Info("-----------------------------------------------------------")
 	}()
 
-	manifests = new([]pipeline.ServiceManifestLocal)
 	for _, path := range paths {
 		if recursive {
 			_, b, _, err := unix.Execute(unix.ExecuteOption{}, "/usr/bin/find", path, "-type", "f", "-name", "'*.toml'")
@@ -47,7 +46,7 @@ func loadManifests(paths []string, recursive bool) (manifests *[]pipeline.Servic
 				if err != nil {
 					return nil, err
 				}
-				*manifests = append(*manifests, sml)
+				manifests = append(manifests, sml)
 			}
 		} else {
 			if !strings.HasSuffix(path, ".toml") {
@@ -68,7 +67,7 @@ func loadManifests(paths []string, recursive bool) (manifests *[]pipeline.Servic
 				if err != nil {
 					return nil, err
 				}
-				*manifests = append(*manifests, sml)
+				manifests = append(manifests, sml)
 			}
 		}
 	}

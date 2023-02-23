@@ -56,25 +56,26 @@ func (p pipeline) newJobBuild(groupId string, tag *string) (job *jobInstance, er
 		}
 
 		job.f = func() (logs []jobLog, err2 error) {
-			logger.Logger().Info("-----------------------------------------------------------")
-			logger.Logger().Info("START - Execute pipeline build command")
-			logger.Logger().Infof("* pipeline.Name = %v", p.ManifestMerged.Name)
-			logger.Logger().Infof("* job.Id = %v", job.Id)
+			logger.Logger().Debug("-----------------------------------------------------------")
+			logger.Logger().Debug("START - Execute pipeline build command")
+			logger.Logger().Debugf("* pipeline.Name = %v", p.ManifestMerged.Name)
+			logger.Logger().Debugf("* job.Id = %v", job.Id)
 			logger.Logger().Tracef("* pipeline = %+v", p)
-			logger.Logger().Info("-----------------------------------------------------------")
+			logger.Logger().Debug("-----------------------------------------------------------")
 			defer func() {
-				logger.Logger().Info("-----------------------------------------------------------")
+				logger.Logger().Debug("-----------------------------------------------------------")
 				if err2 == nil {
-					logger.Logger().Info("END   - Execute pipeline build command")
+					logger.Logger().Debug("END   - Execute pipeline build command")
 				} else {
 					logger.Logger().Error("FAILED - Execute pipeline build command")
 					logger.Logger().Error(err2)
 				}
-				logger.Logger().Info("-----------------------------------------------------------")
+				logger.Logger().Debug("-----------------------------------------------------------")
 			}()
 
+			logger.Logger().Infof("Build pipeline \"%s\" (version: \"%s\")", p.ManifestMerged.Name, p.GetCommitRef())
+
 			for _, cmd := range *p.ManifestMerged.BuildCommands {
-				logger.Logger().Infof("Execute command \"%v\" (workingDir: \"%v\")", cmd, p.RepositoryLocal.Path)
 				log := jobLog{Commmand: cmd}
 
 				var stdout bytes.Buffer

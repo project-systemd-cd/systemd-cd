@@ -24,6 +24,7 @@ type ResPipelineGet struct {
 	GitTargetBranch   string               `json:"git_target_branch"`
 	GitTargetTagRegex *string              `json:"git_target_tag_regex,omitempty"`
 	Status            string               `json:"status"`
+	AutoSyncEnabled   bool                 `json:"auto_sync"`
 	CommitRef         string               `json:"commit_ref"`
 	SystemdServices   *[]SystemdServiceGet `json:"systemd_services,omitempty"`
 }
@@ -41,28 +42,28 @@ type SystemdServiceGet struct {
 func pipelinesNameGet(c echo.Context) (err error) {
 	name := c.Param("name")
 
-	logger.Logger().Debug("-----------------------------------------------------------")
-	logger.Logger().Debug("START - GET /pipelines/:name")
+	logger.Logger().Trace("-----------------------------------------------------------")
+	logger.Logger().Trace("START - GET /pipelines/:name")
 	logger.Logger().Tracef("< :name = %s", name)
 	logger.Logger().Tracef("< RemoteAddr = %s", c.Request().RemoteAddr)
-	logger.Logger().Debug("-----------------------------------------------------------")
+	logger.Logger().Trace("-----------------------------------------------------------")
 	defer func() {
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 		var ErrNotFound *errors.ErrNotFound
 		notFound := errorss.As(err, &ErrNotFound)
 		if err == nil || notFound {
 			if notFound {
 				err = c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
 			}
-			logger.Logger().Debugf("> Status = %d", c.Response().Status)
+			logger.Logger().Tracef("> Status = %d", c.Response().Status)
 			logger.Logger().Tracef("> ContentLength = %d", c.Response().Size)
-			logger.Logger().Infof("END    - GET /pipelines/:name %d", c.Response().Status)
+			logger.Logger().Tracef("END    - GET /pipelines/:name %d", c.Response().Status)
 		} else {
 			logger.Logger().Error("FAILED - GET /pipelines/:name")
 			logger.Logger().Error(err)
 			err = c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		logger.Logger().Info("-----------------------------------------------------------")
+		logger.Logger().Trace("-----------------------------------------------------------")
 	}()
 
 	_, err = CheckJWT(c)
@@ -77,7 +78,7 @@ func pipelinesNameGet(c echo.Context) (err error) {
 	}
 	query.Embed = c.QueryParams()["embed"]
 
-	p, err := repository.FindPipeline(name)
+	p, err := service.FindPipeline(name)
 	if err != nil {
 		var ErrNotFound *errors.ErrNotFound
 		if errorss.As(err, &ErrNotFound) {
@@ -95,6 +96,7 @@ func pipelinesNameGet(c echo.Context) (err error) {
 		GitTargetBranch:   p.GetGitTargetBranch(),
 		GitTargetTagRegex: p.GetGitTargetTagRegex(),
 		Status:            string(p.GetStatus()),
+		AutoSyncEnabled:   p.AutoSyncEnabled(),
 		CommitRef:         p.GetCommitRef(),
 		SystemdServices:   systemdServices,
 	}

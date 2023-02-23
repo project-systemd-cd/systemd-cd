@@ -1,13 +1,20 @@
 package systemd
 
-import "systemd-cd/domain/logger"
+import (
+	"systemd-cd/domain/errors"
+	"systemd-cd/domain/logger"
+)
 
-type Unit interface {
+type IUnitService interface {
+	GetName() string
+	GetUnitFilePath() string
+
 	Enable(startNow bool) error
 	Disable(stopNow bool) error
 	Start() error
 	Stop() error
 	Restart() error
+
 	GetStatus() (Status, error)
 }
 
@@ -25,11 +32,11 @@ const (
 
 var (
 	// check implements
-	_ Unit = UnitService{}
+	_ IUnitService = unitService{}
 )
 
 type (
-	UnitService struct {
+	unitService struct {
 		systemctl             Systemctl
 		Name                  string
 		unitFile              UnitFileService
@@ -38,7 +45,14 @@ type (
 	}
 )
 
-func (u UnitService) Enable(startNow bool) (err error) {
+func (u unitService) GetName() string {
+	return u.Name
+}
+func (u unitService) GetUnitFilePath() string {
+	return u.Path
+}
+
+func (u unitService) Enable(startNow bool) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Enable systemd unit service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
@@ -55,11 +69,14 @@ func (u UnitService) Enable(startNow bool) (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Enable(u.Name, startNow)
 	return err
 }
 
-func (u UnitService) Disable(stopNow bool) (err error) {
+func (u unitService) Disable(stopNow bool) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Disable systemd unit service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
@@ -76,11 +93,14 @@ func (u UnitService) Disable(stopNow bool) (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Disable(u.Name, stopNow)
 	return err
 }
 
-func (u UnitService) Start() (err error) {
+func (u unitService) Start() (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Start systemd unit service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
@@ -96,10 +116,13 @@ func (u UnitService) Start() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	return u.systemctl.Start(u.Name)
 }
 
-func (u UnitService) Stop() (err error) {
+func (u unitService) Stop() (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Stop systemd unit service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
@@ -115,11 +138,14 @@ func (u UnitService) Stop() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Stop(u.Name)
 	return err
 }
 
-func (u UnitService) Restart() (err error) {
+func (u unitService) Restart() (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Restart systemd unit service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
@@ -135,11 +161,14 @@ func (u UnitService) Restart() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	err = u.systemctl.Restart(u.Name)
 	return err
 }
 
-func (u UnitService) GetStatus() (s Status, err error) {
+func (u unitService) GetStatus() (s Status, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Debug("START - Get status of systemd unit service")
 	logger.Logger().Debugf("< unitService.Name = %v", u.Name)
@@ -156,6 +185,9 @@ func (u UnitService) GetStatus() (s Status, err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
+	if u.Path == "" {
+		return StatusNotFound, &errors.ErrNotFound{Object: "unit file", IdName: "path", Id: u.Name}
+	}
 	s, err = u.systemctl.Status(u.Name)
 	return s, err
 }
