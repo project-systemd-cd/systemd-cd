@@ -10,15 +10,15 @@ func (s *service) Start(manifests []pipeline.ServiceManifestLocal, option Option
 	logger.Logger().Debug("-----------------------------------------------------------")
 	logger.Logger().Info("START - Pipeline runner")
 	for i, sml := range manifests {
-		logger.Logger().Debugf("> localManifest[%d].Name = %v", i, sml.Name)
-		logger.Logger().Debugf("> localManifest[%d].GitRemoteUrl = %v", i, sml.GitRemoteUrl)
-		logger.Logger().Debugf("> localManifest[%d].GitTargetBranch = %v", i, sml.GitTargetBranch)
+		logger.Logger().Debugf("< localManifest[%d].Name = %v", i, sml.Name)
+		logger.Logger().Debugf("< localManifest[%d].GitRemoteUrl = %v", i, sml.GitRemoteUrl)
+		logger.Logger().Debugf("< localManifest[%d].GitTargetBranch = %v", i, sml.GitTargetBranch)
 		if sml.GitTagRegex == nil {
-			logger.Logger().Debugf("> localManifest[%d].GitTagRegex = %v", i, nil)
+			logger.Logger().Debugf("< localManifest[%d].GitTagRegex = %v", i, nil)
 		} else {
-			logger.Logger().Debugf("> localManifest[%d].GitTagRegex = %v", i, *sml.GitTagRegex)
+			logger.Logger().Debugf("< localManifest[%d].GitTagRegex = %v", i, *sml.GitTagRegex)
 		}
-		logger.Logger().Tracef("> localManifest[%d] = %+v", i, sml)
+		logger.Logger().Tracef("< localManifest[%d] = %+v", i, sml)
 	}
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
