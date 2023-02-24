@@ -36,7 +36,8 @@ func (p *pipeline) Uninstall() (err error) {
 	for _, s := range systemdServices {
 		logger.Logger().Debug("Stop systemd unit service \"%v\"", s.GetName())
 		err = s.Disable(true)
-		if err != nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err != nil && !errorss.As(err, &ErrNotFound) {
 			return err
 		}
 	}

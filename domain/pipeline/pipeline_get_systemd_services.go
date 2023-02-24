@@ -1,6 +1,8 @@
 package pipeline
 
 import (
+	errorss "errors"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 )
@@ -12,7 +14,8 @@ func (p *pipeline) getSystemdServices() (systemdServices []systemd.IUnitService,
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			for _, s := range systemdServices {
 				logger.Logger().Debugf("> service.Name = %s", s.GetName())
 				logger.Logger().Tracef("> service = %+v", s)
