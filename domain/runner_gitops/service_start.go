@@ -26,9 +26,14 @@ func (s *service) Start(option runner.Option) (err error) {
 
 	c := make(chan error)
 	go func() {
+		var manifests []pipeline.ServiceManifestLocal
+		manifests, err = s.loadManifests()
+		if err != nil {
+			c <- err
+		}
 		option1 := option
 		option1.RemovePipelineManifestFileNotSpecified = false
-		c <- s.runner.Start(nil, option1)
+		c <- s.runner.Start(manifests, option1)
 	}()
 
 	for s.runner.IsLoading() {
@@ -75,7 +80,6 @@ func (s *service) Start(option runner.Option) (err error) {
 						if err != nil {
 							return err
 						}
-
 					}
 					found = true
 					break
