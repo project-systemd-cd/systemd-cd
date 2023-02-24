@@ -37,7 +37,8 @@ func (p *pipeline) GetStatusSystemdServices() (ss []SystemdServiceWithStatus, er
 	for _, s := range systemdServices {
 		var status systemd.Status
 		status, err = s.GetStatus()
-		if err != nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err != nil && !errorss.As(err, &ErrNotFound) {
 			return nil, err
 		}
 		ss = append(ss, SystemdServiceWithStatus{s, status})

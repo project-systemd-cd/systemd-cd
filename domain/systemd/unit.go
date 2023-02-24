@@ -1,6 +1,7 @@
 package systemd
 
 import (
+	errorss "errors"
 	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 )
@@ -60,7 +61,8 @@ func (u unitService) Enable(startNow bool) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debug("END   - Enable systemd unit service")
 		} else {
 			logger.Logger().Error("FAILED - Enable systemd unit service")
@@ -84,7 +86,8 @@ func (u unitService) Disable(stopNow bool) (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debug("END   - Disable systemd unit service")
 		} else {
 			logger.Logger().Error("FAILED - Disable systemd unit service")
@@ -107,7 +110,8 @@ func (u unitService) Start() (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debug("END   - Start systemd unit service")
 		} else {
 			logger.Logger().Error("FAILED - Start systemd unit service")
@@ -129,7 +133,8 @@ func (u unitService) Stop() (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debug("END   - Stop systemd unit service")
 		} else {
 			logger.Logger().Error("FAILED - Stop systemd unit service")
@@ -152,7 +157,8 @@ func (u unitService) Restart() (err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debug("END   - Restart systemd unit service")
 		} else {
 			logger.Logger().Error("FAILED - Restart systemd unit service")
@@ -175,7 +181,8 @@ func (u unitService) GetStatus() (s Status, err error) {
 	logger.Logger().Debug("-----------------------------------------------------------")
 	defer func() {
 		logger.Logger().Debug("-----------------------------------------------------------")
-		if err == nil {
+		var ErrNotFound *errors.ErrNotFound
+		if err == nil || errorss.As(err, &ErrNotFound) {
 			logger.Logger().Debugf("> status = %v", s)
 			logger.Logger().Debug("END   - Get status of systemd unit service")
 		} else {
