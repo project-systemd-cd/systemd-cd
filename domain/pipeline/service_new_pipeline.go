@@ -118,13 +118,12 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 		}
 	}
 	if notFound || cloned || manifestConfigured {
-		err = p1.Init()
-		if err != nil {
-			err = p1.Uninstall()
-			if err != nil {
-				return &pipeline{}, err
+		go func() {
+			err1 := p1.Init()
+			if err1 != nil {
+				p1.Uninstall()
 			}
-		}
+		}()
 	} else {
 		// Check updates
 		updateExists, _, _, err := p1.updateExists()
