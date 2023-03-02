@@ -2,6 +2,7 @@ package toml
 
 import (
 	"bytes"
+	"sort"
 	"strings"
 	"systemd-cd/domain/pipeline"
 	"systemd-cd/domain/toml"
@@ -41,7 +42,7 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 
 			if len(jobs2) != 0 && jobs2[0].GroupId != j.GroupId {
 				if add {
-					jobs = append(jobs, jobs2)
+					jobs = append(jobs, sortByDescendingTime(jobs2))
 				}
 				jobs2 = []pipeline.Job{}
 				add = false
@@ -74,9 +75,19 @@ func (r *rPipeline) FindJobs(pipelineName string, query pipeline.QueryParamJob) 
 	}
 	if len(jobs2) != 0 {
 		if add {
-			jobs = append(jobs, jobs2)
+			jobs = append(jobs, sortByDescendingTime(jobs2))
 		}
 	}
 
 	return jobs, nil
+}
+
+func sortByDescendingTime(jobs []pipeline.Job) []pipeline.Job {
+	sort.SliceStable(jobs, func(i, j int) bool {
+		if jobs[i].Timestamp != nil && jobs[j].Timestamp != nil {
+			return *jobs[i].Timestamp > *jobs[j].Timestamp
+		}
+		return jobs[i].Timestamp == nil && jobs[j].Timestamp != nil
+	})
+	return jobs
 }
