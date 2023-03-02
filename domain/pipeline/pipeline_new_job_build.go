@@ -45,6 +45,7 @@ func (p pipeline) newJobBuild(groupId string, tag *string) (job *jobInstance, er
 				GroupId:       groupId,
 				Id:            UUID(),
 				PipelineName:  p.ManifestMerged.Name,
+				GitRemoteUrl:  p.ManifestLocal.GitRemoteUrl,
 				Branch:        p.ManifestMerged.GitTargetBranch,
 				Tag:           tag,
 				CommitId:      p.GetCommitRef(),

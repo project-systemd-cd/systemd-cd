@@ -34,7 +34,7 @@ func (p *pipeline) Uninstall() (err error) {
 	// Stop systemd service before backup
 	systemdServices, err := p.getSystemdServices()
 	for _, s := range systemdServices {
-		logger.Logger().Debug("Stop systemd unit service \"%v\"", s.GetName())
+		logger.Logger().Infof("  Stop systemd unit service \"%v\"", s.GetName())
 		err = s.Disable(true)
 		var ErrNotFound *errors.ErrNotFound
 		if err != nil && !errorss.As(err, &ErrNotFound) {
@@ -50,6 +50,12 @@ func (p *pipeline) Uninstall() (err error) {
 		err = p.backupInstalled()
 	} else {
 		err = p.removeInstalled()
+	}
+
+	// Remove from repository
+	err = p.service.repo.RemovePipeline(p.ManifestMerged.Name)
+	if err != nil {
+		return err
 	}
 
 	return err
