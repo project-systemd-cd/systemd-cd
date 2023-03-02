@@ -74,14 +74,34 @@ func (p pipeline) backupInstalled() (err error) {
 				if err != nil {
 					return err
 				}
-				err = unix.Mv(
-					unix.ExecuteOption{},
-					unix.MvOption{},
-					p.service.PathEtcDir+s.Name+"/*",
-					backupPath+"etc/"+s.Name+"/",
-				)
-				if err != nil {
-					return err
+				for _, etc := range s.Etc {
+					if !strings.HasPrefix(strings.TrimPrefix(etc.Target, "./"), ".") {
+						err = unix.Mv(
+							unix.ExecuteOption{},
+							unix.MvOption{},
+							p.service.PathEtcDir+s.Name+"/*",
+							backupPath+"etc/"+s.Name+"/",
+						)
+						if err != nil {
+							return err
+						}
+						break
+					}
+				}
+				for _, etc := range s.Etc {
+					// Backup hidden files
+					filename := strings.TrimPrefix(etc.Target, "./")
+					if strings.HasPrefix(etc.Target, ".") {
+						err = unix.Mv(
+							unix.ExecuteOption{},
+							unix.MvOption{},
+							p.service.PathEtcDir+s.Name+"/"+filename,
+							backupPath+"etc/"+s.Name+"/",
+						)
+						if err != nil {
+							return err
+						}
+					}
 				}
 			}
 
@@ -93,22 +113,28 @@ func (p pipeline) backupInstalled() (err error) {
 				if err != nil {
 					return err
 				}
-				err = unix.Mv(
-					unix.ExecuteOption{},
-					unix.MvOption{},
-					p.service.PathOptDir+s.Name+"/*",
-					backupPath+"opt/"+s.Name+"/",
-				)
-				if err != nil {
-					return err
-				}
-				for _, name := range s.Opt {
-					// Backup hidden files
-					if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "./.") {
+				for _, filename := range s.Opt {
+					if !strings.HasPrefix(strings.TrimPrefix(filename, "./"), ".") {
 						err = unix.Mv(
 							unix.ExecuteOption{},
 							unix.MvOption{},
-							p.service.PathOptDir+s.Name+"/"+name,
+							p.service.PathOptDir+s.Name+"/*",
+							backupPath+"opt/"+s.Name+"/",
+						)
+						if err != nil {
+							return err
+						}
+						break
+					}
+				}
+				for _, filename := range s.Opt {
+					// Backup hidden files
+					filename = strings.TrimPrefix(filename, "./")
+					if strings.HasPrefix(filename, ".") {
+						err = unix.Mv(
+							unix.ExecuteOption{},
+							unix.MvOption{},
+							p.service.PathOptDir+s.Name+"/"+filename,
 							backupPath+"opt/"+s.Name+"/",
 						)
 						if err != nil {
