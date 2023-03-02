@@ -159,13 +159,18 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 					// Copy opt files
 					for _, src := range service.Opt {
 						dest := pathOptDir + src
+						cpOption := unix.CpOption{Recursive: true, Force: true}
+						if strings.Contains(strings.TrimSuffix(src, "/"), "/") {
+							dest = pathOptDir
+							cpOption.Parents = true
+						}
 
-						log := jobLog{Commmand: "cp -RPf " + src + " " + dest}
+						log := jobLog{Commmand: "cp -R --parents -f" + src + " " + dest}
 
 						// Copy opt file
 						err2 = unix.Cp(
 							unix.ExecuteOption{WorkingDirectory: (*string)(&p.RepositoryLocal.Path)},
-							unix.CpOption{Recursive: true, Parents: true, Force: true},
+							cpOption,
 							src,
 							dest,
 						)
