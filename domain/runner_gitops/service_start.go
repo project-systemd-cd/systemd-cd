@@ -113,11 +113,14 @@ func (s *service) Start(option runner.Option) (err error) {
 						return err
 					}
 				} else {
-					// Update pipeline
-					_, err = s.runner.NewPipeline(prev, runner.OptionAddPipeline{AutoSync: false})
+					// Disable pipeline auto sync
+					var p runner.Pipeline
+					p, err = s.runner.FindPipeline(prev.Name)
 					if err != nil {
 						return err
 					}
+					p.DisableAutoSync()
+					logger.Logger().Infof("Pipeline \"%s\" auto sync disabled", prev.Name)
 				}
 			}
 		}

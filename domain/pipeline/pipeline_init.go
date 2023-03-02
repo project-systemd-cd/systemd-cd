@@ -2,11 +2,8 @@ package pipeline
 
 import (
 	errorss "errors"
-	"fmt"
 	"systemd-cd/domain/git"
 	"systemd-cd/domain/logger"
-	"systemd-cd/domain/systemd"
-	"time"
 )
 
 func (p *pipeline) Init() (err error) {
@@ -109,31 +106,6 @@ func (p *pipeline) Init() (err error) {
 	}
 	if err != nil {
 		return err
-	}
-
-	services, err := p.getSystemdServices()
-	if err != nil {
-		return err
-	}
-	for _, us := range services {
-		// Execute over systemd
-		err = us.Enable(true)
-		if err != nil {
-			return err
-		}
-
-		time.Sleep(time.Second)
-
-		// Get status of systemd service
-		var s systemd.Status
-		s, err = us.GetStatus()
-		if err != nil {
-			return err
-		}
-		if s != systemd.StatusRunning {
-			err = fmt.Errorf("systemd service '%s' is not running", p.ManifestMerged.Name)
-			return err
-		}
 	}
 
 	p.Status = StatusSynced

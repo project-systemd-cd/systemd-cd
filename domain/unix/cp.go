@@ -12,7 +12,7 @@ func Cp(o ExecuteOption, o1 CpOption, src string, target string) error {
 		options = append(options, "-R")
 	}
 	if o1.Parents {
-		options = append(options, "-P")
+		options = append(options, "--parents")
 	}
 	if o1.Force {
 		options = append(options, "-f")

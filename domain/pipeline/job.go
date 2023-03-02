@@ -10,6 +10,7 @@ type Job struct {
 	Id string `json:"id"`
 
 	PipelineName string `json:"pipeline_name"`
+	GitRemoteUrl string `json:"git_remote_url"`
 
 	Branch        string  `json:"branch"`
 	Tag           *string `json:"tag,omitempty"`
@@ -22,7 +23,7 @@ type Job struct {
 
 	Timestamp *unixTime `json:"timestamp,omitempty"`
 	Duration  *int64    `json:"duration"`
-	Logs      []jobLog  `json:"logs"`
+	Logs      []jobLog  `json:"logs,omitempty"`
 }
 
 type jobType string

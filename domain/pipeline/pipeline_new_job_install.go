@@ -1,11 +1,14 @@
 package pipeline
 
 import (
+	errorss "errors"
 	"fmt"
 	"strings"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 	"systemd-cd/domain/unix"
+	"time"
 )
 
 func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, err error) {
@@ -42,6 +45,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 			GroupId:       groupId,
 			Id:            UUID(),
 			PipelineName:  p.ManifestMerged.Name,
+			GitRemoteUrl:  p.ManifestLocal.GitRemoteUrl,
 			Branch:        p.ManifestMerged.GitTargetBranch,
 			Tag:           tag,
 			CommitId:      p.GetCommitRef(),
@@ -76,7 +80,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 			pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
 			err2 = unix.MkdirIfNotExist(pathBinDir)
 			if err2 != nil {
-				return nil, err2
+				return logs, err2
 			}
 			for _, binary := range *p.ManifestMerged.Binaries {
 				src := string(p.RepositoryLocal.Path) + "/" + binary
@@ -89,7 +93,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 				if err2 != nil {
 					log.Output = err2.Error()
 					logs = append(logs, log)
-					return nil, err2
+					return logs, err2
 				}
 
 				logs = append(logs, log)
@@ -104,7 +108,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 					pathEtcDir := p.service.PathEtcDir + service.Name + "/"
 					err2 = unix.MkdirIfNotExist(pathEtcDir)
 					if err2 != nil {
-						return nil, err2
+						return logs, err2
 					}
 
 					// Copy or create etc files and add to cli options
@@ -122,7 +126,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 							if err2 != nil {
 								log.Output = err2.Error()
 								logs = append(logs, log)
-								return nil, err2
+								return logs, err2
 							}
 						} else {
 							log.Commmand = "cp -Rf " + src + " " + dest
@@ -136,7 +140,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 							if err2 != nil {
 								log.Output = err2.Error()
 								logs = append(logs, log)
-								return nil, err2
+								return logs, err2
 							}
 						}
 
@@ -149,26 +153,31 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 					pathOptDir := p.service.PathOptDir + service.Name + "/"
 					err2 = unix.MkdirIfNotExist(pathOptDir)
 					if err2 != nil {
-						return nil, err2
+						return logs, err2
 					}
 
 					// Copy opt files
 					for _, src := range service.Opt {
 						dest := pathOptDir + src
+						cpOption := unix.CpOption{Recursive: true, Force: true}
+						if strings.Contains(strings.TrimSuffix(src, "/"), "/") {
+							dest = pathOptDir
+							cpOption.Parents = true
+						}
 
-						log := jobLog{Commmand: "cp -RPf " + src + " " + dest}
+						log := jobLog{Commmand: "cp -R --parents -f" + src + " " + dest}
 
 						// Copy opt file
 						err2 = unix.Cp(
 							unix.ExecuteOption{WorkingDirectory: (*string)(&p.RepositoryLocal.Path)},
-							unix.CpOption{Recursive: true, Parents: true, Force: true},
+							cpOption,
 							src,
 							dest,
 						)
 						if err2 != nil {
 							log.Output = err2.Error()
 							logs = append(logs, log)
-							return nil, err2
+							return logs, err2
 						}
 
 						logs = append(logs, log)
@@ -176,24 +185,64 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 				}
 
 				{
-					logger.Logger().Debug(" Install systemd service unit file")
-
 					u := service.generateSystemdServiceUnit(&p)
 
 					var s systemd.IUnitService
-					s, err2 = p.service.Systemd.NewService(u.Name, u.UnitFile, u.Env)
+					s, err2 := p.service.Systemd.GetService(u.Name)
+					notInstalled := false
+					var ErrNotFound *errors.ErrNotFound
+					if err == nil {
+						logger.Logger().Info(" Upgrate systemd unit")
+					} else if errorss.As(err, &ErrNotFound) {
+						logger.Logger().Info(" Install systemd unit")
+						notInstalled = true
+					} else {
+						return logs, err2
+					}
 
+					s, err2 = p.service.Systemd.NewService(u.Name, u.UnitFile, u.Env)
 					var b []byte
 					b, _ = systemd.MarshalUnitFile(u.UnitFile)
 					log := jobLog{Commmand: fmt.Sprintf("cat << EOF > %s\n%s\nEOF", s.GetUnitFilePath(), string(b))}
-
 					if err2 != nil {
 						log.Output = err2.Error()
 						logs = append(logs, log)
-						return nil, err2
+						return logs, err2
+					}
+					logs = append(logs, log)
+
+					logger.Logger().Info(" Run systemd unit")
+					if notInstalled {
+						log := jobLog{Commmand: fmt.Sprintf("systemctl enable %s.service", u.Name)}
+						err2 = s.Enable(true)
+						if err2 != nil {
+							log.Output = err2.Error()
+							logs = append(logs, log)
+							return logs, err2
+						}
+						logs = append(logs, log)
+					} else {
+						log := jobLog{Commmand: fmt.Sprintf("systemctl restart %s.service", u.Name)}
+						err2 = s.Restart()
+						if err2 != nil {
+							log.Output = err2.Error()
+							logs = append(logs, log)
+							return logs, err2
+						}
+						logs = append(logs, log)
 					}
 
-					logs = append(logs, log)
+					time.Sleep(time.Second)
+
+					// Get status of systemd service
+					var status systemd.Status
+					status, err2 = s.GetStatus()
+					if err2 != nil {
+						return logs, err2
+					}
+					if status == systemd.StatusFailed {
+						return logs, errorss.New("failed to run systemd unit")
+					}
 				}
 			}
 		}

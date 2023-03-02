@@ -6,7 +6,6 @@ import (
 	"systemd-cd/domain/git"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
-	"time"
 )
 
 func (p *pipeline) Sync() (err error) {
@@ -56,14 +55,13 @@ func (p *pipeline) Sync() (err error) {
 	if err != nil {
 		return err
 	}
-	if !updateExists {
+	if !updateExists && (p.Status == StatusSynced || p.Status == StatusFailed) {
 		// Already synced
 		if p.ManifestMerged.GitTagRegex == nil {
 			logger.Logger().Debugf("Pipeline \"%v\" has no updates (branch: %v)", p.ManifestMerged.Name, p.ManifestMerged.GitTargetBranch)
 		} else {
 			logger.Logger().Debugf("Pipeline \"%v\" has no updates (tag: %v)", p.ManifestMerged.Name, *p.ManifestMerged.GitTagRegex)
 		}
-		p.Status = StatusSynced
 		return nil
 	}
 
@@ -161,6 +159,30 @@ func (p *pipeline) Sync() (err error) {
 				if err2 != nil {
 					err = err2
 				}
+				if job.Type == JobTypeInstall {
+					// Restore from backup
+					err = p.restoreBackup(restoreBackupOptions{&oldCommitId})
+					if err != nil {
+						return err
+					}
+					var services []systemd.IUnitService
+					services, err = p.getSystemdServices()
+					if err != nil {
+						return err
+					}
+					for _, s := range services {
+						// Restart systemd service
+						err = s.Restart()
+						if err != nil {
+							return err
+						}
+					}
+					// Checkout old commit id
+					err = p.RepositoryLocal.Checkout(oldCommitId)
+					if err != nil {
+						return err
+					}
+				}
 			} else {
 				// if job failed, cancel reaming jobs
 				err2 := job.Cancel(p.service.repo)
@@ -172,54 +194,6 @@ func (p *pipeline) Sync() (err error) {
 	}
 	if err != nil {
 		return err
-	}
-
-	// Execute over systemd
-	services, err := p.getSystemdServices()
-	if err != nil {
-		return err
-	}
-	if services != nil || len(services) != 0 {
-		failedToExecuteOverSystemd := false
-		for _, s := range services {
-			// Execute over systemd
-			err = s.Restart()
-			if err != nil {
-				return err
-			}
-
-			time.Sleep(time.Second)
-
-			// Get status of systemd service
-			status, err := s.GetStatus()
-			if err != nil {
-				return err
-			}
-			if status != systemd.StatusRunning {
-				failedToExecuteOverSystemd = true
-				break
-			}
-		}
-		if failedToExecuteOverSystemd {
-			// Restore from backup
-			err = p.restoreBackup(restoreBackupOptions{&oldCommitId})
-			if err != nil {
-				return err
-			}
-			for _, s := range services {
-				// Restart systemd service
-				err = s.Restart()
-				if err != nil {
-					return err
-				}
-			}
-			// Checkout old commit id
-			err = p.RepositoryLocal.Checkout(oldCommitId)
-			if err != nil {
-				return err
-			}
-			// TODO: record commit id failed
-		}
 	}
 
 	p.Status = StatusSynced

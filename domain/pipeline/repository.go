@@ -6,6 +6,7 @@ import (
 
 type IRepository interface {
 	SavePipeline(PipelineMetadata) error
+	RemovePipeline(name string) error
 	FindPipelineByName(name string) (PipelineMetadata, error)
 	FindPipelines() ([]PipelineMetadata, error)
 

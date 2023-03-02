@@ -117,7 +117,7 @@ func (s pipelineService) NewPipeline(m ServiceManifestLocal) (p IPipeline, err e
 			return &pipeline{}, err
 		}
 	}
-	if cloned || manifestConfigured {
+	if notFound || cloned || manifestConfigured {
 		err = p1.Init()
 		if err != nil {
 			err = p1.Uninstall()

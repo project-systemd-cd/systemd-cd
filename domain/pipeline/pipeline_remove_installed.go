@@ -22,26 +22,14 @@ func (p pipeline) removeInstalled() (err error) {
 		logger.Logger().Debug("-----------------------------------------------------------")
 	}()
 
-	// Remove src files
-	// e.g.
-	// `rm /usr/local/systemd-cd/src/<name>/`
-	_, _, _, err = unix.Execute(
-		unix.ExecuteOption{WantExitCodes: []int{1}},
-		"rm", "-r",
-		string(p.RepositoryLocal.Path),
-	)
-	if err != nil {
-		return err
-	}
-
 	if p.ManifestMerged.SystemdServiceOptions != nil && len(p.ManifestMerged.SystemdServiceOptions) != 0 {
 		for _, s := range p.ManifestMerged.SystemdServiceOptions {
 			// Remove systemd unit file and env file
 			// e.g.
 			// `rm /usr/local/lib/systemd/system/<unit_name>.service /usr/local/systemd-cd/etc/default/<unit_name>`
-			_, _, _, err = unix.Execute(
+			err = unix.Rm(
 				unix.ExecuteOption{WantExitCodes: []int{1}},
-				"rm",
+				unix.RmOption{},
 				p.service.PathSystemdUnitFileDir+s.Name+".service",
 				p.service.PathSystemdUnitEnvFileDir+s.Name,
 			)
@@ -53,9 +41,9 @@ func (p pipeline) removeInstalled() (err error) {
 				// Remove etc files
 				// e.g.
 				// `rm -r /usr/local/systemd-cd/etc/<unit_name>/`
-				_, _, _, err = unix.Execute(
+				err = unix.Rm(
 					unix.ExecuteOption{WantExitCodes: []int{1}},
-					"rm", "-r",
+					unix.RmOption{Recursive: true},
 					p.service.PathEtcDir+s.Name,
 				)
 				if err != nil {
@@ -67,9 +55,9 @@ func (p pipeline) removeInstalled() (err error) {
 				// Remove opt files
 				// e.g.
 				// `rm -r /usr/local/systemd-cd/opt/<unit_name>/`
-				_, _, _, err = unix.Execute(
+				err = unix.Rm(
 					unix.ExecuteOption{WantExitCodes: []int{1}},
-					"rm", "-r",
+					unix.RmOption{Recursive: true},
 					p.service.PathOptDir+s.Name,
 				)
 				if err != nil {
@@ -83,9 +71,9 @@ func (p pipeline) removeInstalled() (err error) {
 		// Remove binary files
 		// e.g.
 		// `rm /usr/local/systemd-cd/bin/<name>/`
-		_, _, _, err = unix.Execute(
+		err = unix.Rm(
 			unix.ExecuteOption{WantExitCodes: []int{1}},
-			"rm", "-r",
+			unix.RmOption{Recursive: true},
 			p.service.PathBinDir+p.ManifestMerged.Name,
 		)
 		if err != nil {
