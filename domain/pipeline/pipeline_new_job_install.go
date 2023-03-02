@@ -45,6 +45,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 			GroupId:       groupId,
 			Id:            UUID(),
 			PipelineName:  p.ManifestMerged.Name,
+			GitRemoteUrl:  p.ManifestLocal.GitRemoteUrl,
 			Branch:        p.ManifestMerged.GitTargetBranch,
 			Tag:           tag,
 			CommitId:      p.GetCommitRef(),
@@ -79,7 +80,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 			pathBinDir := p.service.PathBinDir + p.ManifestMerged.Name + "/"
 			err2 = unix.MkdirIfNotExist(pathBinDir)
 			if err2 != nil {
-				return nil, err2
+				return logs, err2
 			}
 			for _, binary := range *p.ManifestMerged.Binaries {
 				src := string(p.RepositoryLocal.Path) + "/" + binary
@@ -92,7 +93,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 				if err2 != nil {
 					log.Output = err2.Error()
 					logs = append(logs, log)
-					return nil, err2
+					return logs, err2
 				}
 
 				logs = append(logs, log)
@@ -107,7 +108,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 					pathEtcDir := p.service.PathEtcDir + service.Name + "/"
 					err2 = unix.MkdirIfNotExist(pathEtcDir)
 					if err2 != nil {
-						return nil, err2
+						return logs, err2
 					}
 
 					// Copy or create etc files and add to cli options
@@ -125,7 +126,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 							if err2 != nil {
 								log.Output = err2.Error()
 								logs = append(logs, log)
-								return nil, err2
+								return logs, err2
 							}
 						} else {
 							log.Commmand = "cp -Rf " + src + " " + dest
@@ -139,7 +140,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 							if err2 != nil {
 								log.Output = err2.Error()
 								logs = append(logs, log)
-								return nil, err2
+								return logs, err2
 							}
 						}
 
@@ -152,7 +153,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 					pathOptDir := p.service.PathOptDir + service.Name + "/"
 					err2 = unix.MkdirIfNotExist(pathOptDir)
 					if err2 != nil {
-						return nil, err2
+						return logs, err2
 					}
 
 					// Copy opt files
@@ -171,7 +172,7 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 						if err2 != nil {
 							log.Output = err2.Error()
 							logs = append(logs, log)
-							return nil, err2
+							return logs, err2
 						}
 
 						logs = append(logs, log)
