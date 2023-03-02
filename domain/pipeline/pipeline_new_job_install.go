@@ -1,11 +1,14 @@
 package pipeline
 
 import (
+	errorss "errors"
 	"fmt"
 	"strings"
+	"systemd-cd/domain/errors"
 	"systemd-cd/domain/logger"
 	"systemd-cd/domain/systemd"
 	"systemd-cd/domain/unix"
+	"time"
 )
 
 func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, err error) {
@@ -176,24 +179,64 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 				}
 
 				{
-					logger.Logger().Debug(" Install systemd service unit file")
-
 					u := service.generateSystemdServiceUnit(&p)
 
 					var s systemd.IUnitService
-					s, err2 = p.service.Systemd.NewService(u.Name, u.UnitFile, u.Env)
+					s, err2 := p.service.Systemd.GetService(u.Name)
+					notInstalled := false
+					var ErrNotFound *errors.ErrNotFound
+					if err == nil {
+						logger.Logger().Info(" Upgrate systemd unit")
+					} else if errorss.As(err, &ErrNotFound) {
+						logger.Logger().Info(" Install systemd unit")
+						notInstalled = true
+					} else {
+						return logs, err2
+					}
 
+					s, err2 = p.service.Systemd.NewService(u.Name, u.UnitFile, u.Env)
 					var b []byte
 					b, _ = systemd.MarshalUnitFile(u.UnitFile)
 					log := jobLog{Commmand: fmt.Sprintf("cat << EOF > %s\n%s\nEOF", s.GetUnitFilePath(), string(b))}
-
 					if err2 != nil {
 						log.Output = err2.Error()
 						logs = append(logs, log)
-						return nil, err2
+						return logs, err2
+					}
+					logs = append(logs, log)
+
+					logger.Logger().Info(" Run systemd unit")
+					if notInstalled {
+						log := jobLog{Commmand: fmt.Sprintf("systemctl enable %s.service", u.Name)}
+						err2 = s.Enable(true)
+						if err2 != nil {
+							log.Output = err2.Error()
+							logs = append(logs, log)
+							return logs, err2
+						}
+						logs = append(logs, log)
+					} else {
+						log := jobLog{Commmand: fmt.Sprintf("systemctl restart %s.service", u.Name)}
+						err2 = s.Restart()
+						if err2 != nil {
+							log.Output = err2.Error()
+							logs = append(logs, log)
+							return logs, err2
+						}
+						logs = append(logs, log)
 					}
 
-					logs = append(logs, log)
+					time.Sleep(time.Second)
+
+					// Get status of systemd service
+					var status systemd.Status
+					status, err2 = s.GetStatus()
+					if err2 != nil {
+						return logs, err2
+					}
+					if status == systemd.StatusFailed {
+						return logs, errorss.New("failed to run systemd unit")
+					}
 				}
 			}
 		}
