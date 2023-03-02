@@ -27,7 +27,7 @@ func Execute(o ExecuteOption, name string, arg ...string) (exitCode int, stdout 
 			logger.Logger().Debug("END   - Execute command")
 		} else {
 			logger.Logger().Error("FAILED - Execute command")
-			logger.Logger().Error("command = %v", strings.Join(append([]string{name}, arg...), " "))
+			logger.Logger().Errorf("command = %v", strings.Join(append([]string{name}, arg...), " "))
 			logger.Logger().Error(err)
 			logger.Logger().Error("exit status", exitCode)
 		}
