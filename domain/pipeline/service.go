@@ -12,6 +12,7 @@ type IPipelineService interface {
 	// Resgister pipeline.
 	// If pipeline with same name already exists, replace it.
 	NewPipeline(ServiceManifestLocal) (IPipeline, error)
+	GetPipeline(name string) (IPipeline, error)
 
 	FindPipelines() ([]PipelineMetadata, error)
 	FindPipelineByName(name string) (PipelineMetadata, error)
@@ -61,7 +62,7 @@ func NewService(repo IRepository, git git.IService, systemd systemd.IService, d 
 		// Create directory
 		err = unix.MkdirIfNotExist(*d)
 		if err != nil {
-			return pipelineService{}, err
+			return nil, err
 		}
 	}
 
@@ -70,6 +71,43 @@ func NewService(repo IRepository, git git.IService, systemd systemd.IService, d 
 		d.Src, d.Binary, d.Etc, d.Opt,
 		d.SystemdUnitFile, d.SystemdUnitEnvFile, d.Backup,
 	}
+
+	go func() (err error) {
+		defer func() {
+			if err != nil {
+				logger.Logger().Error("FAILED - Cancel pipeline job left behind")
+				logger.Logger().Error(err)
+			}
+		}()
+		pipelines, err := p.FindPipelines()
+		if err != nil {
+			return err
+		}
+		for _, pm := range pipelines {
+			var p1 IPipeline
+			p1, err = p.GetPipeline(pm.Name)
+			if err != nil {
+				return err
+			}
+			var jobGroups [][]Job
+			jobGroups, err = p1.GetJobs(QueryParamJob{})
+			if err != nil {
+				return err
+			}
+			for _, jg := range jobGroups {
+				for _, j := range jg {
+					if j.Status == StatusJobInProgress || j.Status == StatusJobPending {
+						// Cancel interrupted jobs
+						err = jobInstance{Job: j}.Cancel(repo)
+						if err != nil {
+							return err
+						}
+					}
+				}
+			}
+		}
+		return nil
+	}()
 
 	return p, nil
 }
