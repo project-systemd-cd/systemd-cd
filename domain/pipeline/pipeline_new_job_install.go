@@ -246,6 +246,12 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 							logs = append(logs, log)
 							return logs, err2
 						}
+						err2 = s.Enable(false)
+						if err2 != nil {
+							log.Output = err2.Error()
+							logs = append(logs, log)
+							return logs, err2
+						}
 						logs = append(logs, log)
 					}
 

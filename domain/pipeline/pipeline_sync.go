@@ -159,7 +159,7 @@ func (p *pipeline) Sync() (err error) {
 				if err2 != nil {
 					err = err2
 				}
-				if job.Type == JobTypeInstall {
+				if err != nil {
 					// Restore from backup
 					err = p.restoreBackup(restoreBackupOptions{&oldCommitId})
 					if err != nil {
@@ -172,7 +172,7 @@ func (p *pipeline) Sync() (err error) {
 					}
 					for _, s := range services {
 						// Restart systemd service
-						err = s.Restart()
+						err = s.Enable(true)
 						if err != nil {
 							return err
 						}
