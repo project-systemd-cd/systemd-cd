@@ -43,9 +43,9 @@ var (
 	backupDestDir             = func() *string { s := "/var/backups/systemd-cd/"; return &s }()
 
 	gitopsRepositoryRemote = pflag.String("ops.git-remote", "", "Git repository url for manifest files")
-	gitopsRepositoryBranch = pflag.String("ops.git-branch", "main", "Git branch for `ops.git-remote`")
+	gitopsRepositoryBranch = pflag.String("ops.git-branch", "main", "Git branch for --ops.git-remote")
 
-	manifestPaths                          = pflag.StringSliceP("file.manifest", "f", nil, "Manifeset file path")
+	manifestPaths                          = pflag.StringSliceP("file.manifest", "f", nil, "Manifest file path")
 	manifestPathRecursie                   = pflag.BoolP("recursive", "R", false, "Process the directory used in -f, --file.manifest recursively.")
 	pipelineInterval                       = pflag.Uint32("pipeline.interval", 180, "Interval of repository polling (second)")
 	removePipelineManifestFileNotSpecified = pflag.Bool("pipeline.remove-unspecified", false, "Remove pipelines manifest file not specified")
