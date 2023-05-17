@@ -1,0 +1,43 @@
+name: "release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+  release:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build and package
+        run: make package-all TAG=${GITHUB_REF##*/}
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: packages
+          path: ./packages
+
+      # Uplaod `*.tar.gz` and `*.zip`
+      - run: |
+          set -x
+          assets=()
+          for asset in ./packages/${GITHUB_REF##*/}/*.tar.gz ./packages/${GITHUB_REF##*/}/*.zip ; do
+            assets+=("-a" "$asset")
+          done
+          tag_name="${GITHUB_REF##*/}"
+          hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
