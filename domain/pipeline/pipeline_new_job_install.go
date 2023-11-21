@@ -161,6 +161,9 @@ func (p pipeline) newJobInstall(groupId string, tag *string) (job *jobInstance, 
 					// Copy opt files
 					for _, src := range service.Opt {
 						dest := pathOptDir + src
+						if src == "*" {
+							dest = pathOptDir
+						}
 						cpOption := unix.CpOption{Recursive: true, Force: true}
 						if strings.Contains(strings.TrimSuffix(src, "/"), "/") {
 							dest = pathOptDir
